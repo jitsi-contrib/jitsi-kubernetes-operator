@@ -1,0 +1,7 @@
+apiVersion: apps.jit.si/v1alpha1
+kind: Jitsi
+metadata:
+  name: jitsi-sample
+spec:
+  # Add fields here
+  foo: bar
