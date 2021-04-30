@@ -98,6 +98,16 @@ func (r *JitsiReconciler) Reconcile(ctx context.Context, req ctrl.Request) (ctrl
 		return ctrl.Result{}, err
 	}
 
+	webSyncer := NewWebDeploymentSyncer(jitsi, r.Client)
+	if _, err := webSyncer.Sync(ctx); err != nil {
+		return ctrl.Result{}, err
+	}
+
+	webServiceSyncer := NewWebServiceSyncer(jitsi, r.Client)
+	if _, err := webServiceSyncer.Sync(ctx); err != nil {
+		return ctrl.Result{}, err
+	}
+
 	return ctrl.Result{}, nil
 }
 
