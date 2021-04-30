@@ -1,6 +1,7 @@
 package v1alpha1
 
 import (
+	"fmt"
 	"strconv"
 
 	corev1 "k8s.io/api/core/v1"
@@ -75,6 +76,9 @@ func (jitsi *Jitsi) JVBPodTemplateSpec(podSpec *corev1.PodTemplateSpec) {
 			Name: "jvb-config",
 			VolumeSource: corev1.VolumeSource{
 				ConfigMap: &corev1.ConfigMapVolumeSource{
+					LocalObjectReference: corev1.LocalObjectReference{
+						Name: fmt.Sprintf("%s-jvb", jitsi.Name),
+					},
 					Items: []corev1.KeyToPath{
 						{
 							Key:  "sip-communicator.properties",

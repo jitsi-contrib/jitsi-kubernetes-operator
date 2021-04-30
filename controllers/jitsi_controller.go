@@ -61,6 +61,11 @@ func (r *JitsiReconciler) Reconcile(ctx context.Context, req ctrl.Request) (ctrl
 		return ctrl.Result{}, ignoreNotFound(err)
 	}
 
+	jvbCMSyncer := NewJVBConfigMapSyncer(jitsi, r.Client)
+	if _, err := jvbCMSyncer.Sync(ctx); err != nil {
+		return ctrl.Result{}, err
+	}
+
 	jvbSyncer := NewJVBDeploymentSyncer(jitsi, r.Client)
 	if _, err := jvbSyncer.Sync(ctx); err != nil {
 		return ctrl.Result{}, err
