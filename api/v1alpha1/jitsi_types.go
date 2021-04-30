@@ -36,16 +36,16 @@ type JVBStrategy struct {
 	//+kubebuilder:validation:Enum=static;deamonset;autoscaled
 	Type JVBStrategyType `json:"type,omitempty"`
 	//+optional
-	Replicas int32 `json:"replicas,omitempty"`
+	Replicas *int32 `json:"replicas,omitempty"`
 	//+optional
 	MaxReplicas int32 `json:"maxReplicas,omitempty"`
 }
 
 type JVBPorts struct {
 	//+optional
-	UDP int32 `json:"udp,omitempty"`
+	UDP *int32 `json:"udp,omitempty"`
 	//+optional
-	TCP int32 `json:"tcp,omitempty"`
+	TCP *int32 `json:"tcp,omitempty"`
 }
 
 type JVB struct {

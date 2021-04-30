@@ -36,9 +36,9 @@ func (jitsi *Jitsi) EnvVarValue(name string) string {
 	case "XMPP_BOSH_URL_BASE":
 		value = "http://" + jitsi.EnvVarValue("XMPP_SERVER") + ":5280"
 	case "JVB_PORT":
-		value = strconv.FormatInt(int64(jitsi.Spec.JVB.Ports.TCP), 10)
+		value = strconv.FormatInt(int64(*jitsi.Spec.JVB.Ports.TCP), 10)
 	case "JVB_TCP_PORT":
-		value = strconv.FormatInt(int64(jitsi.Spec.JVB.Ports.UDP), 10)
+		value = strconv.FormatInt(int64(*jitsi.Spec.JVB.Ports.UDP), 10)
 	case "DEPLOYMENTINFO_USERREGION":
 		value = jitsi.Spec.Region
 	case "JVB_OCTO_REGION":
@@ -69,6 +69,23 @@ func (jitsi *Jitsi) EnvVar(name string) corev1.EnvVar {
 	}
 }
 
+func (jitsi *Jitsi) SetDefaults() {
+	if jitsi.Spec.JVB.Strategy.Replicas == nil {
+		defaultReplicas := int32(1)
+		jitsi.Spec.JVB.Strategy.Replicas = &defaultReplicas
+	}
+
+	if jitsi.Spec.JVB.Ports.TCP == nil {
+		defaultPort := int32(30300)
+		jitsi.Spec.JVB.Ports.TCP = &defaultPort
+	}
+
+	if jitsi.Spec.JVB.Ports.UDP == nil {
+		defaultPort := int32(30301)
+		jitsi.Spec.JVB.Ports.UDP = &defaultPort
+	}
+
+}
 func (jitsi *Jitsi) JVBPodTemplateSpec(podSpec *corev1.PodTemplateSpec) {
 
 	podSpec.Spec.Volumes = []corev1.Volume{
@@ -296,24 +313,4 @@ func (jitsi *Jitsi) Labels() labels.Set {
 // 	}
 
 // 	return nil
-// }
-
-// func MutateJVBService(jitsi v1alpha1.Jitsi, svc corev1.Service) error {
-// 	svc.Spec.Type = corev1.NodePort
-// 	svc.Labels = ComponentLabels(jvb)
-
-// 	port := corev1.ServicePort
-
-// 	svc.Spec.Type = corev1.NodePort
-// 	svc.Ports = []corev1.Ports{
-//     {
-// 		Name:       "udp",
-// 		Port:       jitsi.JVP.Ports.UDP,
-// 		TargetPort: jitsi.JVP.Ports.UDP,
-// 		Protocol:   corev1.ProtocolUDP,
-// 	},
-//     }
-
-// 	return nil
-
 // }
