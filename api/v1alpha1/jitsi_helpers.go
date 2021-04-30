@@ -223,44 +223,6 @@ func (jitsi *Jitsi) JVBPodTemplateSpec(podSpec *corev1.PodTemplateSpec) {
 // 	return nil
 // }
 
-// func MutateConfigMap(jitsi v1alpha1.Jitsi, dep corev1.ConfigMap) error {
-
-// 	return nil
-// }
-
-// func MutateProsodyDeployment(jitsi v1alpha1.Jitsi, dep appsv1.Deployment) error {
-// 	dep.Name = fmt.Sprintf("%s-jicofo", jitsi.Name)
-// 	dep.Namespace = jitsi.Namespace
-// 	dep.Spec.Replicas = 1
-// 	dep.Spec.DeploymentStrategy.Type = RecreateDeploymentStrategyType
-// 	dep.Labels = ComponentLabels(prosody)
-
-// 	dep.Spec.Template.Spec.Containers = []corev1.Container{
-// 		{
-// 			Name:  "prosody",
-// 			Image: jitsi / prosody,
-// 		},
-// 	}
-// 	return nil
-// }
-
-// func MutateProsodyDeployment(jitsi v1alpha1.Jitsi, dep appsv1.Deployment) error {
-// 	//	if jitsi.JVB.Ports.TCP
-// 	dep.Name = fmt.Sprintf("%s-prosody", jitsi.Name)
-// 	dep.Namespace = jitsi.Namespace
-// 	dep.Spec.Replicas = 1
-// 	dep.Spec.DeploymentStrategy.Type = RecreateDeploymentStrategyType
-// 	dep.Labels = ComponentLabels(prosody)
-
-// 	dep.Spec.Template.Spec.Containers = []corev1.Container{
-// 		{
-// 			Name:  "prosody",
-// 			Image: jitsi / prosody,
-// 		},
-// 	}
-// 	return nil
-// }
-
 func (jitsi *Jitsi) ComponentLabels(component string) labels.Set {
 	l := jitsi.Labels()
 	l["app.kubernetes.io/component"] = component
@@ -285,32 +247,3 @@ func (jitsi *Jitsi) Labels() labels.Set {
 
 	return labels
 }
-
-// func MutateProsodyService(jitsi v1alpha1.Jitsi, svc corev1.Service) error {
-// 	//	if jitsi.JVB.Ports.TCP
-// 	svc.Spec.Type = corev1.clusterIP
-// 	svc.Labels = ComponentLabels(prosody)
-
-// 	port := []corev1.ServicePort{
-// 		{
-// 			Name:       "5222",
-// 			Port:       5222,
-// 			TargetPort: 5222,
-// 			Protocol:   corev1.ProtocolTCP,
-// 		},
-// 		{
-// 			Name:       "http",
-// 			Port:       5280,
-// 			TargetPort: "http",
-// 			Protocol:   corev1.ProtocolTCP,
-// 		},
-// 		{
-// 			Name:       "external",
-// 			Port:       5347,
-// 			TargetPort: "external",
-// 			Protocol:   corev1.ProtocolTCP,
-// 		},
-// 	}
-
-// 	return nil
-// }

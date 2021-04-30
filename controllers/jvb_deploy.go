@@ -34,7 +34,6 @@ var secretsVar = []string{
 }
 
 func NewJitsiSecretSyncer(jitsi *v1alpha1.Jitsi, c client.Client) syncer.Interface {
-
 	sec := &corev1.Secret{
 		ObjectMeta: metav1.ObjectMeta{
 			Name:      jitsi.Name,
@@ -95,7 +94,6 @@ func NewJVBServiceSyncer(jitsi *v1alpha1.Jitsi, c client.Client) syncer.Interfac
 }
 
 func NewJVBConfigMapSyncer(jitsi *v1alpha1.Jitsi, c client.Client) syncer.Interface {
-
 	cm := &corev1.ConfigMap{
 		ObjectMeta: metav1.ObjectMeta{
 			Name:      fmt.Sprintf("%s-jvb", jitsi.Name),
@@ -115,7 +113,6 @@ func NewJVBConfigMapSyncer(jitsi *v1alpha1.Jitsi, c client.Client) syncer.Interf
 }
 
 func NewJVBDeploymentSyncer(jitsi *v1alpha1.Jitsi, c client.Client) syncer.Interface {
-
 	dep := &appsv1.Deployment{
 		ObjectMeta: metav1.ObjectMeta{
 			Name:      fmt.Sprintf("%s-jvb", jitsi.Name),
