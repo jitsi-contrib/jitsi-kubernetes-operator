@@ -108,6 +108,11 @@ func (r *JitsiReconciler) Reconcile(ctx context.Context, req ctrl.Request) (ctrl
 		return ctrl.Result{}, err
 	}
 
+	ingressSyncer := NewIngressSyncer(jitsi, r.Client)
+	if _, err := ingressSyncer.Sync(ctx); err != nil {
+		return ctrl.Result{}, err
+	}
+
 	return ctrl.Result{}, nil
 }
 
