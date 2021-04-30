@@ -9,7 +9,6 @@ import (
 )
 
 var defaultEnvVarMap = map[string]string{
-	"XMPP_SERVER":                    "prosody",
 	"JICOFO_AUTH_USER":               "focus",
 	"JVB_AUTH_USER":                  "jvb",
 	"JIBRI_RECORDER_USER":            "recorder",
@@ -33,6 +32,8 @@ func (jitsi *Jitsi) EnvVarValue(name string) string {
 	switch name {
 	case "TZ":
 		value = jitsi.Spec.Timezone
+	case "XMPP_SERVER":
+		value = fmt.Sprintf("%s-prosody", jitsi.Name)
 	case "XMPP_BOSH_URL_BASE":
 		value = "http://" + jitsi.EnvVarValue("XMPP_SERVER") + ":5280"
 	case "JVB_PORT":

@@ -23,6 +23,7 @@ func NewProsodyServiceSyncer(jitsi *v1alpha1.Jitsi, c client.Client) syncer.Inte
 	return syncer.NewObjectSyncer("Service", jitsi, svc, c, func() error {
 		svc.Labels = jitsi.ComponentLabels("prosody")
 		svc.Spec.Type = corev1.ServiceTypeClusterIP
+		svc.Spec.Selector = jitsi.ComponentLabels("prosody")
 		svc.Spec.Ports = []corev1.ServicePort{
 
 			{
