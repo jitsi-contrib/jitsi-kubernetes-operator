@@ -21,6 +21,13 @@ func NewIngressSyncer(jitsi *v1alpha1.Jitsi, c client.Client) syncer.Interface {
 
 	return syncer.NewObjectSyncer("Ingress", jitsi, obj, c, func() error {
 		pathType := networkingv1.PathTypePrefix
+
+		if obj.Annotations == nil {
+			obj.Annotations = make(map[string]string)
+		}
+		obj.Annotations["kubernetes.io/tls-acme"] = "true"
+		obj.Annotations["cert-manager.io/cluster-issuer"] = "lets"
+
 		obj.Labels = jitsi.ComponentLabels("web")
 		obj.Spec.Rules = []networkingv1.IngressRule{
 			{
@@ -43,6 +50,12 @@ func NewIngressSyncer(jitsi *v1alpha1.Jitsi, c client.Client) syncer.Interface {
 						},
 					},
 				},
+			},
+		}
+		obj.Spec.TLS = []networkingv1.IngressTLS{
+			{
+				Hosts:      []string{jitsi.Spec.Domain},
+				SecretName: jitsi.Spec.Domain + "-tls",
 			},
 		}
 

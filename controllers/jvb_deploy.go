@@ -7,7 +7,9 @@ import (
 	"github.com/presslabs/controller-util/rand"
 	"github.com/presslabs/controller-util/syncer"
 	appsv1 "k8s.io/api/apps/v1"
+	autoscalingv2 "k8s.io/api/autoscaling/v2beta2"
 	corev1 "k8s.io/api/core/v1"
+	"k8s.io/apimachinery/pkg/api/resource"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/apimachinery/pkg/util/intstr"
 	"sigs.k8s.io/controller-runtime/pkg/client"
@@ -132,6 +134,52 @@ func NewJVBDeploymentSyncer(jitsi *v1alpha1.Jitsi, c client.Client) syncer.Inter
 		}
 
 		dep.Spec.Replicas = jitsi.Spec.JVB.Strategy.Replicas
+
+		return nil
+	})
+
+}
+
+func NewJVBHPASyncer(jitsi *v1alpha1.Jitsi, c client.Client) syncer.Interface {
+	obj := &autoscalingv2.HorizontalPodAutoscaler{
+		ObjectMeta: metav1.ObjectMeta{
+			Name:      fmt.Sprintf("%s-jvb", jitsi.Name),
+			Namespace: jitsi.Namespace,
+		},
+	}
+
+	return syncer.NewObjectSyncer("HorizontalPodAutoscaler", jitsi, obj, c, func() error {
+		obj.Labels = jitsi.ComponentLabels("jvb")
+
+		obj.Annotations = make(map[string]string)
+		obj.Annotations["metric-config.pods.jitsi-stress-level.json-path/json-key"] = "$.stress_level"
+		obj.Annotations["metric-config.pods.jitsi-stress-level.json-path/path"] = "/colibri/stats"
+		obj.Annotations["metric-config.pods.jitsi-stress-level.json-path/port"] = "8080"
+
+		obj.Spec = autoscalingv2.HorizontalPodAutoscalerSpec{
+			ScaleTargetRef: autoscalingv2.CrossVersionObjectReference{
+				APIVersion: "apps/v1",
+				Kind:       "Deployment",
+				Name:       fmt.Sprintf("%s-jvb", jitsi.Name),
+			},
+			MinReplicas: jitsi.Spec.JVB.Strategy.Replicas,
+			//TODO
+			MaxReplicas: 4, //jitsi.Spec.JVB.Strategy.MaxReplicas,
+			Metrics: []autoscalingv2.MetricSpec{
+				{
+					Type: autoscalingv2.PodsMetricSourceType,
+					Pods: &autoscalingv2.PodsMetricSource{
+						Metric: autoscalingv2.MetricIdentifier{
+							Name: "jitsi-stress-level",
+						},
+						Target: autoscalingv2.MetricTarget{
+							Type:         autoscalingv2.AverageValueMetricType,
+							AverageValue: resource.NewMilliQuantity(10, resource.DecimalSI),
+						},
+					},
+				},
+			},
+		}
 
 		return nil
 	})

@@ -113,6 +113,11 @@ func (r *JitsiReconciler) Reconcile(ctx context.Context, req ctrl.Request) (ctrl
 		return ctrl.Result{}, err
 	}
 
+	jvbHPASyncer := NewJVBHPASyncer(jitsi, r.Client)
+	if _, err := jvbHPASyncer.Sync(ctx); err != nil {
+		return ctrl.Result{}, err
+	}
+
 	return ctrl.Result{}, nil
 }
 

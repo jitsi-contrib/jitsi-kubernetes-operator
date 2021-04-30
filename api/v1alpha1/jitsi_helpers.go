@@ -24,6 +24,9 @@ var defaultEnvVarMap = map[string]string{
 	"TESTING_OCTO_PROBABILITY":       "1",
 	"ENABLE_OCTO":                    "1",
 	"JVB_ENABLE_APIS":                "rest,colibri",
+	"JVB_STUN_SERVERS":               "meet-jit-si-turnrelay.jitsi.net:443",
+	// "DISABLE_HTTPS":                  "1",
+	// "ENABLE_HSTS":                    "0",
 }
 
 func (jitsi *Jitsi) EnvVarValue(name string) string {
@@ -122,33 +125,33 @@ func (jitsi *Jitsi) JVBPodTemplateSpec(podSpec *corev1.PodTemplateSpec) {
 						},
 					},
 				},
-				{
-					Name: "DOCKER_HOST_ADDRESS",
-					ValueFrom: &corev1.EnvVarSource{
-						FieldRef: &corev1.ObjectFieldSelector{
-							FieldPath: "status.hostIP",
-						},
-					},
-				},
-				{
-					Name: "JVB_OCTO_BIND_ADDRESS",
-					ValueFrom: &corev1.EnvVarSource{
-						FieldRef: &corev1.ObjectFieldSelector{
-							FieldPath: "status.podIP",
-						},
-					},
-				},
-				{
-					Name: "JVB_OCTO_PUBLIC_ADDRESS",
-					ValueFrom: &corev1.EnvVarSource{
-						FieldRef: &corev1.ObjectFieldSelector{
-							FieldPath: "status.hostIP",
-						},
-					},
-				},
+				// {
+				// 	Name: "DOCKER_HOST_ADDRESS",
+				// 	ValueFrom: &corev1.EnvVarSource{
+				// 		FieldRef: &corev1.ObjectFieldSelector{
+				// 			FieldPath: "status.hostIP",
+				// 		},
+				// 	},
+				// },
+				// {
+				// 	Name: "JVB_OCTO_BIND_ADDRESS",
+				// 	ValueFrom: &corev1.EnvVarSource{
+				// 		FieldRef: &corev1.ObjectFieldSelector{
+				// 			FieldPath: "status.podIP",
+				// 		},
+				// 	},
+				// },
+				// {
+				// 	Name: "JVB_OCTO_PUBLIC_ADDRESS",
+				// 	ValueFrom: &corev1.EnvVarSource{
+				// 		FieldRef: &corev1.ObjectFieldSelector{
+				// 			FieldPath: "status.hostIP",
+				// 		},
+				// 	},
+				// },
 				// jitsi.EnvVar("ENABLE_COLIBRI_WEBSOCKET"),
 				jitsi.EnvVar("ENABLE_OCTO"),
-				jitsi.EnvVar("DOCKER_HOST_ADDRESS"),
+				// jitsi.EnvVar("DOCKER_HOST_ADDRESS"),
 				jitsi.EnvVar("XMPP_AUTH_DOMAIN"),
 				jitsi.EnvVar("XMPP_INTERNAL_MUC_DOMAIN"),
 				jitsi.EnvVar("XMPP_SERVER"),
@@ -158,7 +161,7 @@ func (jitsi *Jitsi) JVBPodTemplateSpec(podSpec *corev1.PodTemplateSpec) {
 				// jitsi.EnvVar("JVB_TCP_HARVESTER_DISABLED"),
 				jitsi.EnvVar("JVB_TCP_PORT"),
 				// jitsi.EnvVar("JVB_TCP_MAPPED_PORT"),
-				// jitsi.EnvVar("JVB_STUN_SERVERS"),
+				jitsi.EnvVar("JVB_STUN_SERVERS"),
 				jitsi.EnvVar("JVB_ENABLE_APIS"),
 				// jitsi.EnvVar("JVB_WS_DOMAIN"),
 				// jitsi.EnvVar("JVB_WS_SERVER_ID"),

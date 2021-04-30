@@ -25,12 +25,19 @@ func NewWebServiceSyncer(jitsi *v1alpha1.Jitsi, c client.Client) syncer.Interfac
 		svc.Spec.Type = corev1.ServiceTypeClusterIP
 		svc.Spec.Selector = jitsi.ComponentLabels("web")
 		svc.Spec.Ports = []corev1.ServicePort{
-
 			{
 				Name: "http",
 				Port: 80,
 				TargetPort: intstr.IntOrString{
 					IntVal: 80,
+				},
+				Protocol: corev1.ProtocolTCP,
+			},
+			{
+				Name: "https",
+				Port: 443,
+				TargetPort: intstr.IntOrString{
+					IntVal: 443,
 				},
 				Protocol: corev1.ProtocolTCP,
 			},
