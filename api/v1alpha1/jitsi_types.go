@@ -54,7 +54,7 @@ type JVB struct {
 	//+optional
 	Resources corev1.ResourceRequirements `json:"resources,omitempty"`
 	//+optional
-	Ports JVBPorts
+	Ports JVBPorts `json:"ports,omitempty"`
 }
 
 // JitsiSpec defines the desired state of Jitsi
