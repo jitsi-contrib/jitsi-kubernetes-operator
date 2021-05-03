@@ -24,7 +24,7 @@ var defaultEnvVarMap = map[string]string{
 	"TESTING_OCTO_PROBABILITY":       "1",
 	"ENABLE_OCTO":                    "1",
 	"JVB_ENABLE_APIS":                "rest,colibri",
-	"JVB_STUN_SERVERS":               "meet-jit-si-turnrelay.jitsi.net:443",
+	"JVB_STUN_SERVERS":               "stun2.l.google.com:19302",
 	// "DISABLE_HTTPS":                  "1",
 	// "ENABLE_HSTS":                    "0",
 }
@@ -127,6 +127,91 @@ func (jitsi *Jitsi) SetDefaults() {
 		jitsi.Spec.Version.Tag = "latest"
 	}
 
+	if jitsi.Spec.JVB.ContainerRuntime == nil {
+		jitsi.Spec.JVB.ContainerRuntime = &ContainerRuntime{}
+	}
+
+	if len(jitsi.Spec.JVB.Image) == 0 {
+		if jitsi.Spec.Version.Tag == "latest" {
+			jitsi.Spec.JVB.Image = "jitsi/jvb:latest"
+		} else {
+			jitsi.Spec.JVB.ContainerRuntime.Image = fmt.Sprintf("jitsi/jvb:%s-%s", jitsi.Spec.Version.Channel, jitsi.Spec.Version.Tag)
+		}
+	}
+
+	if len(jitsi.Spec.JVB.ImagePullPolicy) == 0 {
+		jitsi.Spec.JVB.ImagePullPolicy = corev1.PullIfNotPresent
+	}
+
+	if jitsi.Spec.Jibri.ContainerRuntime == nil {
+		jitsi.Spec.JVB.ContainerRuntime = &ContainerRuntime{}
+	}
+
+	if jitsi.Spec.Jibri.Enabled {
+		if jitsi.Spec.Jibri.ContainerRuntime == nil {
+			jitsi.Spec.Jibri.ContainerRuntime = &ContainerRuntime{}
+		}
+
+		if len(jitsi.Spec.Jibri.Image) == 0 {
+			if jitsi.Spec.Version.Tag == "latest" {
+				jitsi.Spec.Jibri.Image = "jitsi/jibri:latest"
+			} else {
+				jitsi.Spec.Jibri.ContainerRuntime.Image = fmt.Sprintf("jitsi/jibri:%s-%s", jitsi.Spec.Version.Channel, jitsi.Spec.Version.Tag)
+			}
+		}
+
+		if len(jitsi.Spec.Jibri.ImagePullPolicy) == 0 {
+			jitsi.Spec.Jibri.ImagePullPolicy = corev1.PullIfNotPresent
+		}
+	}
+
+	if jitsi.Spec.Prosody.ContainerRuntime == nil {
+		jitsi.Spec.Prosody.ContainerRuntime = &ContainerRuntime{}
+	}
+
+	if len(jitsi.Spec.Prosody.Image) == 0 {
+		if jitsi.Spec.Version.Tag == "latest" {
+			jitsi.Spec.Prosody.Image = "jitsi/prosody:latest"
+		} else {
+			jitsi.Spec.Prosody.ContainerRuntime.Image = fmt.Sprintf("jitsi/prosody:%s-%s", jitsi.Spec.Version.Channel, jitsi.Spec.Version.Tag)
+		}
+	}
+
+	if len(jitsi.Spec.Prosody.ImagePullPolicy) == 0 {
+		jitsi.Spec.Prosody.ImagePullPolicy = corev1.PullIfNotPresent
+	}
+
+	if jitsi.Spec.Jicofo.ContainerRuntime == nil {
+		jitsi.Spec.Jicofo.ContainerRuntime = &ContainerRuntime{}
+	}
+
+	if len(jitsi.Spec.Jicofo.Image) == 0 {
+		if jitsi.Spec.Version.Tag == "latest" {
+			jitsi.Spec.Jicofo.Image = "jitsi/jicofo:latest"
+		} else {
+			jitsi.Spec.Jicofo.ContainerRuntime.Image = fmt.Sprintf("jitsi/jicofo:%s-%s", jitsi.Spec.Version.Channel, jitsi.Spec.Version.Tag)
+		}
+	}
+
+	if len(jitsi.Spec.Jicofo.ImagePullPolicy) == 0 {
+		jitsi.Spec.Jicofo.ImagePullPolicy = corev1.PullIfNotPresent
+	}
+
+	if jitsi.Spec.Web.ContainerRuntime == nil {
+		jitsi.Spec.Web.ContainerRuntime = &ContainerRuntime{}
+	}
+
+	if len(jitsi.Spec.Web.Image) == 0 {
+		if jitsi.Spec.Version.Tag == "latest" {
+			jitsi.Spec.Web.Image = "jitsi/web:latest"
+		} else {
+			jitsi.Spec.Web.ContainerRuntime.Image = fmt.Sprintf("jitsi/web:%s-%s", jitsi.Spec.Version.Channel, jitsi.Spec.Version.Tag)
+		}
+	}
+
+	if len(jitsi.Spec.Web.ImagePullPolicy) == 0 {
+		jitsi.Spec.Web.ImagePullPolicy = corev1.PullIfNotPresent
+	}
 }
 
 func (jitsi *Jitsi) JVBPodTemplateSpec(podSpec *corev1.PodTemplateSpec) {

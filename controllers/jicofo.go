@@ -97,9 +97,10 @@ func NewJicofoDeploymentSyncer(jitsi *v1alpha1.Jitsi, c client.Client) syncer.In
 		}
 
 		container := corev1.Container{
-			Name:  "jicofo",
-			Image: "jitsi/jicofo",
-			Env:   envVars,
+			Name:            "jicofo",
+			Image:           jitsi.Spec.Jicofo.Image,
+			ImagePullPolicy: jitsi.Spec.Jicofo.ImagePullPolicy,
+			Env:             envVars,
 		}
 
 		if jitsi.Spec.Jicofo.Resources != nil {

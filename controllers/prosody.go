@@ -195,9 +195,10 @@ func NewProsodyDeploymentSyncer(jitsi *v1alpha1.Jitsi, c client.Client) syncer.I
 
 		dep.Spec.Template.Spec.Containers = []corev1.Container{
 			{
-				Name:  "prosody",
-				Image: "jitsi/prosody",
-				Env:   envVars,
+				Name:            "prosody",
+				Image:           jitsi.Spec.Prosody.Image,
+				ImagePullPolicy: jitsi.Spec.Prosody.ImagePullPolicy,
+				Env:             envVars,
 			},
 		}
 		return nil

@@ -51,8 +51,9 @@ func NewJibriDeploymentSyncer(jitsi *v1alpha1.Jitsi, c client.Client) syncer.Int
 		}
 
 		jibriContainer := corev1.Container{
-			Name:  "jibri",
-			Image: "jitsi/jibri",
+			Name:            "jibri",
+			Image:           jitsi.Spec.Jibri.Image,
+			ImagePullPolicy: jitsi.Spec.Jibri.ImagePullPolicy,
 			Env: []corev1.EnvVar{
 				jitsi.EnvVar("XMPP_AUTH_DOMAIN"),
 				jitsi.EnvVar("XMPP_INTERNAL_MUC_DOMAIN"),

@@ -170,9 +170,10 @@ func NewWebDeploymentSyncer(jitsi *v1alpha1.Jitsi, c client.Client) syncer.Inter
 		}
 
 		container := corev1.Container{
-			Name:  "web",
-			Image: "jitsi/web",
-			Env:   envVars,
+			Name:            "web",
+			Image:           jitsi.Spec.Web.Image,
+			ImagePullPolicy: jitsi.Spec.Web.ImagePullPolicy,
+			Env:             envVars,
 		}
 
 		if jitsi.Spec.Web.Resources != nil {

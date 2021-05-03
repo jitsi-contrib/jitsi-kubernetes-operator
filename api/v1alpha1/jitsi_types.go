@@ -52,39 +52,37 @@ type JVB struct {
 	//+optional
 	Strategy JVBStrategy `json:"strategy,omitempty"`
 	//+optional
-	Resources *corev1.ResourceRequirements `json:"resources,omitempty"`
+	*ContainerRuntime `json:",inline"`
 	//+optional
 	Ports JVBPorts `json:"ports,omitempty"`
 }
 
 type Prosody struct {
+	*ContainerRuntime `json:",inline"`
+}
+
+type ContainerRuntime struct {
 	//+optional
 	Image string `json:"image,omitempty"`
+	//+optional
+	ImagePullPolicy corev1.PullPolicy `json:"imagePullPolicy,omitempty"`
 	//+optional
 	Resources *corev1.ResourceRequirements `json:"resources,omitempty"`
 }
 
 type Jicofo struct {
-	//+optional
-	Image string `json:"image,omitempty"`
-	//+optional
-	Resources *corev1.ResourceRequirements `json:"resources,omitempty"`
+	*ContainerRuntime `json:",inline"`
 }
 
 type Jibri struct {
 	//+optional
 	Enabled bool `json:"enabled,omitempty"`
 	//+optional
-	Image string `json:"image,omitempty"`
-	//+optional
-	Resources *corev1.ResourceRequirements `json:"resources,omitempty"`
+	*ContainerRuntime `json:",inline"`
 }
 
 type Web struct {
-	//+optional
-	Image string `json:"image,omitempty"`
-	//+optional
-	Resources *corev1.ResourceRequirements `json:"resources,omitempty"`
+	*ContainerRuntime `json:"inline,"`
 }
 
 type VersionChannel string
