@@ -28,6 +28,13 @@ func NewJicofoDeploymentSyncer(jitsi *v1alpha1.Jitsi, c client.Client) syncer.In
 		// 	dep.Spec.Replicas = 1
 		dep.Spec.Strategy.Type = appsv1.RecreateDeploymentStrategyType
 
+		envVars := []corev1.EnvVar{}
+		for _, env := range webEnvs {
+			if len(jitsi.EnvVar(env).Value) > 0 {
+				envVars = append(envVars, jitsi.EnvVar(env))
+			}
+		}
+
 		container := corev1.Container{
 			Name:  "jicofo",
 			Image: "jitsi/jicofo",
