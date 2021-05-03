@@ -195,7 +195,12 @@ spec:
               timezone:
                 type: string
               version:
-                type: string
+                properties:
+                  channel:
+                    type: string
+                  tag:
+                    type: string
+                type: object
               web:
                 properties:
                   image:

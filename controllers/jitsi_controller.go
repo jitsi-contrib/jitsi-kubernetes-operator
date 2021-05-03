@@ -20,7 +20,9 @@ import (
 	"context"
 
 	"github.com/go-logr/logr"
+	"github.com/presslabs/controller-util/syncer"
 	"k8s.io/apimachinery/pkg/runtime"
+	"k8s.io/client-go/tools/record"
 	ctrl "sigs.k8s.io/controller-runtime"
 	"sigs.k8s.io/controller-runtime/pkg/client"
 
@@ -32,8 +34,9 @@ import (
 // JitsiReconciler reconciles a Jitsi object
 type JitsiReconciler struct {
 	client.Client
-	Log    logr.Logger
-	Scheme *runtime.Scheme
+	Log      logr.Logger
+	Scheme   *runtime.Scheme
+	recorder record.EventRecorder
 }
 
 //+kubebuilder:rbac:groups=apps.jit.si,resources=jitsis,verbs=get;list;watch;create;update;patch;delete
@@ -63,73 +66,47 @@ func (r *JitsiReconciler) Reconcile(ctx context.Context, req ctrl.Request) (ctrl
 
 	jitsi.SetDefaults()
 
-	jitsiSecretSyncer := NewJitsiSecretSyncer(jitsi, r.Client)
-	if _, err := jitsiSecretSyncer.Sync(ctx); err != nil {
-		return ctrl.Result{}, err
-	}
-
-	prosodyServiceSyncer := NewProsodyServiceSyncer(jitsi, r.Client)
-	if _, err := prosodyServiceSyncer.Sync(ctx); err != nil {
-		return ctrl.Result{}, err
-	}
-
-	prosodyDepSyncer := NewProsodyDeploymentSyncer(jitsi, r.Client)
-	if _, err := prosodyDepSyncer.Sync(ctx); err != nil {
-		return ctrl.Result{}, err
-	}
-
-	jicofoSyncer := NewJicofoDeploymentSyncer(jitsi, r.Client)
-	if _, err := jicofoSyncer.Sync(ctx); err != nil {
-		return ctrl.Result{}, err
-	}
-
-	jvbServiceSyncer := NewJVBServiceSyncer(jitsi, r.Client)
-	if _, err := jvbServiceSyncer.Sync(ctx); err != nil {
-		return ctrl.Result{}, err
-	}
-
-	jvbCMSyncer := NewJVBConfigMapSyncer(jitsi, r.Client)
-	if _, err := jvbCMSyncer.Sync(ctx); err != nil {
-		return ctrl.Result{}, err
+	syncers := []syncer.Interface{
+		NewJitsiSecretSyncer(jitsi, r.Client),
+		NewProsodyServiceSyncer(jitsi, r.Client),
+		NewProsodyDeploymentSyncer(jitsi, r.Client),
+		NewJicofoDeploymentSyncer(jitsi, r.Client),
+		NewJVBServiceSyncer(jitsi, r.Client),
+		NewJVBConfigMapSyncer(jitsi, r.Client),
+		NewWebDeploymentSyncer(jitsi, r.Client),
+		NewWebServiceSyncer(jitsi, r.Client),
+		NewIngressSyncer(jitsi, r.Client),
 	}
 
 	switch jitsi.Spec.JVB.Strategy.Type {
 	case appsv1alpha1.JVBStrategyAutoScaled:
-		jvbSyncer := NewJVBDeploymentSyncer(jitsi, r.Client)
-		if _, err := jvbSyncer.Sync(ctx); err != nil {
-			return ctrl.Result{}, err
-		}
-		jvbHPASyncer := NewJVBHPASyncer(jitsi, r.Client)
-		if _, err := jvbHPASyncer.Sync(ctx); err != nil {
-			return ctrl.Result{}, err
-		}
+		syncers = append(syncers, NewJVBDeploymentSyncer(jitsi, r.Client))
+		syncers = append(syncers, NewJVBHPASyncer(jitsi, r.Client))
 	case appsv1alpha1.JVBStrategyDeamon:
+		// TODO
 	case appsv1alpha1.JVBStrategyStatic:
-	}
-
-	webSyncer := NewWebDeploymentSyncer(jitsi, r.Client)
-	if _, err := webSyncer.Sync(ctx); err != nil {
-		return ctrl.Result{}, err
-	}
-
-	webServiceSyncer := NewWebServiceSyncer(jitsi, r.Client)
-	if _, err := webServiceSyncer.Sync(ctx); err != nil {
-		return ctrl.Result{}, err
-	}
-
-	ingressSyncer := NewIngressSyncer(jitsi, r.Client)
-	if _, err := ingressSyncer.Sync(ctx); err != nil {
-		return ctrl.Result{}, err
+		syncers = append(syncers, NewJVBDeploymentSyncer(jitsi, r.Client))
 	}
 
 	if jitsi.Spec.Jibri.Enabled {
-		jibriSyncer := NewJibriDeploymentSyncer(jitsi, r.Client)
-		if _, err := jibriSyncer.Sync(ctx); err != nil {
-			return ctrl.Result{}, err
-		}
+		syncers = append(syncers, NewJibriDeploymentSyncer(jitsi, r.Client))
+	}
+
+	if err := r.sync(ctx, syncers); err != nil {
+		return ctrl.Result{}, err
 	}
 
 	return ctrl.Result{}, nil
+}
+
+func (r *JitsiReconciler) sync(ctx context.Context, syncers []syncer.Interface) error {
+	for _, s := range syncers {
+		if err := syncer.Sync(ctx, s, r.recorder); err != nil {
+			return err
+		}
+	}
+
+	return nil
 }
 
 func ignoreNotFound(err error) error {

@@ -87,6 +87,18 @@ type Web struct {
 	Resources *corev1.ResourceRequirements `json:"resources,omitempty"`
 }
 
+type VersionChannel string
+
+const (
+	VersionUnstable VersionChannel = "stable"
+	VersionStable   VersionChannel = "unstable"
+)
+
+type Version struct {
+	Channel VersionChannel `json:"channel,omitempty"`
+	Tag     string         `json:"tag,omitempty"`
+}
+
 // JitsiSpec defines the desired state of Jitsi
 type JitsiSpec struct {
 	//+optional
@@ -106,7 +118,7 @@ type JitsiSpec struct {
 	//+optional
 	Timezone string `json:"timezone,omitempty"`
 	//+optional
-	Version string `json:"version,omitempty"`
+	Version Version `json:"version,omitempty"`
 }
 
 // JitsiStatus defines the observed state of Jitsi

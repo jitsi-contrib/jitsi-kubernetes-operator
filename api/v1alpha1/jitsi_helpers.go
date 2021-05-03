@@ -105,6 +105,10 @@ func (jitsi *Jitsi) SetDefaults() {
 		jitsi.Spec.JVB.Strategy.Replicas = &defaultReplicas
 	}
 
+	if len(jitsi.Spec.JVB.Strategy.Type) == 0 {
+		jitsi.Spec.JVB.Strategy.Type = JVBStrategyStatic
+	}
+
 	if jitsi.Spec.JVB.Ports.TCP == nil {
 		defaultPort := int32(30301)
 		jitsi.Spec.JVB.Ports.TCP = &defaultPort
@@ -114,6 +118,15 @@ func (jitsi *Jitsi) SetDefaults() {
 		defaultPort := int32(30300)
 		jitsi.Spec.JVB.Ports.UDP = &defaultPort
 	}
+
+	if len(jitsi.Spec.Version.Channel) == 0 {
+		jitsi.Spec.Version.Channel = VersionStable
+	}
+
+	if len(jitsi.Spec.Version.Tag) == 0 {
+		jitsi.Spec.Version.Tag = "latest"
+	}
+
 }
 
 func (jitsi *Jitsi) JVBPodTemplateSpec(podSpec *corev1.PodTemplateSpec) {
@@ -156,6 +169,7 @@ func (jitsi *Jitsi) JVBPodTemplateSpec(podSpec *corev1.PodTemplateSpec) {
 				},
 			},
 		},
+		// TODO options to manage host IP through vars or stun servers
 		// {
 		// 	Name: "DOCKER_HOST_ADDRESS",
 		// 	ValueFrom: &corev1.EnvVarSource{
@@ -164,7 +178,9 @@ func (jitsi *Jitsi) JVBPodTemplateSpec(podSpec *corev1.PodTemplateSpec) {
 		// 		},
 		// 	},
 		// },
+
 		// {
+		// Default 0.0.0.0
 		// 	Name: "JVB_OCTO_BIND_ADDRESS",
 		// 	ValueFrom: &corev1.EnvVarSource{
 		// 		FieldRef: &corev1.ObjectFieldSelector{
@@ -172,6 +188,7 @@ func (jitsi *Jitsi) JVBPodTemplateSpec(podSpec *corev1.PodTemplateSpec) {
 		// 		},
 		// 	},
 		// },
+
 		// {
 		// 	Name: "JVB_OCTO_PUBLIC_ADDRESS",
 		// 	ValueFrom: &corev1.EnvVarSource{
@@ -223,7 +240,7 @@ func (jitsi *Jitsi) Labels() labels.Set {
 		"app.kubernetes.io/part-of":    "jistsi",
 		"app.kubernetes.io/instance":   jitsi.ObjectMeta.Name,
 		"app.kubernetes.io/managed-by": "jitsi-operator",
-		"app.kubernetes.io/version":    jitsi.Spec.Version,
+		"app.kubernetes.io/version":    fmt.Sprintf("%s-%s", jitsi.Spec.Version.Channel, jitsi.Spec.Version.Tag),
 	}
 
 	return labels
