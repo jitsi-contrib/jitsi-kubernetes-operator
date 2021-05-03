@@ -1,0 +1,13 @@
+apiVersion: apps.jit.si/v1alpha1
+kind: Jitsi
+metadata:
+  name: jitsi-sample
+spec:
+  domain: hack.liiib.re
+  region: europe
+  timezone: Europe/Paris
+  jvb:
+    strategy:
+      type: autoscaled
+  jibri:
+    enabled: true

@@ -1,0 +1,24 @@
+# permissions for end users to edit jitsis.
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRole
+metadata:
+  name: jitsi-editor-role
+rules:
+- apiGroups:
+  - apps.jit.si
+  resources:
+  - jitsis
+  verbs:
+  - create
+  - delete
+  - get
+  - list
+  - patch
+  - update
+  - watch
+- apiGroups:
+  - apps.jit.si
+  resources:
+  - jitsis/status
+  verbs:
+  - get

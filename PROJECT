@@ -1,0 +1,16 @@
+domain: jit.si
+layout:
+- go.kubebuilder.io/v3
+projectName: jitsi-operator
+repo: jitsi-operator
+resources:
+- api:
+    crdVersion: v1
+    namespaced: true
+  controller: true
+  domain: jit.si
+  group: apps
+  kind: Jitsi
+  path: jitsi-operator/api/v1alpha1
+  version: v1alpha1
+version: "3"
