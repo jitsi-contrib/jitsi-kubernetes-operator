@@ -143,6 +143,17 @@ func NewJVBDeploymentSyncer(jitsi *v1alpha1.Jitsi, c client.Client) syncer.Inter
 			MatchLabels: dep.Labels,
 		}
 
+		dep.Spec.Template.Spec.Affinity = &corev1.Affinity{
+			PodAffinity: &corev1.PodAffinity{
+				RequiredDuringSchedulingIgnoredDuringExecution: []corev1.PodAffinityTerm{
+					{
+						LabelSelector: dep.Spec.Selector,
+						TopologyKey:   "kubernetes.io/hostname",
+					},
+				},
+			},
+		}
+
 		dep.Spec.Replicas = jitsi.Spec.JVB.Strategy.Replicas
 
 		return nil
