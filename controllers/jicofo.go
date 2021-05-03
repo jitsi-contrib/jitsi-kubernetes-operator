@@ -11,6 +11,43 @@ import (
 	"sigs.k8s.io/controller-runtime/pkg/client"
 )
 
+var jicofoEnvs = []string{
+	"AUTH_TYPE",
+	"BRIDGE_AVG_PARTICIPANT_STRESS",
+	"BRIDGE_STRESS_THRESHOLD",
+	"ENABLE_AUTH",
+	"ENABLE_AUTO_OWNER",
+	"ENABLE_CODEC_VP8",
+	"ENABLE_CODEC_VP9",
+	"ENABLE_CODEC_H264",
+	"ENABLE_OCTO",
+	"ENABLE_RECORDING",
+	"ENABLE_SCTP",
+	"JICOFO_AUTH_USER",
+	"JICOFO_AUTH_PASSWORD",
+	"JICOFO_ENABLE_BRIDGE_HEALTH_CHECKS",
+	"JICOFO_CONF_INITIAL_PARTICIPANT_WAIT_TIMEOUT",
+	"JICOFO_CONF_SINGLE_PARTICIPANT_TIMEOUT",
+	"JICOFO_ENABLE_HEALTH_CHECKS",
+	"JICOFO_SHORT_ID",
+	"JICOFO_RESERVATION_ENABLED",
+	"JICOFO_RESERVATION_REST_BASE_URL",
+	"JIBRI_BREWERY_MUC",
+	"JIBRI_REQUEST_RETRIES",
+	"JIBRI_PENDING_TIMEOUT",
+	"JIGASI_BREWERY_MUC",
+	"JIGASI_SIP_URI",
+	"JVB_BREWERY_MUC",
+	"MAX_BRIDGE_PARTICIPANTS",
+	"OCTO_BRIDGE_SELECTION_STRATEGY",
+	"TZ",
+	"XMPP_DOMAIN",
+	"XMPP_AUTH_DOMAIN",
+	"XMPP_INTERNAL_MUC_DOMAIN",
+	"XMPP_MUC_DOMAIN",
+	"XMPP_SERVER",
+}
+
 func NewJicofoDeploymentSyncer(jitsi *v1alpha1.Jitsi, c client.Client) syncer.Interface {
 	dep := &appsv1.Deployment{
 		ObjectMeta: metav1.ObjectMeta{
@@ -28,8 +65,32 @@ func NewJicofoDeploymentSyncer(jitsi *v1alpha1.Jitsi, c client.Client) syncer.In
 		// 	dep.Spec.Replicas = 1
 		dep.Spec.Strategy.Type = appsv1.RecreateDeploymentStrategyType
 
-		envVars := []corev1.EnvVar{}
-		for _, env := range webEnvs {
+		envVars := []corev1.EnvVar{
+			{
+				Name: "JICOFO_COMPONENT_SECRET",
+				ValueFrom: &corev1.EnvVarSource{
+					SecretKeyRef: &corev1.SecretKeySelector{
+						LocalObjectReference: corev1.LocalObjectReference{
+							Name: jitsi.Name,
+						},
+						Key: "JICOFO_COMPONENT_SECRET",
+					},
+				},
+			},
+			{
+				Name: "JICOFO_AUTH_PASSWORD",
+				ValueFrom: &corev1.EnvVarSource{
+					SecretKeyRef: &corev1.SecretKeySelector{
+						LocalObjectReference: corev1.LocalObjectReference{
+							Name: jitsi.Name,
+						},
+						Key: "JICOFO_AUTH_PASSWORD",
+					},
+				},
+			},
+		}
+
+		for _, env := range jicofoEnvs {
 			if len(jitsi.EnvVar(env).Value) > 0 {
 				envVars = append(envVars, jitsi.EnvVar(env))
 			}
@@ -38,64 +99,7 @@ func NewJicofoDeploymentSyncer(jitsi *v1alpha1.Jitsi, c client.Client) syncer.In
 		container := corev1.Container{
 			Name:  "jicofo",
 			Image: "jitsi/jicofo",
-			Env: []corev1.EnvVar{
-				//	jitsi.EnvVar("AUTH_TYPE"),
-				//	jitsi.EnvVar("BRIDGE_AVG_PARTICIPANT_STRESS"),
-				//	jitsi.EnvVar("BRIDGE_STRESS_THRESHOLD"),
-				//	jitsi.EnvVar("ENABLE_AUTH"),
-				//	jitsi.EnvVar("ENABLE_AUTO_OWNER"),
-				//	jitsi.EnvVar("ENABLE_CODEC_VP8"),
-				//	jitsi.EnvVar("ENABLE_CODEC_VP9"),
-				//	jitsi.EnvVar("ENABLE_CODEC_H264"),
-				jitsi.EnvVar("ENABLE_OCTO"),
-				jitsi.EnvVar("ENABLE_RECORDING"),
-				//	jitsi.EnvVar("ENABLE_SCTP"),
-				jitsi.EnvVar("JICOFO_AUTH_USER"),
-				//	jitsi.EnvVar("JICOFO_AUTH_PASSWORD"),
-				//	jitsi.EnvVar("JICOFO_ENABLE_BRIDGE_HEALTH_CHECKS"),
-				//	jitsi.EnvVar("JICOFO_CONF_INITIAL_PARTICIPANT_WAIT_TIMEOUT"),
-				//	jitsi.EnvVar("JICOFO_CONF_SINGLE_PARTICIPANT_TIMEOUT"),
-				//	jitsi.EnvVar("JICOFO_ENABLE_HEALTH_CHECKS"),
-				//	jitsi.EnvVar("JICOFO_SHORT_ID"),
-				//	jitsi.EnvVar("JICOFO_RESERVATION_ENABLED"),
-				//	jitsi.EnvVar("JICOFO_RESERVATION_REST_BASE_URL"),
-				jitsi.EnvVar("JIBRI_BREWERY_MUC"),
-				//		jitsi.EnvVar("JIBRI_REQUEST_RETRIES"),
-				jitsi.EnvVar("JIBRI_PENDING_TIMEOUT"),
-				//		jitsi.EnvVar("JIGASI_BREWERY_MUC"),
-				//		jitsi.EnvVar("JIGASI_SIP_URI"),
-				jitsi.EnvVar("JVB_BREWERY_MUC"),
-				//	jitsi.EnvVar("MAX_BRIDGE_PARTICIPANTS"),
-				jitsi.EnvVar("OCTO_BRIDGE_SELECTION_STRATEGY"),
-				jitsi.EnvVar("TZ"),
-				jitsi.EnvVar("XMPP_DOMAIN"),
-				jitsi.EnvVar("XMPP_AUTH_DOMAIN"),
-				jitsi.EnvVar("XMPP_INTERNAL_MUC_DOMAIN"),
-				jitsi.EnvVar("XMPP_MUC_DOMAIN"),
-				jitsi.EnvVar("XMPP_SERVER"),
-				{
-					Name: "JICOFO_COMPONENT_SECRET",
-					ValueFrom: &corev1.EnvVarSource{
-						SecretKeyRef: &corev1.SecretKeySelector{
-							LocalObjectReference: corev1.LocalObjectReference{
-								Name: jitsi.Name,
-							},
-							Key: "JICOFO_COMPONENT_SECRET",
-						},
-					},
-				},
-				{
-					Name: "JICOFO_AUTH_PASSWORD",
-					ValueFrom: &corev1.EnvVarSource{
-						SecretKeyRef: &corev1.SecretKeySelector{
-							LocalObjectReference: corev1.LocalObjectReference{
-								Name: jitsi.Name,
-							},
-							Key: "JICOFO_AUTH_PASSWORD",
-						},
-					},
-				},
-			},
+			Env:   envVars,
 		}
 
 		if jitsi.Spec.Jicofo.Resources != nil {
