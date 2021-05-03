@@ -40,9 +40,9 @@ func (jitsi *Jitsi) EnvVarValue(name string) string {
 	case "XMPP_BOSH_URL_BASE":
 		value = "http://" + jitsi.EnvVarValue("XMPP_SERVER") + ":5280"
 	case "JVB_PORT":
-		value = strconv.FormatInt(int64(*jitsi.Spec.JVB.Ports.TCP), 10)
-	case "JVB_TCP_PORT":
 		value = strconv.FormatInt(int64(*jitsi.Spec.JVB.Ports.UDP), 10)
+	case "JVB_TCP_PORT":
+		value = strconv.FormatInt(int64(*jitsi.Spec.JVB.Ports.TCP), 10)
 	case "DEPLOYMENTINFO_USERREGION":
 		value = jitsi.Spec.Region
 	case "JVB_OCTO_REGION":
@@ -80,12 +80,12 @@ func (jitsi *Jitsi) SetDefaults() {
 	}
 
 	if jitsi.Spec.JVB.Ports.TCP == nil {
-		defaultPort := int32(30300)
+		defaultPort := int32(30301)
 		jitsi.Spec.JVB.Ports.TCP = &defaultPort
 	}
 
 	if jitsi.Spec.JVB.Ports.UDP == nil {
-		defaultPort := int32(30301)
+		defaultPort := int32(30300)
 		jitsi.Spec.JVB.Ports.UDP = &defaultPort
 	}
 
@@ -192,40 +192,6 @@ func (jitsi *Jitsi) JVBPodTemplateSpec(podSpec *corev1.PodTemplateSpec) {
 		},
 	}
 }
-
-// func MutateWebService(jitsi v1alpha1.Jitsi, svc corev1.Service) error {
-// 	//	if jitsi.JVB.Ports.TCP
-// 	svc.Name = fmt.Sprintf("%s-web", jitsi.Name)
-// 	svc.Namespace = jitsi.Namespace
-// 	svc.Labels = ComponentLabels(web)
-
-// 	svc.Spec.Type = corev1.clusterIP
-
-// 	port := []corev1.ServicePort{
-// 		{
-// 			Name:       "http",
-// 			Port:       80,
-// 			TargetPort: 80,
-// 			Protocol:   corev1.ProtocolTCP,
-// 		},
-// 	}
-
-// 	return nil
-// }
-
-// func MutatWebDeployment(jitsi v1alpha1.Jitsi, dep corev1.Deployment) error {
-// 	dep.Name = fmt.Sprintf("%s-web", jitsi.Name)
-// 	dep.Namespace = jitsi.Namespace
-// 	dep.Labels = ComponentLabels(web)
-
-// 	dep.Spec.Template.Spec.Containers = []corev1.Container{
-// 		{
-// 			Name:  "web",
-// 			Image: " jitsi/web",
-// 		},
-// 	}
-// 	return nil
-// }
 
 func (jitsi *Jitsi) ComponentLabels(component string) labels.Set {
 	l := jitsi.Labels()

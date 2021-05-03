@@ -79,12 +79,22 @@ func NewJVBServiceSyncer(jitsi *v1alpha1.Jitsi, c client.Client) syncer.Interfac
 		svc.Spec.Type = corev1.ServiceTypeNodePort
 		svc.Spec.Ports = []corev1.ServicePort{
 			{
-				Name: "udp",
-				Port: *jitsi.Spec.JVB.Ports.UDP,
+				Name:     "udp",
+				Port:     *jitsi.Spec.JVB.Ports.UDP,
+				NodePort: *jitsi.Spec.JVB.Ports.UDP,
 				TargetPort: intstr.IntOrString{
 					IntVal: *jitsi.Spec.JVB.Ports.UDP,
 				},
 				Protocol: corev1.ProtocolUDP,
+			},
+			{
+				Name:     "tcp",
+				Port:     *jitsi.Spec.JVB.Ports.TCP,
+				NodePort: *jitsi.Spec.JVB.Ports.TCP,
+				TargetPort: intstr.IntOrString{
+					IntVal: *jitsi.Spec.JVB.Ports.TCP,
+				},
+				Protocol: corev1.ProtocolTCP,
 			},
 		}
 
