@@ -14,7 +14,7 @@ import (
 func NewJibriDeploymentSyncer(jitsi *v1alpha1.Jitsi, c client.Client) syncer.Interface {
 	dep := &appsv1.Deployment{
 		ObjectMeta: metav1.ObjectMeta{
-			Name:      fmt.Sprintf("%s-jvb", jitsi.Name),
+			Name:      fmt.Sprintf("%s-jibri", jitsi.Name),
 			Namespace: jitsi.Namespace,
 		},
 	}
@@ -33,7 +33,7 @@ func NewJibriDeploymentSyncer(jitsi *v1alpha1.Jitsi, c client.Client) syncer.Int
 
 		prosodyContainer := corev1.Container{
 			Name:  "prosody",
-			Image: "jitsi/prosody",
+			Image: "jitsi/jibri",
 			Env: []corev1.EnvVar{
 				jitsi.EnvVar("XMPP_AUTH_DOMAIN"),
 				jitsi.EnvVar("XMPP_INTERNAL_MUC_DOMAIN"),
