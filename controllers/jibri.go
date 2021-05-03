@@ -31,8 +31,27 @@ func NewJibriDeploymentSyncer(jitsi *v1alpha1.Jitsi, c client.Client) syncer.Int
 		// dep.Spec.Replicas = jitsi.Spec.JVB.Strategy.Replicas
 		dep.Spec.Strategy.Type = appsv1.RecreateDeploymentStrategyType
 
-		prosodyContainer := corev1.Container{
-			Name:  "prosody",
+		dep.Spec.Template.Spec.Volumes = []corev1.Volume{
+			{
+				Name: "dev-snd",
+				VolumeSource: corev1.VolumeSource{
+					HostPath: &corev1.HostPathVolumeSource{
+						Path: "/dev/snd",
+					},
+				},
+			},
+			{
+				Name: "dev-shm",
+				VolumeSource: corev1.VolumeSource{
+					HostPath: &corev1.HostPathVolumeSource{
+						Path: "/dev/shm",
+					},
+				},
+			},
+		}
+
+		jibriContainer := corev1.Container{
+			Name:  "jibri",
 			Image: "jitsi/jibri",
 			Env: []corev1.EnvVar{
 				jitsi.EnvVar("XMPP_AUTH_DOMAIN"),
@@ -78,18 +97,33 @@ func NewJibriDeploymentSyncer(jitsi *v1alpha1.Jitsi, c client.Client) syncer.Int
 						},
 					},
 				},
+				{
+					Name:  "DISPLAY",
+					Value: "0",
+				},
+			},
+			VolumeMounts: []corev1.VolumeMount{
+				{
+					Name:      "dev-snd",
+					MountPath: "/dev/snd",
+				},
+				{
+					Name:      "dev-shm",
+					MountPath: "/dev/shm",
+				},
 			},
 		}
 
-		if jitsi.Spec.Prosody.Resources != nil {
-			prosodyContainer.Resources = *jitsi.Spec.Prosody.Resources
+		jibriExporterContainer := corev1.Container{
+			Name:  "jibri-exporter",
+			Image: "hougo13/jibri-exporter",
 		}
 
-		dep.Spec.Template.Spec.Containers = []corev1.Container{prosodyContainer}
+		if jitsi.Spec.Jibri.Resources != nil {
+			jibriContainer.Resources = *jitsi.Spec.Jibri.Resources
+		}
 
-		/* 	  - name: DISPLAY
-		value: ":0"
-		*/
+		dep.Spec.Template.Spec.Containers = []corev1.Container{jibriContainer, jibriExporterContainer}
 
 		return nil
 	})
