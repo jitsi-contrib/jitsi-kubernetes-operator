@@ -52,30 +52,73 @@ type JVB struct {
 	//+optional
 	Strategy JVBStrategy `json:"strategy,omitempty"`
 	//+optional
-	Resources corev1.ResourceRequirements `json:"resources,omitempty"`
+	Resources *corev1.ResourceRequirements `json:"resources,omitempty"`
 	//+optional
 	Ports JVBPorts `json:"ports,omitempty"`
 }
 
+type Prosody struct {
+	//+optional
+	Image string `json:"image,omitempty"`
+	//+optional
+	Resources *corev1.ResourceRequirements `json:"resources,omitempty"`
+}
+
+type Jicofo struct {
+	//+optional
+	Image string `json:"image,omitempty"`
+	//+optional
+	Resources *corev1.ResourceRequirements `json:"resources,omitempty"`
+}
+
+type Jibri struct {
+	//+optional
+	Enabled bool `json:"enabled,omitempty"`
+	//+optional
+	Image string `json:"image,omitempty"`
+	//+optional
+	Resources *corev1.ResourceRequirements `json:"resources,omitempty"`
+}
+
+type Web struct {
+	//+optional
+	Image string `json:"image,omitempty"`
+	//+optional
+	Resources *corev1.ResourceRequirements `json:"resources,omitempty"`
+}
+
 // JitsiSpec defines the desired state of Jitsi
 type JitsiSpec struct {
-	// INSERT ADDITIONAL SPEC FIELDS - desired state of cluster
-	// Important: Run "make" to regenerate code after modifying this file
-
 	//+optional
-	JVB    JVB    `json:"jvb,omitempty"`
+	JVB JVB `json:"jvb,omitempty"`
+	//+optional
+	Prosody Prosody `json:"prosody,omitempty"`
+	//+optional
+	Jicofo Jicofo `json:"jicofo,omitempty"`
+	//+optional
+	Jibri Jibri `json:"jibri,omitempty"`
+	//+optional
+	Web Web `json:"web,omitempty"`
+	//+optional
 	Domain string `json:"domain"`
 	//+optional
 	Region string `json:"region,omitempty"`
 	//+optional
 	Timezone string `json:"timezone,omitempty"`
-	Version  string `json:"version,omitempty"`
+	//+optional
+	Version string `json:"version,omitempty"`
 }
 
 // JitsiStatus defines the observed state of Jitsi
 type JitsiStatus struct {
 	// INSERT ADDITIONAL STATUS FIELD - define observed state of cluster
 	// Important: Run "make" to regenerate code after modifying this file
+	JVBStatus JVBStatus `json:"jvb,omitempty"`
+}
+
+type JVBStatus struct {
+	Replicas int `json:"jvb,omitempty"`
+	// Condition
 }
 
 //+kubebuilder:object:root=true

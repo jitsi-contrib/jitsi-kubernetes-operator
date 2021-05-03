@@ -6,3 +6,5 @@ spec:
   domain: hack.liiib.re
   region: europe
   timezone: Europe/Paris
+  jibri:
+    enabled: true

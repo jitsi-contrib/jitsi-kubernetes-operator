@@ -93,9 +93,18 @@ func (r *JitsiReconciler) Reconcile(ctx context.Context, req ctrl.Request) (ctrl
 		return ctrl.Result{}, err
 	}
 
-	jvbSyncer := NewJVBDeploymentSyncer(jitsi, r.Client)
-	if _, err := jvbSyncer.Sync(ctx); err != nil {
-		return ctrl.Result{}, err
+	switch jitsi.Spec.JVB.Strategy.Type {
+	case appsv1alpha1.JVBStrategyAutoScaled:
+		jvbSyncer := NewJVBDeploymentSyncer(jitsi, r.Client)
+		if _, err := jvbSyncer.Sync(ctx); err != nil {
+			return ctrl.Result{}, err
+		}
+		jvbHPASyncer := NewJVBHPASyncer(jitsi, r.Client)
+		if _, err := jvbHPASyncer.Sync(ctx); err != nil {
+			return ctrl.Result{}, err
+		}
+	case appsv1alpha1.JVBStrategyDeamon:
+	case appsv1alpha1.JVBStrategyStatic:
 	}
 
 	webSyncer := NewWebDeploymentSyncer(jitsi, r.Client)
@@ -113,9 +122,11 @@ func (r *JitsiReconciler) Reconcile(ctx context.Context, req ctrl.Request) (ctrl
 		return ctrl.Result{}, err
 	}
 
-	jvbHPASyncer := NewJVBHPASyncer(jitsi, r.Client)
-	if _, err := jvbHPASyncer.Sync(ctx); err != nil {
-		return ctrl.Result{}, err
+	if jitsi.Spec.Jibri.Enabled {
+		jibriSyncer := NewJibriDeploymentSyncer(jitsi, r.Client)
+		if _, err := jibriSyncer.Sync(ctx); err != nil {
+			return ctrl.Result{}, err
+		}
 	}
 
 	return ctrl.Result{}, nil

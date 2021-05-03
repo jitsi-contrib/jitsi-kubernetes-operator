@@ -29,6 +29,88 @@ var defaultEnvVarMap = map[string]string{
 	// "ENABLE_HSTS":                    "0",
 }
 
+var jvbEnvs = []string{
+	"ENABLE_COLIBRI_WEBSOCKET",
+	"ENABLE_OCTO",
+	"DOCKER_HOST_ADDRESS",
+	"XMPP_AUTH_DOMAIN",
+	"XMPP_INTERNAL_MUC_DOMAIN",
+	"XMPP_SERVER",
+	"JVB_AUTH_USER",
+	"JVB_AUTH_PASSWORD",
+	"JVB_BREWERY_MUC",
+	"JVB_PORT",
+	"JVB_TCP_HARVESTER_DISABLED",
+	"JVB_TCP_PORT",
+	"JVB_TCP_MAPPED_PORT",
+	"JVB_STUN_SERVERS",
+	"JVB_ENABLE_APIS",
+	"JVB_WS_DOMAIN",
+	"JVB_WS_SERVER_ID",
+	"PUBLIC_URL",
+	"JVB_OCTO_BIND_ADDRESS",
+	"JVB_OCTO_PUBLIC_ADDRESS",
+	"JVB_OCTO_BIND_PORT",
+	"JVB_OCTO_REGION",
+	"TZ",
+}
+
+var jicofoEnvs = []string{
+	"AUTH_TYPE",
+	"BRIDGE_AVG_PARTICIPANT_STRESS",
+	"BRIDGE_STRESS_THRESHOLD",
+	"ENABLE_AUTH",
+	"ENABLE_AUTO_OWNER",
+	"ENABLE_CODEC_VP8",
+	"ENABLE_CODEC_VP9",
+	"ENABLE_CODEC_H264",
+	"ENABLE_OCTO",
+	"ENABLE_RECORDING",
+	"ENABLE_SCTP",
+	"JICOFO_AUTH_USER",
+	"JICOFO_AUTH_PASSWORD",
+	"JICOFO_ENABLE_BRIDGE_HEALTH_CHECKS",
+	"JICOFO_CONF_INITIAL_PARTICIPANT_WAIT_TIMEOUT",
+	"JICOFO_CONF_SINGLE_PARTICIPANT_TIMEOUT",
+	"JICOFO_ENABLE_HEALTH_CHECKS",
+	"JICOFO_SHORT_ID",
+	"JICOFO_RESERVATION_ENABLED",
+	"JICOFO_RESERVATION_REST_BASE_URL",
+	"JIBRI_BREWERY_MUC",
+	"JIBRI_REQUEST_RETRIES",
+	"JIBRI_PENDING_TIMEOUT",
+	"JIGASI_BREWERY_MUC",
+	"JIGASI_SIP_URI",
+	"JVB_BREWERY_MUC",
+	"MAX_BRIDGE_PARTICIPANTS",
+	"OCTO_BRIDGE_SELECTION_STRATEGY",
+	"TZ",
+	"XMPP_DOMAIN",
+	"XMPP_AUTH_DOMAIN",
+	"XMPP_INTERNAL_MUC_DOMAIN",
+	"XMPP_MUC_DOMAIN",
+	"XMPP_SERVER",
+}
+
+var jibriEnvs = []string{
+	"XMPP_AUTH_DOMAIN",
+	"XMPP_INTERNAL_MUC_DOMAIN",
+	"XMPP_RECORDER_DOMAIN",
+	"XMPP_SERVER",
+	"XMPP_DOMAIN",
+	"JIBRI_XMPP_USER",
+	"JIBRI_XMPP_PASSWORD",
+	"JIBRI_BREWERY_MUC",
+	"JIBRI_RECORDER_USER",
+	"JIBRI_RECORDER_PASSWORD",
+	"JIBRI_RECORDING_DIR",
+	"JIBRI_FINALIZE_RECORDING_SCRIPT_PATH",
+	"JIBRI_STRIP_DOMAIN_JID",
+	"JIBRI_LOGS_DIR",
+	"DISPLAY",
+	"TZ",
+}
+
 func (jitsi *Jitsi) EnvVarValue(name string) string {
 	var value string
 
@@ -88,7 +170,6 @@ func (jitsi *Jitsi) SetDefaults() {
 		defaultPort := int32(30300)
 		jitsi.Spec.JVB.Ports.UDP = &defaultPort
 	}
-
 }
 func (jitsi *Jitsi) JVBPodTemplateSpec(podSpec *corev1.PodTemplateSpec) {
 
@@ -111,86 +192,78 @@ func (jitsi *Jitsi) JVBPodTemplateSpec(podSpec *corev1.PodTemplateSpec) {
 		},
 	}
 
-	podSpec.Spec.Containers = []corev1.Container{
+	envVars := []corev1.EnvVar{
 		{
-			Name:            "jvb",
-			Image:           "jitsi/jvb",
-			ImagePullPolicy: "Always",
-			Env: []corev1.EnvVar{
-				{
-					Name: "LOCAL_ADDRESS",
-					ValueFrom: &corev1.EnvVarSource{
-						FieldRef: &corev1.ObjectFieldSelector{
-							FieldPath: "status.podIP",
-						},
-					},
-				},
-				// {
-				// 	Name: "DOCKER_HOST_ADDRESS",
-				// 	ValueFrom: &corev1.EnvVarSource{
-				// 		FieldRef: &corev1.ObjectFieldSelector{
-				// 			FieldPath: "status.hostIP",
-				// 		},
-				// 	},
-				// },
-				// {
-				// 	Name: "JVB_OCTO_BIND_ADDRESS",
-				// 	ValueFrom: &corev1.EnvVarSource{
-				// 		FieldRef: &corev1.ObjectFieldSelector{
-				// 			FieldPath: "status.podIP",
-				// 		},
-				// 	},
-				// },
-				// {
-				// 	Name: "JVB_OCTO_PUBLIC_ADDRESS",
-				// 	ValueFrom: &corev1.EnvVarSource{
-				// 		FieldRef: &corev1.ObjectFieldSelector{
-				// 			FieldPath: "status.hostIP",
-				// 		},
-				// 	},
-				// },
-				// jitsi.EnvVar("ENABLE_COLIBRI_WEBSOCKET"),
-				jitsi.EnvVar("ENABLE_OCTO"),
-				// jitsi.EnvVar("DOCKER_HOST_ADDRESS"),
-				jitsi.EnvVar("XMPP_AUTH_DOMAIN"),
-				jitsi.EnvVar("XMPP_INTERNAL_MUC_DOMAIN"),
-				jitsi.EnvVar("XMPP_SERVER"),
-				jitsi.EnvVar("JVB_AUTH_USER"),
-				jitsi.EnvVar("JVB_BREWERY_MUC"),
-				jitsi.EnvVar("JVB_PORT"),
-				// jitsi.EnvVar("JVB_TCP_HARVESTER_DISABLED"),
-				jitsi.EnvVar("JVB_TCP_PORT"),
-				// jitsi.EnvVar("JVB_TCP_MAPPED_PORT"),
-				jitsi.EnvVar("JVB_STUN_SERVERS"),
-				jitsi.EnvVar("JVB_ENABLE_APIS"),
-				// jitsi.EnvVar("JVB_WS_DOMAIN"),
-				// jitsi.EnvVar("JVB_WS_SERVER_ID"),
-				jitsi.EnvVar("PUBLIC_URL"),
-				// jitsi.EnvVar("JVB_OCTO_BIND_PORT"),
-				jitsi.EnvVar("JVB_OCTO_REGION"),
-				jitsi.EnvVar("TZ"),
-				{
-					Name: "JVB_AUTH_PASSWORD",
-					ValueFrom: &corev1.EnvVarSource{
-						SecretKeyRef: &corev1.SecretKeySelector{
-							LocalObjectReference: corev1.LocalObjectReference{
-								Name: jitsi.Name,
-							},
-							Key: "JVB_AUTH_PASSWORD",
-						},
-					},
-				},
-			},
-			VolumeMounts: []corev1.VolumeMount{
-				{
-					Name:      "jvb-config",
-					MountPath: "/defaults/sip-communicator.properties",
-					SubPath:   "sip-communicator.properties",
-					ReadOnly:  true,
+			Name: "LOCAL_ADDRESS",
+			ValueFrom: &corev1.EnvVarSource{
+				FieldRef: &corev1.ObjectFieldSelector{
+					FieldPath: "status.podIP",
 				},
 			},
 		},
+		{
+			Name: "JVB_AUTH_PASSWORD",
+			ValueFrom: &corev1.EnvVarSource{
+				SecretKeyRef: &corev1.SecretKeySelector{
+					LocalObjectReference: corev1.LocalObjectReference{
+						Name: jitsi.Name,
+					},
+					Key: "JVB_AUTH_PASSWORD",
+				},
+			},
+		},
+		// {
+		// 	Name: "DOCKER_HOST_ADDRESS",
+		// 	ValueFrom: &corev1.EnvVarSource{
+		// 		FieldRef: &corev1.ObjectFieldSelector{
+		// 			FieldPath: "status.hostIP",
+		// 		},
+		// 	},
+		// },
+		// {
+		// 	Name: "JVB_OCTO_BIND_ADDRESS",
+		// 	ValueFrom: &corev1.EnvVarSource{
+		// 		FieldRef: &corev1.ObjectFieldSelector{
+		// 			FieldPath: "status.podIP",
+		// 		},
+		// 	},
+		// },
+		// {
+		// 	Name: "JVB_OCTO_PUBLIC_ADDRESS",
+		// 	ValueFrom: &corev1.EnvVarSource{
+		// 		FieldRef: &corev1.ObjectFieldSelector{
+		// 			FieldPath: "status.hostIP",
+		// 		},
+		// 	},
+		// },
 	}
+
+	for _, env := range jvbEnvs {
+		if len(jitsi.EnvVar(env).Value) > 0 {
+			envVars = append(envVars, jitsi.EnvVar(env))
+		}
+	}
+
+	jvbContainer := corev1.Container{
+		Name:            "jvb",
+		Image:           "jitsi/jvb",
+		ImagePullPolicy: "Always",
+		Env:             envVars,
+		VolumeMounts: []corev1.VolumeMount{
+			{
+				Name:      "jvb-config",
+				MountPath: "/defaults/sip-communicator.properties",
+				SubPath:   "sip-communicator.properties",
+				ReadOnly:  true,
+			},
+		},
+	}
+
+	if jitsi.Spec.JVB.Resources != nil {
+		jvbContainer.Resources = *jitsi.Spec.JVB.Resources
+	}
+
+	podSpec.Spec.Containers = []corev1.Container{jvbContainer}
 }
 
 func (jitsi *Jitsi) ComponentLabels(component string) labels.Set {
@@ -201,12 +274,6 @@ func (jitsi *Jitsi) ComponentLabels(component string) labels.Set {
 }
 
 func (jitsi *Jitsi) Labels() labels.Set {
-	// partOf := "jitsi"
-
-	// if jitsi.ObjectMeta.Labels != nil && len(jitsi.ObjectMeta.Labels["app.kubernetes.io/part-of"]) > 0 {
-	// 	partOf = jitsi.ObjectMeta.Labels["app.kubernetes.io/part-of"]
-	// }
-
 	labels := labels.Set{
 		"app.kubernetes.io/name":       "jitsi",
 		"app.kubernetes.io/part-of":    "jistsi",

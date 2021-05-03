@@ -12,6 +12,61 @@ import (
 	"sigs.k8s.io/controller-runtime/pkg/client"
 )
 
+var prosodyEnvs = []string{
+	"AUTH_TYPE",
+	"ENABLE_AUTH",
+	"ENABLE_GUESTS",
+	"ENABLE_LOBBY",
+	"ENABLE_XMPP_WEBSOCKET",
+	"GLOBAL_MODULES",
+	"GLOBAL_CONFIG",
+	"LDAP_URL",
+	"LDAP_BASE",
+	"LDAP_BINDDN",
+	"LDAP_BINDPW",
+	"LDAP_FILTER",
+	"LDAP_AUTH_METHOD",
+	"LDAP_VERSION",
+	"LDAP_USE_TLS",
+	"LDAP_TLS_CIPHERS",
+	"LDAP_TLS_CHECK_PEER",
+	"LDAP_TLS_CACERT_FILE",
+	"LDAP_TLS_CACERT_DIR",
+	"LDAP_START_TLS",
+	"XMPP_DOMAIN",
+	"XMPP_AUTH_DOMAIN",
+	"XMPP_GUEST_DOMAIN",
+	"XMPP_MUC_DOMAIN",
+	"XMPP_INTERNAL_MUC_DOMAIN",
+	"XMPP_MODULES",
+	"XMPP_MUC_MODULES",
+	"XMPP_INTERNAL_MUC_MODULES",
+	"XMPP_RECORDER_DOMAIN",
+	"XMPP_CROSS_DOMAIN",
+	"JICOFO_COMPONENT_SECRET",
+	"JICOFO_AUTH_USER",
+	"JICOFO_AUTH_PASSWORD",
+	"JVB_AUTH_USER",
+	"JVB_AUTH_PASSWORD",
+	"JIGASI_XMPP_USER",
+	"JIGASI_XMPP_PASSWORD",
+	"JIBRI_XMPP_USER",
+	"JIBRI_XMPP_PASSWORD",
+	"JIBRI_RECORDER_USER",
+	"JIBRI_RECORDER_PASSWORD",
+	"JWT_APP_ID",
+	"JWT_APP_SECRET",
+	"JWT_ACCEPTED_ISSUERS",
+	"JWT_ACCEPTED_AUDIENCES",
+	"JWT_ASAP_KEYSERVER",
+	"JWT_ALLOW_EMPTY",
+	"JWT_AUTH_TYPE",
+	"JWT_TOKEN_AUTH_MODULE",
+	"LOG_LEVEL",
+	"PUBLIC_URL",
+	"TZ",
+}
+
 func NewProsodyServiceSyncer(jitsi *v1alpha1.Jitsi, c client.Client) syncer.Interface {
 	svc := &corev1.Service{
 		ObjectMeta: metav1.ObjectMeta{
@@ -73,101 +128,76 @@ func NewProsodyDeploymentSyncer(jitsi *v1alpha1.Jitsi, c client.Client) syncer.I
 		}
 		// 	dep.Spec.Replicas = 1
 		dep.Spec.Strategy.Type = appsv1.RecreateDeploymentStrategyType
+
+		envVars := []corev1.EnvVar{
+			{
+				Name: "JICOFO_COMPONENT_SECRET",
+				ValueFrom: &corev1.EnvVarSource{
+					SecretKeyRef: &corev1.SecretKeySelector{
+						LocalObjectReference: corev1.LocalObjectReference{
+							Name: jitsi.Name,
+						},
+						Key: "JICOFO_COMPONENT_SECRET",
+					},
+				},
+			},
+			{
+				Name: "JICOFO_AUTH_PASSWORD",
+				ValueFrom: &corev1.EnvVarSource{
+					SecretKeyRef: &corev1.SecretKeySelector{
+						LocalObjectReference: corev1.LocalObjectReference{
+							Name: jitsi.Name,
+						},
+						Key: "JICOFO_AUTH_PASSWORD",
+					},
+				},
+			},
+			{
+				Name: "JVB_AUTH_PASSWORD",
+				ValueFrom: &corev1.EnvVarSource{
+					SecretKeyRef: &corev1.SecretKeySelector{
+						LocalObjectReference: corev1.LocalObjectReference{
+							Name: jitsi.Name,
+						},
+						Key: "JVB_AUTH_PASSWORD",
+					},
+				},
+			},
+			{
+				Name: "JIBRI_XMPP_PASSWORD",
+				ValueFrom: &corev1.EnvVarSource{
+					SecretKeyRef: &corev1.SecretKeySelector{
+						LocalObjectReference: corev1.LocalObjectReference{
+							Name: jitsi.Name,
+						},
+						Key: "JIBRI_XMPP_PASSWORD",
+					},
+				},
+			},
+			{
+				Name: "JIBRI_RECORDER_PASSWORD",
+				ValueFrom: &corev1.EnvVarSource{
+					SecretKeyRef: &corev1.SecretKeySelector{
+						LocalObjectReference: corev1.LocalObjectReference{
+							Name: jitsi.Name,
+						},
+						Key: "JIBRI_RECORDER_PASSWORD",
+					},
+				},
+			},
+		}
+
+		for _, env := range prosodyEnvs {
+			if len(jitsi.EnvVar(env).Value) > 0 {
+				envVars = append(envVars, jitsi.EnvVar(env))
+			}
+		}
+
 		dep.Spec.Template.Spec.Containers = []corev1.Container{
 			{
 				Name:  "prosody",
 				Image: "jitsi/prosody",
-				Env: []corev1.EnvVar{
-					//	jitsi.EnvVar("AUTH_TYPE"),
-					//	jitsi.EnvVar("ENABLE_AUTH"),
-					//	jitsi.EnvVar("ENABLE_GUESTS"),
-					//	jitsi.EnvVar("ENABLE_LOBBY"),
-					//	jitsi.EnvVar("ENABLE_XMPP_WEBSOCKET"),
-					//	jitsi.EnvVar("GLOBAL_MODULES"),
-					//	jitsi.EnvVar("GLOBAL_CONFIG"),
-					jitsi.EnvVar("XMPP_DOMAIN"),
-					jitsi.EnvVar("XMPP_AUTH_DOMAIN"),
-					jitsi.EnvVar("XMPP_GUEST_DOMAIN"),
-					jitsi.EnvVar("XMPP_MUC_DOMAIN"),
-					jitsi.EnvVar("XMPP_INTERNAL_MUC_DOMAIN"),
-					//	jitsi.EnvVar("XMPP_MODULES"),
-					//	jitsi.EnvVar("XMPP_MUC_MODULES"),
-					//	jitsi.EnvVar("XMPP_INTERNAL_MUC_MODULES"),
-					jitsi.EnvVar("XMPP_RECORDER_DOMAIN"),
-					//	jitsi.EnvVar("XMPP_CROSS_DOMAIN"),
-					jitsi.EnvVar("JICOFO_AUTH_USER"),
-					jitsi.EnvVar("JVB_AUTH_USER"),
-					//		jitsi.EnvVar("JIGASI_XMPP_USER"),
-					//		jitsi.EnvVar("JIGASI_XMPP_PASSWORD"),
-					jitsi.EnvVar("JIBRI_XMPP_USER"),
-					jitsi.EnvVar("JIBRI_RECORDER_USER"),
-					//	jitsi.EnvVar("JWT_APP_ID"),
-					//	jitsi.EnvVar("JWT_APP_SECRET"),
-					//	jitsi.EnvVar("JWT_ACCEPTED_ISSUERS"),
-					//	jitsi.EnvVar("JWT_ACCEPTED_AUDIENCES"),
-					//	jitsi.EnvVar("JWT_ASAP_KEYSERVER"),
-					//	jitsi.EnvVar("JWT_ALLOW_EMPTY"),
-					//	jitsi.EnvVar("JWT_AUTH_TYPE"),
-					//	jitsi.EnvVar("JWT_TOKEN_AUTH_MODULE"),
-					//	jitsi.EnvVar("LOG_LEVEL"),
-					jitsi.EnvVar("PUBLIC_URL"),
-					jitsi.EnvVar("TZ"),
-					{
-						Name: "JICOFO_COMPONENT_SECRET",
-						ValueFrom: &corev1.EnvVarSource{
-							SecretKeyRef: &corev1.SecretKeySelector{
-								LocalObjectReference: corev1.LocalObjectReference{
-									Name: jitsi.Name,
-								},
-								Key: "JICOFO_COMPONENT_SECRET",
-							},
-						},
-					},
-					{
-						Name: "JICOFO_AUTH_PASSWORD",
-						ValueFrom: &corev1.EnvVarSource{
-							SecretKeyRef: &corev1.SecretKeySelector{
-								LocalObjectReference: corev1.LocalObjectReference{
-									Name: jitsi.Name,
-								},
-								Key: "JICOFO_AUTH_PASSWORD",
-							},
-						},
-					},
-					{
-						Name: "JVB_AUTH_PASSWORD",
-						ValueFrom: &corev1.EnvVarSource{
-							SecretKeyRef: &corev1.SecretKeySelector{
-								LocalObjectReference: corev1.LocalObjectReference{
-									Name: jitsi.Name,
-								},
-								Key: "JVB_AUTH_PASSWORD",
-							},
-						},
-					},
-					{
-						Name: "JIBRI_XMPP_PASSWORD",
-						ValueFrom: &corev1.EnvVarSource{
-							SecretKeyRef: &corev1.SecretKeySelector{
-								LocalObjectReference: corev1.LocalObjectReference{
-									Name: jitsi.Name,
-								},
-								Key: "JIBRI_XMPP_PASSWORD",
-							},
-						},
-					},
-					{
-						Name: "JIBRI_RECORDER_PASSWORD",
-						ValueFrom: &corev1.EnvVarSource{
-							SecretKeyRef: &corev1.SecretKeySelector{
-								LocalObjectReference: corev1.LocalObjectReference{
-									Name: jitsi.Name,
-								},
-								Key: "JIBRI_RECORDER_PASSWORD",
-							},
-						},
-					},
-				},
+				Env:   envVars,
 			},
 		}
 		return nil
