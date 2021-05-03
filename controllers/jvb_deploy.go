@@ -144,7 +144,7 @@ func NewJVBDeploymentSyncer(jitsi *v1alpha1.Jitsi, c client.Client) syncer.Inter
 		}
 
 		dep.Spec.Template.Spec.Affinity = &corev1.Affinity{
-			PodAffinity: &corev1.PodAffinity{
+			PodAntiAffinity: &corev1.PodAntiAffinity{
 				RequiredDuringSchedulingIgnoredDuringExecution: []corev1.PodAffinityTerm{
 					{
 						LabelSelector: dep.Spec.Selector,
