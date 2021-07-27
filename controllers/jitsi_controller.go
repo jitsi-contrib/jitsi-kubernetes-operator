@@ -66,6 +66,24 @@ func (r *JitsiReconciler) Reconcile(ctx context.Context, req ctrl.Request) (ctrl
 
 	jitsi.SetDefaults()
 
+	if !jitsi.Spec.Jibri.Enabled {
+		dep := jitsi.JibriDeployment()
+		_ = r.Client.Delete(ctx, &dep)
+	}
+
+	if jitsi.Spec.JVB.Strategy.Type != appsv1alpha1.JVBStrategyAutoScaled {
+		hpa := jitsi.JVBHPA()
+		_ = r.Client.Delete(ctx, &hpa)
+	}
+
+	if jitsi.Spec.JVB.Strategy.Type == appsv1alpha1.JVBStrategyDeamon {
+		dep := jitsi.JVBDeployment()
+		_ = r.Client.Delete(ctx, &dep)
+	} else {
+		dep := jitsi.JVBDaemonSet()
+		_ = r.Client.Delete(ctx, &dep)
+	}
+
 	syncers := []syncer.Interface{
 		NewJitsiSecretSyncer(jitsi, r.Client),
 		NewProsodyServiceSyncer(jitsi, r.Client),
@@ -83,7 +101,7 @@ func (r *JitsiReconciler) Reconcile(ctx context.Context, req ctrl.Request) (ctrl
 		syncers = append(syncers, NewJVBDeploymentSyncer(jitsi, r.Client))
 		syncers = append(syncers, NewJVBHPASyncer(jitsi, r.Client))
 	case appsv1alpha1.JVBStrategyDeamon:
-		// TODO
+		syncers = append(syncers, NewJVBDaemonSetSyncer(jitsi, r.Client))
 	case appsv1alpha1.JVBStrategyStatic:
 		syncers = append(syncers, NewJVBDeploymentSyncer(jitsi, r.Client))
 	}
@@ -94,11 +112,6 @@ func (r *JitsiReconciler) Reconcile(ctx context.Context, req ctrl.Request) (ctrl
 
 	if err := r.sync(ctx, syncers); err != nil {
 		return ctrl.Result{}, err
-	}
-
-	if !jitsi.Spec.Jibri.Enabled {
-		dep := jitsi.JibriDeployment()
-		_ = r.Client.Delete(ctx, &dep)
 	}
 
 	return ctrl.Result{}, nil

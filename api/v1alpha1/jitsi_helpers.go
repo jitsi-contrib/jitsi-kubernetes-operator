@@ -5,6 +5,7 @@ import (
 	"strconv"
 
 	appsv1 "k8s.io/api/apps/v1"
+	autoscalingv2 "k8s.io/api/autoscaling/v2beta2"
 	corev1 "k8s.io/api/core/v1"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/apimachinery/pkg/labels"
@@ -347,6 +348,33 @@ func (jitsi *Jitsi) JibriDeployment() appsv1.Deployment {
 	return appsv1.Deployment{
 		ObjectMeta: metav1.ObjectMeta{
 			Name:      fmt.Sprintf("%s-jibri", jitsi.Name),
+			Namespace: jitsi.Namespace,
+		},
+	}
+}
+
+func (jitsi *Jitsi) JVBHPA() autoscalingv2.HorizontalPodAutoscaler {
+	return autoscalingv2.HorizontalPodAutoscaler{
+		ObjectMeta: metav1.ObjectMeta{
+			Name:      fmt.Sprintf("%s-jvb", jitsi.Name),
+			Namespace: jitsi.Namespace,
+		},
+	}
+}
+
+func (jitsi *Jitsi) JVBDeployment() appsv1.Deployment {
+	return appsv1.Deployment{
+		ObjectMeta: metav1.ObjectMeta{
+			Name:      fmt.Sprintf("%s-jvb", jitsi.Name),
+			Namespace: jitsi.Namespace,
+		},
+	}
+}
+
+func (jitsi *Jitsi) JVBDaemonSet() appsv1.DaemonSet {
+	return appsv1.DaemonSet{
+		ObjectMeta: metav1.ObjectMeta{
+			Name:      fmt.Sprintf("%s-jvb", jitsi.Name),
 			Namespace: jitsi.Namespace,
 		},
 	}

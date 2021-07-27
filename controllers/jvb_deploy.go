@@ -6,7 +6,6 @@ import (
 
 	"github.com/presslabs/controller-util/rand"
 	"github.com/presslabs/controller-util/syncer"
-	appsv1 "k8s.io/api/apps/v1"
 	autoscalingv2 "k8s.io/api/autoscaling/v2beta2"
 	corev1 "k8s.io/api/core/v1"
 	"k8s.io/apimachinery/pkg/api/resource"
@@ -125,14 +124,9 @@ func NewJVBConfigMapSyncer(jitsi *v1alpha1.Jitsi, c client.Client) syncer.Interf
 }
 
 func NewJVBDeploymentSyncer(jitsi *v1alpha1.Jitsi, c client.Client) syncer.Interface {
-	dep := &appsv1.Deployment{
-		ObjectMeta: metav1.ObjectMeta{
-			Name:      fmt.Sprintf("%s-jvb", jitsi.Name),
-			Namespace: jitsi.Namespace,
-		},
-	}
+	dep := jitsi.JVBDeployment()
 
-	return syncer.NewObjectSyncer("Deployment", jitsi, dep, c, func() error {
+	return syncer.NewObjectSyncer("Deployment", jitsi, &dep, c, func() error {
 		dep.Labels = jitsi.ComponentLabels("jvb")
 
 		jitsi.JVBPodTemplateSpec(&dep.Spec.Template)
@@ -162,14 +156,9 @@ func NewJVBDeploymentSyncer(jitsi *v1alpha1.Jitsi, c client.Client) syncer.Inter
 }
 
 func NewJVBHPASyncer(jitsi *v1alpha1.Jitsi, c client.Client) syncer.Interface {
-	obj := &autoscalingv2.HorizontalPodAutoscaler{
-		ObjectMeta: metav1.ObjectMeta{
-			Name:      fmt.Sprintf("%s-jvb", jitsi.Name),
-			Namespace: jitsi.Namespace,
-		},
-	}
+	obj := jitsi.JVBHPA()
 
-	return syncer.NewObjectSyncer("HorizontalPodAutoscaler", jitsi, obj, c, func() error {
+	return syncer.NewObjectSyncer("HorizontalPodAutoscaler", jitsi, &obj, c, func() error {
 		obj.Labels = jitsi.ComponentLabels("jvb")
 
 		obj.Annotations = make(map[string]string)
@@ -184,8 +173,7 @@ func NewJVBHPASyncer(jitsi *v1alpha1.Jitsi, c client.Client) syncer.Interface {
 				Name:       fmt.Sprintf("%s-jvb", jitsi.Name),
 			},
 			MinReplicas: jitsi.Spec.JVB.Strategy.Replicas,
-			//TODO
-			MaxReplicas: 4, //jitsi.Spec.JVB.Strategy.MaxReplicas,
+			MaxReplicas: jitsi.Spec.JVB.Strategy.MaxReplicas,
 			Metrics: []autoscalingv2.MetricSpec{
 				{
 					Type: autoscalingv2.PodsMetricSourceType,
@@ -197,6 +185,36 @@ func NewJVBHPASyncer(jitsi *v1alpha1.Jitsi, c client.Client) syncer.Interface {
 							Type:         autoscalingv2.AverageValueMetricType,
 							AverageValue: resource.NewMilliQuantity(10, resource.DecimalSI),
 						},
+					},
+				},
+			},
+		}
+
+		return nil
+	})
+
+}
+
+func NewJVBDaemonSetSyncer(jitsi *v1alpha1.Jitsi, c client.Client) syncer.Interface {
+	dep := jitsi.JVBDaemonSet()
+
+	return syncer.NewObjectSyncer("DaemonSet", jitsi, &dep, c, func() error {
+		dep.Labels = jitsi.ComponentLabels("jvb")
+
+		jitsi.JVBPodTemplateSpec(&dep.Spec.Template)
+
+		dep.Spec.Template.Labels = dep.Labels
+
+		dep.Spec.Selector = &metav1.LabelSelector{
+			MatchLabels: dep.Labels,
+		}
+
+		dep.Spec.Template.Spec.Affinity = &corev1.Affinity{
+			PodAntiAffinity: &corev1.PodAntiAffinity{
+				RequiredDuringSchedulingIgnoredDuringExecution: []corev1.PodAffinityTerm{
+					{
+						LabelSelector: dep.Spec.Selector,
+						TopologyKey:   "kubernetes.io/hostname",
 					},
 				},
 			},
