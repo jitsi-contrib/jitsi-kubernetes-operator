@@ -42,6 +42,7 @@ func NewJibriDeploymentSyncer(jitsi *v1alpha1.Jitsi, c client.Client) syncer.Int
 			},
 		}
 
+		privileged := true
 		jibriContainer := corev1.Container{
 			Name:            "jibri",
 			Image:           jitsi.Spec.Jibri.Image,
@@ -103,6 +104,12 @@ func NewJibriDeploymentSyncer(jitsi *v1alpha1.Jitsi, c client.Client) syncer.Int
 				{
 					Name:      "dev-shm",
 					MountPath: "/dev/shm",
+				},
+			},
+			SecurityContext: &corev1.SecurityContext{
+				Privileged: &privileged,
+				Capabilities: &corev1.Capabilities{
+					Add: []corev1.Capability{"NET_BIND_SERVICE", "SYS_ADMIN"},
 				},
 			},
 		}
