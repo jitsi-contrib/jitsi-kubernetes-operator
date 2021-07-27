@@ -148,6 +148,11 @@ func (jitsi *Jitsi) SetDefaults() {
 	}
 
 	if jitsi.Spec.Jibri.Enabled {
+		if jitsi.Spec.Jibri.Replicas == nil {
+			defaultReplicas := int32(1)
+			jitsi.Spec.Jibri.Replicas = &defaultReplicas
+		}
+
 		if jitsi.Spec.Jibri.ContainerRuntime == nil {
 			jitsi.Spec.Jibri.ContainerRuntime = &ContainerRuntime{}
 		}
@@ -195,6 +200,11 @@ func (jitsi *Jitsi) SetDefaults() {
 
 	if len(jitsi.Spec.Jicofo.ImagePullPolicy) == 0 {
 		jitsi.Spec.Jicofo.ImagePullPolicy = corev1.PullIfNotPresent
+	}
+
+	if jitsi.Spec.Web.Replicas == nil {
+		defaultReplicas := int32(1)
+		jitsi.Spec.Web.Replicas = &defaultReplicas
 	}
 
 	if jitsi.Spec.Web.ContainerRuntime == nil {

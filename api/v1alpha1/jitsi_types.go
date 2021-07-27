@@ -79,10 +79,14 @@ type Jibri struct {
 	Enabled bool `json:"enabled,omitempty"`
 	//+optional
 	*ContainerRuntime `json:",inline"`
+	//+optional
+	Replicas *int32 `json:"replicas,omitempty"`
 }
 
 type Web struct {
 	*ContainerRuntime `json:"inline,"`
+	//+optional
+	Replicas *int32 `json:"replicas,omitempty"`
 }
 
 type VersionChannel string

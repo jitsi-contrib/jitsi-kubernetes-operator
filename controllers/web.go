@@ -159,7 +159,8 @@ func NewWebDeploymentSyncer(jitsi *v1alpha1.Jitsi, c client.Client) syncer.Inter
 		dep.Spec.Selector = &metav1.LabelSelector{
 			MatchLabels: dep.Labels,
 		}
-		// 	dep.Spec.Replicas = 1
+
+		dep.Spec.Replicas = jitsi.Spec.Web.Replicas
 		dep.Spec.Strategy.Type = appsv1.RecreateDeploymentStrategyType
 
 		envVars := []corev1.EnvVar{}

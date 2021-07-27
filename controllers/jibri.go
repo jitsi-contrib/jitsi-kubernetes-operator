@@ -26,9 +26,7 @@ func NewJibriDeploymentSyncer(jitsi *v1alpha1.Jitsi, c client.Client) syncer.Int
 			MatchLabels: dep.Labels,
 		}
 
-		// TODO
-		// 	dep.Spec.Replicas = 1
-		// dep.Spec.Replicas = jitsi.Spec.JVB.Strategy.Replicas
+		dep.Spec.Replicas = jitsi.Spec.Jibri.Replicas
 		dep.Spec.Strategy.Type = appsv1.RecreateDeploymentStrategyType
 
 		dep.Spec.Template.Spec.Volumes = []corev1.Volume{
