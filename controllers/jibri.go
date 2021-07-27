@@ -1,7 +1,6 @@
 package controllers
 
 import (
-	"fmt"
 	"jitsi-operator/api/v1alpha1"
 
 	"github.com/presslabs/controller-util/syncer"
@@ -12,14 +11,9 @@ import (
 )
 
 func NewJibriDeploymentSyncer(jitsi *v1alpha1.Jitsi, c client.Client) syncer.Interface {
-	dep := &appsv1.Deployment{
-		ObjectMeta: metav1.ObjectMeta{
-			Name:      fmt.Sprintf("%s-jibri", jitsi.Name),
-			Namespace: jitsi.Namespace,
-		},
-	}
+	dep := jitsi.JibriDeployment()
 
-	return syncer.NewObjectSyncer("Deployment", jitsi, dep, c, func() error {
+	return syncer.NewObjectSyncer("Deployment", jitsi, &dep, c, func() error {
 		dep.Labels = jitsi.ComponentLabels("jibri")
 		dep.Spec.Template.Labels = dep.Labels
 		dep.Spec.Selector = &metav1.LabelSelector{

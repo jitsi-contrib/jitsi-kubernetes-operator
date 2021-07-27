@@ -96,6 +96,11 @@ func (r *JitsiReconciler) Reconcile(ctx context.Context, req ctrl.Request) (ctrl
 		return ctrl.Result{}, err
 	}
 
+	if !jitsi.Spec.Jibri.Enabled {
+		dep := jitsi.JibriDeployment()
+		_ = r.Client.Delete(ctx, &dep)
+	}
+
 	return ctrl.Result{}, nil
 }
 
