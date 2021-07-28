@@ -28,7 +28,7 @@ Depending on your region of the world, or your taste.
 For the hackathon, we decided to use scaleway, as they provide autoscaling kubernetes cluster as a service
 
 ### Install our jitsi kubernetes operator
-k apply -f https://
+kubectl apply -f https://raw.githubusercontent.com/jitsi-contrib/jitsi-kubernetes-operator/master/deploy/jitsi-operator.yaml
 
 ### Profit
 
