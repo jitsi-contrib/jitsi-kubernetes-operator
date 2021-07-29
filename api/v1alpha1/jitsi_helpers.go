@@ -28,6 +28,7 @@ var defaultEnvVarMap = map[string]string{
 	"ENABLE_OCTO":                    "1",
 	"JVB_ENABLE_APIS":                "rest,colibri",
 	"JVB_STUN_SERVERS":               "stun2.l.google.com:19302",
+	"DISPLAY":                        ":0",
 	// "DISABLE_HTTPS":                  "1",
 	// "ENABLE_HSTS":                    "0",
 }
