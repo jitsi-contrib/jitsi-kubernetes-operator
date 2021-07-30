@@ -161,7 +161,7 @@ func NewWebDeploymentSyncer(jitsi *v1alpha1.Jitsi, c client.Client) syncer.Inter
 		}
 
 		dep.Spec.Replicas = jitsi.Spec.Web.Replicas
-		dep.Spec.Strategy.Type = appsv1.RecreateDeploymentStrategyType
+		dep.Spec.Strategy.Type = appsv1.RollingUpdateDeploymentStrategyType
 
 		envVars := []corev1.EnvVar{}
 		for _, env := range webEnvs {
