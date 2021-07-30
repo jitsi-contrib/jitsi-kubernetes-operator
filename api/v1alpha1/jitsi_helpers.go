@@ -90,7 +90,11 @@ func (jitsi *Jitsi) EnvVarValue(name string) string {
 	case "XMPP_RECORDER_DOMAIN":
 		value = "recorder." + jitsi.EnvVarValue("XMPP_DOMAIN")
 	default:
+		if jitsi.Spec.Variables[name] != "" {
+			value = jitsi.Spec.Variables[name]
+		} else {
 		value = defaultEnvVarMap[name]
+		}
 	}
 
 	return value

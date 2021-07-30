@@ -125,6 +125,8 @@ type JitsiSpec struct {
 	Timezone string `json:"timezone,omitempty"`
 	//+optional
 	Version Version `json:"version,omitempty"`
+	//+optional
+	Variables map[string]string `json:"variables,omitempty"`
 }
 
 // JitsiStatus defines the observed state of Jitsi

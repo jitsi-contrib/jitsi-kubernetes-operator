@@ -215,6 +215,10 @@ spec:
                 type: string
               timezone:
                 type: string
+              variables:
+                additionalProperties:
+                  type: string
+                type: object
               version:
                 properties:
                   channel:
