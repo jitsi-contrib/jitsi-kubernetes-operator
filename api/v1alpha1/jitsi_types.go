@@ -84,9 +84,13 @@ type Jibri struct {
 }
 
 type Web struct {
-	*ContainerRuntime `json:"inline,"`
+	*ContainerRuntime `json:",inline"`
 	//+optional
 	Replicas *int32 `json:"replicas,omitempty"`
+	//+optional
+	CustomConfig *corev1.LocalObjectReference `json:"customConfigCM,omitempty"`
+	//+optional
+	CustomInterfaceConfig *corev1.LocalObjectReference `json:"customInterfaceConfigCM,omitempty"`
 }
 
 type VersionChannel string

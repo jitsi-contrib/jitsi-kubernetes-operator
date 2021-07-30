@@ -175,10 +175,59 @@ func NewWebDeploymentSyncer(jitsi *v1alpha1.Jitsi, c client.Client) syncer.Inter
 			Image:           jitsi.Spec.Web.Image,
 			ImagePullPolicy: jitsi.Spec.Web.ImagePullPolicy,
 			Env:             envVars,
+			VolumeMounts:    make([]corev1.VolumeMount, 0),
 		}
 
 		if jitsi.Spec.Web.Resources != nil {
 			container.Resources = *jitsi.Spec.Web.Resources
+		}
+
+		dep.Spec.Template.Spec.Volumes = make([]corev1.Volume, 0)
+
+		if jitsi.Spec.Web.CustomConfig != nil {
+			dep.Spec.Template.Spec.Volumes = append(dep.Spec.Template.Spec.Volumes,
+				corev1.Volume{
+					Name: "custom-config",
+					VolumeSource: corev1.VolumeSource{
+						ConfigMap: &corev1.ConfigMapVolumeSource{
+							LocalObjectReference: *jitsi.Spec.Web.CustomConfig,
+							Items: []corev1.KeyToPath{
+								{
+									Key:  "custom-config.js",
+									Path: "custom-config.js",
+								},
+							},
+						},
+					},
+				})
+			container.VolumeMounts = append(container.VolumeMounts, corev1.VolumeMount{
+				Name:      "custom-config",
+				MountPath: "/config/custom-config.js",
+				SubPath:   "custom-config.js",
+			})
+		}
+
+		if jitsi.Spec.Web.CustomInterfaceConfig != nil {
+			dep.Spec.Template.Spec.Volumes = append(dep.Spec.Template.Spec.Volumes,
+				corev1.Volume{
+					Name: "custom-interface-config",
+					VolumeSource: corev1.VolumeSource{
+						ConfigMap: &corev1.ConfigMapVolumeSource{
+							LocalObjectReference: *jitsi.Spec.Web.CustomInterfaceConfig,
+							Items: []corev1.KeyToPath{
+								{
+									Key:  "custom-interface_config.js",
+									Path: "custom-interface_config.js",
+								},
+							},
+						},
+					},
+				})
+			container.VolumeMounts = append(container.VolumeMounts, corev1.VolumeMount{
+				Name:      "custom-interface-config",
+				MountPath: "/config/custom-interface_config.js",
+				SubPath:   "custom-interface_config.js",
+			})
 		}
 
 		dep.Spec.Template.Spec.Containers = []corev1.Container{container}
