@@ -105,6 +105,15 @@ type Version struct {
 	Tag     string         `json:"tag,omitempty"`
 }
 
+type Ingress struct {
+	//+optional
+	Enabled bool `json:"enabled,omitempty"`
+	//+optional
+	TLS bool `json:"tls,omitempty"`
+	//+optional
+	Annotations map[string]string `json:"annotations,omitempty"`
+}
+
 // JitsiSpec defines the desired state of Jitsi
 type JitsiSpec struct {
 	//+optional
@@ -127,6 +136,8 @@ type JitsiSpec struct {
 	Version Version `json:"version,omitempty"`
 	//+optional
 	Variables map[string]string `json:"variables,omitempty"`
+	//+optional
+	Ingress Ingress `json:"ingress,omitempty"`
 }
 
 // JitsiStatus defines the observed state of Jitsi

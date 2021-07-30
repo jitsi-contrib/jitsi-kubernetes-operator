@@ -94,7 +94,6 @@ func (r *JitsiReconciler) Reconcile(ctx context.Context, req ctrl.Request) (ctrl
 		NewJVBConfigMapSyncer(jitsi, r.Client),
 		NewWebDeploymentSyncer(jitsi, r.Client),
 		NewWebServiceSyncer(jitsi, r.Client),
-		NewIngressSyncer(jitsi, r.Client),
 	}
 
 	switch jitsi.Spec.JVB.Strategy.Type {
@@ -109,6 +108,10 @@ func (r *JitsiReconciler) Reconcile(ctx context.Context, req ctrl.Request) (ctrl
 
 	if jitsi.Spec.Jibri.Enabled {
 		syncers = append(syncers, NewJibriDeploymentSyncer(jitsi, r.Client))
+	}
+
+	if jitsi.Spec.Ingress.Enabled {
+		syncers = append(syncers, NewIngressSyncer(jitsi, r.Client))
 	}
 
 	if err := r.sync(ctx, syncers); err != nil {
