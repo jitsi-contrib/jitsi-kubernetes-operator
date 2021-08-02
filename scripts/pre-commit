@@ -1,0 +1,4 @@
+#!/bin/sh
+
+make generate-deploy
+git add deploy/
