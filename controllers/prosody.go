@@ -128,6 +128,7 @@ func NewProsodyDeploymentSyncer(jitsi *v1alpha1.Jitsi, c client.Client) syncer.I
 		}
 		// 	dep.Spec.Replicas = 1
 		dep.Spec.Strategy.Type = appsv1.RecreateDeploymentStrategyType
+		dep.Spec.Template.Spec.Affinity = &jitsi.Spec.Prosody.Affinity
 
 		envVars := []corev1.EnvVar{
 			{

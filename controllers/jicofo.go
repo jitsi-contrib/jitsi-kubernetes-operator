@@ -64,6 +64,7 @@ func NewJicofoDeploymentSyncer(jitsi *v1alpha1.Jitsi, c client.Client) syncer.In
 		}
 		// 	dep.Spec.Replicas = 1
 		dep.Spec.Strategy.Type = appsv1.RecreateDeploymentStrategyType
+		dep.Spec.Template.Spec.Affinity = &jitsi.Spec.Jicofo.Affinity
 
 		envVars := []corev1.EnvVar{
 			{

@@ -49,16 +49,17 @@ type JVBPorts struct {
 }
 
 type JVB struct {
+	*ContainerRuntime `json:",inline"`
+	AffinitySettings  `json:",inline"`
 	//+optional
 	Strategy JVBStrategy `json:"strategy,omitempty"`
-	//+optional
-	*ContainerRuntime `json:",inline"`
 	//+optional
 	Ports JVBPorts `json:"ports,omitempty"`
 }
 
 type Prosody struct {
 	*ContainerRuntime `json:",inline"`
+	AffinitySettings  `json:",inline"`
 }
 
 type ContainerRuntime struct {
@@ -70,21 +71,30 @@ type ContainerRuntime struct {
 	Resources *corev1.ResourceRequirements `json:"resources,omitempty"`
 }
 
+type AffinitySettings struct {
+	//+optional
+	Affinity corev1.Affinity `json:"affinity,omitempty"`
+	//+optional
+	DisableDefaultAffinity bool `json:"disableDefaultAffinity,omitempty"`
+}
+
 type Jicofo struct {
 	*ContainerRuntime `json:",inline"`
+	AffinitySettings  `json:",inline"`
 }
 
 type Jibri struct {
+	*ContainerRuntime `json:",inline"`
+	AffinitySettings  `json:",inline"`
 	//+optional
 	Enabled bool `json:"enabled,omitempty"`
-	//+optional
-	*ContainerRuntime `json:",inline"`
 	//+optional
 	Replicas *int32 `json:"replicas,omitempty"`
 }
 
 type Web struct {
 	*ContainerRuntime `json:",inline"`
+	AffinitySettings  `json:",inline"`
 	//+optional
 	Replicas *int32 `json:"replicas,omitempty"`
 	//+optional

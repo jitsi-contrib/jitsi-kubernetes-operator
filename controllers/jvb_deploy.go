@@ -123,26 +123,18 @@ func NewJVBConfigMapSyncer(jitsi *v1alpha1.Jitsi, c client.Client) syncer.Interf
 
 }
 
-func NewJVBDeploymentSyncer(jitsi *v1alpha1.Jitsi, c client.Client) syncer.Interface {
-	dep := jitsi.JVBDeployment()
-
-	return syncer.NewObjectSyncer("Deployment", jitsi, &dep, c, func() error {
-		dep.Labels = jitsi.ComponentLabels("jvb")
-
-		jitsi.JVBPodTemplateSpec(&dep.Spec.Template)
-
-		dep.Spec.Template.Labels = dep.Labels
-
-		dep.Spec.Selector = &metav1.LabelSelector{
-			MatchLabels: dep.Labels,
-		}
-
-		dep.Spec.Template.Spec.Affinity = &corev1.Affinity{
+func injectJVBAffinity(jitsi *v1alpha1.Jitsi, pod *corev1.PodSpec) {
+	if jitsi.Spec.JVB.DisableDefaultAffinity {
+		pod.Affinity = &jitsi.Spec.Jibri.Affinity
+	} else {
+		pod.Affinity = &corev1.Affinity{
 			PodAntiAffinity: &corev1.PodAntiAffinity{
 				RequiredDuringSchedulingIgnoredDuringExecution: []corev1.PodAffinityTerm{
 					{
-						LabelSelector: dep.Spec.Selector,
-						TopologyKey:   "kubernetes.io/hostname",
+						LabelSelector: &metav1.LabelSelector{
+							MatchLabels: jitsi.ComponentLabels("jvb"),
+						},
+						TopologyKey: "kubernetes.io/hostname",
 					},
 				},
 				PreferredDuringSchedulingIgnoredDuringExecution: []corev1.WeightedPodAffinityTerm{
@@ -158,6 +150,26 @@ func NewJVBDeploymentSyncer(jitsi *v1alpha1.Jitsi, c client.Client) syncer.Inter
 				},
 			},
 		}
+		MergeAffinities(pod.Affinity, jitsi.Spec.JVB.Affinity)
+	}
+
+}
+
+func NewJVBDeploymentSyncer(jitsi *v1alpha1.Jitsi, c client.Client) syncer.Interface {
+	dep := jitsi.JVBDeployment()
+
+	return syncer.NewObjectSyncer("Deployment", jitsi, &dep, c, func() error {
+		dep.Labels = jitsi.ComponentLabels("jvb")
+
+		jitsi.JVBPodTemplateSpec(&dep.Spec.Template)
+
+		dep.Spec.Template.Labels = dep.Labels
+
+		dep.Spec.Selector = &metav1.LabelSelector{
+			MatchLabels: dep.Labels,
+		}
+
+		injectJVBAffinity(jitsi, &dep.Spec.Template.Spec)
 
 		dep.Spec.Replicas = jitsi.Spec.JVB.Strategy.Replicas
 
@@ -220,27 +232,7 @@ func NewJVBDaemonSetSyncer(jitsi *v1alpha1.Jitsi, c client.Client) syncer.Interf
 			MatchLabels: dep.Labels,
 		}
 
-		dep.Spec.Template.Spec.Affinity = &corev1.Affinity{
-			PodAntiAffinity: &corev1.PodAntiAffinity{
-				RequiredDuringSchedulingIgnoredDuringExecution: []corev1.PodAffinityTerm{
-					{
-						LabelSelector: dep.Spec.Selector,
-						TopologyKey:   "kubernetes.io/hostname",
-					},
-				},
-				PreferredDuringSchedulingIgnoredDuringExecution: []corev1.WeightedPodAffinityTerm{
-					{
-						Weight: 100,
-						PodAffinityTerm: corev1.PodAffinityTerm{
-							LabelSelector: &metav1.LabelSelector{
-								MatchLabels: jitsi.ComponentLabels("jibri"),
-							},
-							TopologyKey: "kubernetes.io/hostname",
-						},
-					},
-				},
-			},
-		}
+		injectJVBAffinity(jitsi, &dep.Spec.Template.Spec)
 
 		return nil
 	})
