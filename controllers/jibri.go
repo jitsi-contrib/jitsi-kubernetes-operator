@@ -45,7 +45,7 @@ func NewJibriDeploymentSyncer(jitsi *v1alpha1.Jitsi, c client.Client) syncer.Int
 		}
 
 		dep.Spec.Replicas = jitsi.Spec.Jibri.Replicas
-		dep.Spec.Strategy.Type = appsv1.RecreateDeploymentStrategyType
+		dep.Spec.Strategy.Type = appsv1.RollingUpdateDeploymentStrategyType
 
 		dep.Spec.Template.Spec.Volumes = []corev1.Volume{
 			{
