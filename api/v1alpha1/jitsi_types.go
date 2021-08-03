@@ -28,12 +28,12 @@ type JVBStrategyType string
 
 const (
 	JVBStrategyStatic     JVBStrategyType = "static"
-	JVBStrategyDeamon     JVBStrategyType = "deamonset"
+	JVBStrategyDaemon     JVBStrategyType = "daemonset"
 	JVBStrategyAutoScaled JVBStrategyType = "autoscaled"
 )
 
 type JVBStrategy struct {
-	//+kubebuilder:validation:Enum=static;deamonset;autoscaled
+	//+kubebuilder:validation:Enum=static;daemonset;autoscaled
 	Type JVBStrategyType `json:"type,omitempty"`
 	//+optional
 	Replicas *int32 `json:"replicas,omitempty"`

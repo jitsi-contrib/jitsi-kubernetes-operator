@@ -181,7 +181,7 @@ spec:
                       type:
                         enum:
                         - static
-                        - deamonset
+                        - daemonset
                         - autoscaled
                         type: string
                     type: object

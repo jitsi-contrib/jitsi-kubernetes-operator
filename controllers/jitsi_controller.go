@@ -77,7 +77,7 @@ func (r *JitsiReconciler) Reconcile(ctx context.Context, req ctrl.Request) (ctrl
 		_ = r.Client.Delete(ctx, &hpa)
 	}
 
-	if jitsi.Spec.JVB.Strategy.Type == appsv1alpha1.JVBStrategyDeamon {
+	if jitsi.Spec.JVB.Strategy.Type == appsv1alpha1.JVBStrategyDaemon {
 		dep := jitsi.JVBDeployment()
 		_ = r.Client.Delete(ctx, &dep)
 	} else {
@@ -100,7 +100,7 @@ func (r *JitsiReconciler) Reconcile(ctx context.Context, req ctrl.Request) (ctrl
 	case appsv1alpha1.JVBStrategyAutoScaled:
 		syncers = append(syncers, NewJVBDeploymentSyncer(jitsi, r.Client))
 		syncers = append(syncers, NewJVBHPASyncer(jitsi, r.Client))
-	case appsv1alpha1.JVBStrategyDeamon:
+	case appsv1alpha1.JVBStrategyDaemon:
 		syncers = append(syncers, NewJVBDaemonSetSyncer(jitsi, r.Client))
 	case appsv1alpha1.JVBStrategyStatic:
 		syncers = append(syncers, NewJVBDeploymentSyncer(jitsi, r.Client))
