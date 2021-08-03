@@ -145,6 +145,17 @@ func NewJVBDeploymentSyncer(jitsi *v1alpha1.Jitsi, c client.Client) syncer.Inter
 						TopologyKey:   "kubernetes.io/hostname",
 					},
 				},
+				PreferredDuringSchedulingIgnoredDuringExecution: []corev1.WeightedPodAffinityTerm{
+					{
+						Weight: 100,
+						PodAffinityTerm: corev1.PodAffinityTerm{
+							LabelSelector: &metav1.LabelSelector{
+								MatchLabels: jitsi.ComponentLabels("jibri"),
+							},
+							TopologyKey: "kubernetes.io/hostname",
+						},
+					},
+				},
 			},
 		}
 
@@ -215,6 +226,17 @@ func NewJVBDaemonSetSyncer(jitsi *v1alpha1.Jitsi, c client.Client) syncer.Interf
 					{
 						LabelSelector: dep.Spec.Selector,
 						TopologyKey:   "kubernetes.io/hostname",
+					},
+				},
+				PreferredDuringSchedulingIgnoredDuringExecution: []corev1.WeightedPodAffinityTerm{
+					{
+						Weight: 100,
+						PodAffinityTerm: corev1.PodAffinityTerm{
+							LabelSelector: &metav1.LabelSelector{
+								MatchLabels: jitsi.ComponentLabels("jibri"),
+							},
+							TopologyKey: "kubernetes.io/hostname",
+						},
 					},
 				},
 			},

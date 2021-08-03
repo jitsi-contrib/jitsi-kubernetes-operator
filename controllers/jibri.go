@@ -127,16 +127,15 @@ func NewJibriDeploymentSyncer(jitsi *v1alpha1.Jitsi, c client.Client) syncer.Int
 
 		dep.Spec.Template.Spec.Affinity = &corev1.Affinity{
 			PodAntiAffinity: &corev1.PodAntiAffinity{
-				RequiredDuringSchedulingIgnoredDuringExecution: []corev1.PodAffinityTerm{
+				PreferredDuringSchedulingIgnoredDuringExecution: []corev1.WeightedPodAffinityTerm{
 					{
-						LabelSelector: dep.Spec.Selector,
-						TopologyKey:   "kubernetes.io/hostname",
-					},
-					{
-						LabelSelector: &metav1.LabelSelector{
-							MatchLabels: jitsi.ComponentLabels("jvb"),
+						Weight: 100,
+						PodAffinityTerm: corev1.PodAffinityTerm{
+							LabelSelector: &metav1.LabelSelector{
+								MatchLabels: jitsi.ComponentLabels("jvb"),
+							},
+							TopologyKey: "kubernetes.io/hostname",
 						},
-						TopologyKey: "kubernetes.io/hostname",
 					},
 				},
 			},

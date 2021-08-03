@@ -93,7 +93,7 @@ func (jitsi *Jitsi) EnvVarValue(name string) string {
 		if jitsi.Spec.Variables[name] != "" {
 			value = jitsi.Spec.Variables[name]
 		} else {
-		value = defaultEnvVarMap[name]
+			value = defaultEnvVarMap[name]
 		}
 	}
 
