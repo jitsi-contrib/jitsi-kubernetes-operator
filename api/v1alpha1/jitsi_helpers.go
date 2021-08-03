@@ -77,6 +77,8 @@ func (jitsi *Jitsi) EnvVarValue(name string) string {
 		value = jitsi.Spec.Region
 	case "JVB_OCTO_REGION":
 		value = jitsi.Spec.Region
+	case "DEPLOYMENTINFO_REGION":
+		value = jitsi.Spec.Region
 	case "PUBLIC_URL":
 		value = "https://" + jitsi.Spec.Domain
 	case "XMPP_DOMAIN":
@@ -292,14 +294,14 @@ func (jitsi *Jitsi) JVBPodTemplateSpec(podSpec *corev1.PodTemplateSpec) {
 		// 	},
 		// },
 
-		// {
-		// 	Name: "JVB_OCTO_PUBLIC_ADDRESS",
-		// 	ValueFrom: &corev1.EnvVarSource{
-		// 		FieldRef: &corev1.ObjectFieldSelector{
-		// 			FieldPath: "status.hostIP",
-		// 		},
-		// 	},
-		// },
+		{
+			Name: "JVB_OCTO_PUBLIC_ADDRESS",
+			ValueFrom: &corev1.EnvVarSource{
+				FieldRef: &corev1.ObjectFieldSelector{
+					FieldPath: "status.podIP",
+				},
+			},
+		},
 	}
 
 	for _, env := range jvbEnvs {

@@ -2209,6 +2209,7 @@ spec:
         command:
         - /manager
         image: ghcr.io/jitsi-contrib/jitsi-kubernetes-operator:master
+        imagePullPolicy: Always
         livenessProbe:
           httpGet:
             path: /healthz

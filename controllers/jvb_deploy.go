@@ -20,10 +20,6 @@ org.ice4j.ice.harvest.NAT_HARVESTER_LOCAL_ADDRESS={{ .Env.LOCAL_ADDRESS }}
 org.ice4j.ice.harvest.NAT_HARVESTER_PUBLIC_ADDRESS={{ .Env.DOCKER_HOST_ADDRESS }}
 {{ end }}
 org.ice4j.ice.harvest.DISABLE_AWS_HARVESTER=true
-
-org.jitsi.videobridge.octo.BIND_ADDRESS={{ .Env.LOCAL_ADDRESS }}
-org.jitsi.videobridge.octo.BIND_PORT=4096
-org.jitsi.videobridge.REGION={{ .Env.DEPLOYMENTINFO_USERREGION }}
 `
 
 var secretsVar = []string{
