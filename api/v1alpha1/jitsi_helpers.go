@@ -9,6 +9,7 @@ import (
 	corev1 "k8s.io/api/core/v1"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/apimachinery/pkg/labels"
+	"k8s.io/apimachinery/pkg/util/intstr"
 )
 
 var defaultEnvVarMap = map[string]string{
@@ -323,6 +324,27 @@ func (jitsi *Jitsi) JVBPodTemplateSpec(podSpec *corev1.PodTemplateSpec) {
 				ReadOnly:  true,
 			},
 		},
+		ReadinessProbe: &corev1.Probe{
+			Handler: corev1.Handler{
+				HTTPGet: &corev1.HTTPGetAction{
+					Path: "/about/health",
+					Port: intstr.FromInt(8080),
+				},
+			},
+			InitialDelaySeconds: 10,
+		},
+	}
+
+	if jitsi.Spec.JVB.GracefulShutdown {
+		jvbContainer.Lifecycle = &corev1.Lifecycle{
+			PreStop: &corev1.Handler{
+				Exec: &corev1.ExecAction{
+					Command: []string{
+						"bash", "-c", "/usr/share/jitsi-videobridge/graceful_shutdown.sh -p $(s6-svstat -o pid /var/run/s6/services/jvb) -t 3 -s",
+					},
+				},
+			},
+		}
 	}
 
 	if jitsi.Spec.JVB.Resources != nil {

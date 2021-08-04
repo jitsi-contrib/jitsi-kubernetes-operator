@@ -55,6 +55,8 @@ type JVB struct {
 	Strategy JVBStrategy `json:"strategy,omitempty"`
 	//+optional
 	Ports JVBPorts `json:"ports,omitempty"`
+	//+optional
+	GracefulShutdown bool `json:"gracefulShutdown,omitempty"`
 }
 
 type Prosody struct {

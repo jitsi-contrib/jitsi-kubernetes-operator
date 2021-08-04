@@ -1985,6 +1985,8 @@ spec:
                     type: object
                   disableDefaultAffinity:
                     type: boolean
+                  gracefulShutdown:
+                    type: boolean
                   image:
                     type: string
                   imagePullPolicy:
