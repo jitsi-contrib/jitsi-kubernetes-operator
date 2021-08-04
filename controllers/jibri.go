@@ -10,6 +10,24 @@ import (
 	"sigs.k8s.io/controller-runtime/pkg/client"
 )
 
+var jibriEnvs = []string{
+	"PUBLIC_URL",
+	"XMPP_AUTH_DOMAIN",
+	"XMPP_INTERNAL_MUC_DOMAIN",
+	"XMPP_RECORDER_DOMAIN",
+	"XMPP_SERVER",
+	"XMPP_DOMAIN",
+	"JIBRI_XMPP_USER",
+	"JIBRI_BREWERY_MUC",
+	"JIBRI_RECORDER_USER",
+	"JIBRI_RECORDING_DIR",
+	"JIBRI_FINALIZE_RECORDING_SCRIPT_PATH",
+	"JIBRI_STRIP_DOMAIN_JID",
+	"JIBRI_LOGS_DIR",
+	"DISPLAY",
+	"TZ",
+}
+
 func injectJibriAffinity(jitsi *v1alpha1.Jitsi, pod *corev1.PodSpec) {
 	if jitsi.Spec.Jibri.DisableDefaultAffinity {
 		pod.Affinity = &jitsi.Spec.Jibri.Affinity
@@ -64,6 +82,51 @@ func NewJibriDeploymentSyncer(jitsi *v1alpha1.Jitsi, c client.Client) syncer.Int
 					},
 				},
 			},
+			{
+				Name: "recordings",
+				VolumeSource: corev1.VolumeSource{
+					EmptyDir: &corev1.EmptyDirVolumeSource{},
+				},
+			},
+		}
+
+		envVars := []corev1.EnvVar{
+			{
+				Name: "JIBRI_INSTANCE_ID",
+				ValueFrom: &corev1.EnvVarSource{
+					FieldRef: &corev1.ObjectFieldSelector{
+						FieldPath: "metadata.name",
+					},
+				},
+			},
+			{
+				Name: "JIBRI_XMPP_PASSWORD",
+				ValueFrom: &corev1.EnvVarSource{
+					SecretKeyRef: &corev1.SecretKeySelector{
+						LocalObjectReference: corev1.LocalObjectReference{
+							Name: jitsi.Name,
+						},
+						Key: "JIBRI_XMPP_PASSWORD",
+					},
+				},
+			},
+			{
+				Name: "JIBRI_RECORDER_PASSWORD",
+				ValueFrom: &corev1.EnvVarSource{
+					SecretKeyRef: &corev1.SecretKeySelector{
+						LocalObjectReference: corev1.LocalObjectReference{
+							Name: jitsi.Name,
+						},
+						Key: "JIBRI_RECORDER_PASSWORD",
+					},
+				},
+			},
+		}
+
+		for _, env := range jibriEnvs {
+			if len(jitsi.EnvVar(env).Value) > 0 {
+				envVars = append(envVars, jitsi.EnvVar(env))
+			}
 		}
 
 		privileged := true
@@ -71,51 +134,7 @@ func NewJibriDeploymentSyncer(jitsi *v1alpha1.Jitsi, c client.Client) syncer.Int
 			Name:            "jibri",
 			Image:           jitsi.Spec.Jibri.Image,
 			ImagePullPolicy: jitsi.Spec.Jibri.ImagePullPolicy,
-			Env: []corev1.EnvVar{
-				jitsi.EnvVar("XMPP_AUTH_DOMAIN"),
-				jitsi.EnvVar("XMPP_INTERNAL_MUC_DOMAIN"),
-				jitsi.EnvVar("XMPP_RECORDER_DOMAIN"),
-				jitsi.EnvVar("XMPP_SERVER"),
-				jitsi.EnvVar("XMPP_DOMAIN"),
-				jitsi.EnvVar("JIBRI_XMPP_USER"),
-				jitsi.EnvVar("JIBRI_BREWERY_MUC"),
-				jitsi.EnvVar("JIBRI_RECORDER_USER"),
-				jitsi.EnvVar("JIBRI_FINALIZE_RECORDING_SCRIPT_PATH"),
-				jitsi.EnvVar("JIBRI_STRIP_DOMAIN_JID"),
-				jitsi.EnvVar("JIBRI_LOGS_DIR"),
-				jitsi.EnvVar("DISPLAY"),
-				jitsi.EnvVar("TZ"),
-				{
-					Name: "JIBRI_INSTANCE_ID",
-					ValueFrom: &corev1.EnvVarSource{
-						FieldRef: &corev1.ObjectFieldSelector{
-							FieldPath: "metadata.name",
-						},
-					},
-				},
-				{
-					Name: "JIBRI_XMPP_PASSWORD",
-					ValueFrom: &corev1.EnvVarSource{
-						SecretKeyRef: &corev1.SecretKeySelector{
-							LocalObjectReference: corev1.LocalObjectReference{
-								Name: jitsi.Name,
-							},
-							Key: "JIBRI_XMPP_PASSWORD",
-						},
-					},
-				},
-				{
-					Name: "JIBRI_RECORDER_PASSWORD",
-					ValueFrom: &corev1.EnvVarSource{
-						SecretKeyRef: &corev1.SecretKeySelector{
-							LocalObjectReference: corev1.LocalObjectReference{
-								Name: jitsi.Name,
-							},
-							Key: "JIBRI_RECORDER_PASSWORD",
-						},
-					},
-				},
-			},
+			Env:             envVars,
 			VolumeMounts: []corev1.VolumeMount{
 				{
 					Name:      "dev-snd",
@@ -124,6 +143,10 @@ func NewJibriDeploymentSyncer(jitsi *v1alpha1.Jitsi, c client.Client) syncer.Int
 				{
 					Name:      "dev-shm",
 					MountPath: "/dev/shm",
+				},
+				{
+					Name:      "recordings",
+					MountPath: jitsi.EnvVarValue("JIBRI_RECORDING_DIR"),
 				},
 			},
 			SecurityContext: &corev1.SecurityContext{
@@ -134,16 +157,11 @@ func NewJibriDeploymentSyncer(jitsi *v1alpha1.Jitsi, c client.Client) syncer.Int
 			},
 		}
 
-		jibriExporterContainer := corev1.Container{
-			Name:  "jibri-exporter",
-			Image: "hougo13/jibri-exporter",
-		}
-
 		if jitsi.Spec.Jibri.Resources != nil {
 			jibriContainer.Resources = *jitsi.Spec.Jibri.Resources
 		}
 
-		dep.Spec.Template.Spec.Containers = []corev1.Container{jibriContainer, jibriExporterContainer}
+		dep.Spec.Template.Spec.Containers = []corev1.Container{jibriContainer}
 
 		injectJibriAffinity(jitsi, &dep.Spec.Template.Spec)
 
