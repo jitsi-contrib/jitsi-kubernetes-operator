@@ -364,10 +364,9 @@ func (jitsi *Jitsi) ComponentLabels(component string) labels.Set {
 func (jitsi *Jitsi) Labels() labels.Set {
 	labels := labels.Set{
 		"app.kubernetes.io/name":       "jitsi",
-		"app.kubernetes.io/part-of":    "jistsi",
+		"app.kubernetes.io/part-of":    "jitsi",
 		"app.kubernetes.io/instance":   jitsi.ObjectMeta.Name,
 		"app.kubernetes.io/managed-by": "jitsi-operator",
-		"app.kubernetes.io/version":    fmt.Sprintf("%s-%s", jitsi.Spec.Version.Channel, jitsi.Spec.Version.Tag),
 	}
 
 	return labels
