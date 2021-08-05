@@ -189,6 +189,18 @@ func NewProsodyDeploymentSyncer(jitsi *v1alpha1.Jitsi, c client.Client) syncer.I
 				Image:           jitsi.Spec.Prosody.Image,
 				ImagePullPolicy: jitsi.Spec.Prosody.ImagePullPolicy,
 				Env:             envVars,
+				ReadinessProbe: &corev1.Probe{
+					Handler: corev1.Handler{
+						Exec: &corev1.ExecAction{
+							Command: []string{
+								"prosodyctl",
+								"--config",
+								"/config/prosody.cfg.lua",
+								"status",
+							},
+						},
+					},
+				},
 			},
 		}
 		return nil

@@ -172,6 +172,13 @@ func NewWebDeploymentSyncer(jitsi *v1alpha1.Jitsi, c client.Client) syncer.Inter
 			ImagePullPolicy: jitsi.Spec.Web.ImagePullPolicy,
 			Env:             envVars,
 			VolumeMounts:    make([]corev1.VolumeMount, 0),
+			ReadinessProbe: &corev1.Probe{
+				Handler: corev1.Handler{
+					HTTPGet: &corev1.HTTPGetAction{
+						Port: intstr.FromInt(80),
+					},
+				},
+			},
 		}
 
 		if jitsi.Spec.Web.Resources != nil {
