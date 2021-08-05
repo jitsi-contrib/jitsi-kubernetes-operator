@@ -43,17 +43,12 @@ var prosodyEnvs = []string{
 	"XMPP_INTERNAL_MUC_MODULES",
 	"XMPP_RECORDER_DOMAIN",
 	"XMPP_CROSS_DOMAIN",
-	"JICOFO_COMPONENT_SECRET",
 	"JICOFO_AUTH_USER",
-	"JICOFO_AUTH_PASSWORD",
 	"JVB_AUTH_USER",
-	"JVB_AUTH_PASSWORD",
 	"JIGASI_XMPP_USER",
 	"JIGASI_XMPP_PASSWORD",
 	"JIBRI_XMPP_USER",
-	"JIBRI_XMPP_PASSWORD",
 	"JIBRI_RECORDER_USER",
-	"JIBRI_RECORDER_PASSWORD",
 	"JWT_APP_ID",
 	"JWT_APP_SECRET",
 	"JWT_ACCEPTED_ISSUERS",
@@ -126,12 +121,12 @@ func NewProsodyDeploymentSyncer(jitsi *v1alpha1.Jitsi, c client.Client) syncer.I
 		dep.Spec.Selector = &metav1.LabelSelector{
 			MatchLabels: dep.Labels,
 		}
-		// 	dep.Spec.Replicas = 1
+
 		dep.Spec.Strategy.Type = appsv1.RecreateDeploymentStrategyType
 		dep.Spec.Template.Spec.Affinity = &jitsi.Spec.Prosody.Affinity
 
-		envVars := []corev1.EnvVar{
-			{
+		envVars := append(jitsi.EnvVars(prosodyEnvs),
+			corev1.EnvVar{
 				Name: "JICOFO_COMPONENT_SECRET",
 				ValueFrom: &corev1.EnvVarSource{
 					SecretKeyRef: &corev1.SecretKeySelector{
@@ -142,7 +137,7 @@ func NewProsodyDeploymentSyncer(jitsi *v1alpha1.Jitsi, c client.Client) syncer.I
 					},
 				},
 			},
-			{
+			corev1.EnvVar{
 				Name: "JICOFO_AUTH_PASSWORD",
 				ValueFrom: &corev1.EnvVarSource{
 					SecretKeyRef: &corev1.SecretKeySelector{
@@ -153,7 +148,7 @@ func NewProsodyDeploymentSyncer(jitsi *v1alpha1.Jitsi, c client.Client) syncer.I
 					},
 				},
 			},
-			{
+			corev1.EnvVar{
 				Name: "JVB_AUTH_PASSWORD",
 				ValueFrom: &corev1.EnvVarSource{
 					SecretKeyRef: &corev1.SecretKeySelector{
@@ -164,7 +159,7 @@ func NewProsodyDeploymentSyncer(jitsi *v1alpha1.Jitsi, c client.Client) syncer.I
 					},
 				},
 			},
-			{
+			corev1.EnvVar{
 				Name: "JIBRI_XMPP_PASSWORD",
 				ValueFrom: &corev1.EnvVarSource{
 					SecretKeyRef: &corev1.SecretKeySelector{
@@ -175,7 +170,7 @@ func NewProsodyDeploymentSyncer(jitsi *v1alpha1.Jitsi, c client.Client) syncer.I
 					},
 				},
 			},
-			{
+			corev1.EnvVar{
 				Name: "JIBRI_RECORDER_PASSWORD",
 				ValueFrom: &corev1.EnvVarSource{
 					SecretKeyRef: &corev1.SecretKeySelector{
@@ -186,13 +181,7 @@ func NewProsodyDeploymentSyncer(jitsi *v1alpha1.Jitsi, c client.Client) syncer.I
 					},
 				},
 			},
-		}
-
-		for _, env := range prosodyEnvs {
-			if len(jitsi.EnvVar(env).Value) > 0 {
-				envVars = append(envVars, jitsi.EnvVar(env))
-			}
-		}
+		)
 
 		dep.Spec.Template.Spec.Containers = []corev1.Container{
 			{

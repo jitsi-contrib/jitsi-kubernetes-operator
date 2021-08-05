@@ -31,6 +31,31 @@ var secretsVar = []string{
 	"JIBRI_RECORDER_PASSWORD",
 }
 
+var jvbEnvs = []string{
+	"ENABLE_COLIBRI_WEBSOCKET",
+	"ENABLE_OCTO",
+	"DOCKER_HOST_ADDRESS",
+	"XMPP_AUTH_DOMAIN",
+	"XMPP_INTERNAL_MUC_DOMAIN",
+	"XMPP_SERVER",
+	"JVB_AUTH_USER",
+	"JVB_BREWERY_MUC",
+	"JVB_PORT",
+	"JVB_TCP_HARVESTER_DISABLED",
+	"JVB_TCP_PORT",
+	"JVB_TCP_MAPPED_PORT",
+	"JVB_STUN_SERVERS",
+	"JVB_ENABLE_APIS",
+	"JVB_WS_DOMAIN",
+	"JVB_WS_SERVER_ID",
+	"PUBLIC_URL",
+	"JVB_OCTO_BIND_ADDRESS",
+	"JVB_OCTO_PUBLIC_ADDRESS",
+	"JVB_OCTO_BIND_PORT",
+	"JVB_OCTO_REGION",
+	"TZ",
+}
+
 func NewJitsiSecretSyncer(jitsi *v1alpha1.Jitsi, c client.Client) syncer.Interface {
 	sec := &corev1.Secret{
 		ObjectMeta: metav1.ObjectMeta{
@@ -152,13 +177,126 @@ func injectJVBAffinity(jitsi *v1alpha1.Jitsi, pod *corev1.PodSpec) {
 
 }
 
+func JVBPodTemplateSpec(jitsi *v1alpha1.Jitsi, podSpec *corev1.PodTemplateSpec) {
+	podSpec.Spec.Volumes = []corev1.Volume{
+		{
+			Name: "jvb-config",
+			VolumeSource: corev1.VolumeSource{
+				ConfigMap: &corev1.ConfigMapVolumeSource{
+					LocalObjectReference: corev1.LocalObjectReference{
+						Name: fmt.Sprintf("%s-jvb", jitsi.Name),
+					},
+					Items: []corev1.KeyToPath{
+						{
+							Key:  "sip-communicator.properties",
+							Path: "sip-communicator.properties",
+						},
+					},
+				},
+			},
+		},
+	}
+
+	envVars := append(jitsi.EnvVars(jvbEnvs),
+		corev1.EnvVar{
+			Name: "LOCAL_ADDRESS",
+			ValueFrom: &corev1.EnvVarSource{
+				FieldRef: &corev1.ObjectFieldSelector{
+					FieldPath: "status.podIP",
+				},
+			},
+		},
+		corev1.EnvVar{
+			Name: "JVB_AUTH_PASSWORD",
+			ValueFrom: &corev1.EnvVarSource{
+				SecretKeyRef: &corev1.SecretKeySelector{
+					LocalObjectReference: corev1.LocalObjectReference{
+						Name: jitsi.Name,
+					},
+					Key: "JVB_AUTH_PASSWORD",
+				},
+			},
+		},
+		// TODO options to manage host IP through vars or stun servers
+		// {
+		// 	Name: "DOCKER_HOST_ADDRESS",
+		// 	ValueFrom: &corev1.EnvVarSource{
+		// 		FieldRef: &corev1.ObjectFieldSelector{
+		// 			FieldPath: "status.hostIP",
+		// 		},
+		// 	},
+		// },
+
+		// {
+		// Default 0.0.0.0
+		// 	Name: "JVB_OCTO_BIND_ADDRESS",
+		// 	ValueFrom: &corev1.EnvVarSource{
+		// 		FieldRef: &corev1.ObjectFieldSelector{
+		// 			FieldPath: "status.podIP",
+		// 		},
+		// 	},
+		// },
+
+		corev1.EnvVar{
+			Name: "JVB_OCTO_PUBLIC_ADDRESS",
+			ValueFrom: &corev1.EnvVarSource{
+				FieldRef: &corev1.ObjectFieldSelector{
+					FieldPath: "status.podIP",
+				},
+			},
+		},
+	)
+
+	jvbContainer := corev1.Container{
+		Name:            "jvb",
+		Image:           "jitsi/jvb",
+		ImagePullPolicy: "Always",
+		Env:             envVars,
+		VolumeMounts: []corev1.VolumeMount{
+			{
+				Name:      "jvb-config",
+				MountPath: "/defaults/sip-communicator.properties",
+				SubPath:   "sip-communicator.properties",
+				ReadOnly:  true,
+			},
+		},
+		ReadinessProbe: &corev1.Probe{
+			Handler: corev1.Handler{
+				HTTPGet: &corev1.HTTPGetAction{
+					Path: "/about/health",
+					Port: intstr.FromInt(8080),
+				},
+			},
+			InitialDelaySeconds: 10,
+		},
+	}
+
+	if jitsi.Spec.JVB.GracefulShutdown {
+		jvbContainer.Lifecycle = &corev1.Lifecycle{
+			PreStop: &corev1.Handler{
+				Exec: &corev1.ExecAction{
+					Command: []string{
+						"bash", "-c", "/usr/share/jitsi-videobridge/graceful_shutdown.sh -p $(s6-svstat -o pid /var/run/s6/services/jvb) -t 3 -s",
+					},
+				},
+			},
+		}
+	}
+
+	if jitsi.Spec.JVB.Resources != nil {
+		jvbContainer.Resources = *jitsi.Spec.JVB.Resources
+	}
+
+	podSpec.Spec.Containers = []corev1.Container{jvbContainer}
+}
+
 func NewJVBDeploymentSyncer(jitsi *v1alpha1.Jitsi, c client.Client) syncer.Interface {
 	dep := jitsi.JVBDeployment()
 
 	return syncer.NewObjectSyncer("Deployment", jitsi, &dep, c, func() error {
 		dep.Labels = jitsi.ComponentLabels("jvb")
 
-		jitsi.JVBPodTemplateSpec(&dep.Spec.Template)
+		JVBPodTemplateSpec(jitsi, &dep.Spec.Template)
 
 		dep.Spec.Template.Labels = dep.Labels
 
@@ -221,7 +359,7 @@ func NewJVBDaemonSetSyncer(jitsi *v1alpha1.Jitsi, c client.Client) syncer.Interf
 	return syncer.NewObjectSyncer("DaemonSet", jitsi, &dep, c, func() error {
 		dep.Labels = jitsi.ComponentLabels("jvb")
 
-		jitsi.JVBPodTemplateSpec(&dep.Spec.Template)
+		JVBPodTemplateSpec(jitsi, &dep.Spec.Template)
 
 		dep.Spec.Template.Labels = dep.Labels
 

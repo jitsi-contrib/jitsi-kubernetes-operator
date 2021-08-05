@@ -164,12 +164,7 @@ func NewWebDeploymentSyncer(jitsi *v1alpha1.Jitsi, c client.Client) syncer.Inter
 		dep.Spec.Strategy.Type = appsv1.RollingUpdateDeploymentStrategyType
 		dep.Spec.Template.Spec.Affinity = &jitsi.Spec.Web.Affinity
 
-		envVars := []corev1.EnvVar{}
-		for _, env := range webEnvs {
-			if len(jitsi.EnvVar(env).Value) > 0 {
-				envVars = append(envVars, jitsi.EnvVar(env))
-			}
-		}
+		envVars := jitsi.EnvVars(webEnvs)
 
 		container := corev1.Container{
 			Name:            "web",

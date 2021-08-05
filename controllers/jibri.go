@@ -90,8 +90,8 @@ func NewJibriDeploymentSyncer(jitsi *v1alpha1.Jitsi, c client.Client) syncer.Int
 			},
 		}
 
-		envVars := []corev1.EnvVar{
-			{
+		envVars := append(jitsi.EnvVars(jibriEnvs),
+			corev1.EnvVar{
 				Name: "JIBRI_INSTANCE_ID",
 				ValueFrom: &corev1.EnvVarSource{
 					FieldRef: &corev1.ObjectFieldSelector{
@@ -99,7 +99,7 @@ func NewJibriDeploymentSyncer(jitsi *v1alpha1.Jitsi, c client.Client) syncer.Int
 					},
 				},
 			},
-			{
+			corev1.EnvVar{
 				Name: "JIBRI_XMPP_PASSWORD",
 				ValueFrom: &corev1.EnvVarSource{
 					SecretKeyRef: &corev1.SecretKeySelector{
@@ -110,7 +110,7 @@ func NewJibriDeploymentSyncer(jitsi *v1alpha1.Jitsi, c client.Client) syncer.Int
 					},
 				},
 			},
-			{
+			corev1.EnvVar{
 				Name: "JIBRI_RECORDER_PASSWORD",
 				ValueFrom: &corev1.EnvVarSource{
 					SecretKeyRef: &corev1.SecretKeySelector{
@@ -121,13 +121,7 @@ func NewJibriDeploymentSyncer(jitsi *v1alpha1.Jitsi, c client.Client) syncer.Int
 					},
 				},
 			},
-		}
-
-		for _, env := range jibriEnvs {
-			if len(jitsi.EnvVar(env).Value) > 0 {
-				envVars = append(envVars, jitsi.EnvVar(env))
-			}
-		}
+		)
 
 		privileged := true
 		jibriContainer := corev1.Container{

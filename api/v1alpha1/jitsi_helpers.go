@@ -9,7 +9,6 @@ import (
 	corev1 "k8s.io/api/core/v1"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/apimachinery/pkg/labels"
-	"k8s.io/apimachinery/pkg/util/intstr"
 )
 
 var defaultEnvVarMap = map[string]string{
@@ -32,32 +31,6 @@ var defaultEnvVarMap = map[string]string{
 	"DISPLAY":                        ":0",
 	// "DISABLE_HTTPS":                  "1",
 	// "ENABLE_HSTS":                    "0",
-}
-
-var jvbEnvs = []string{
-	"ENABLE_COLIBRI_WEBSOCKET",
-	"ENABLE_OCTO",
-	"DOCKER_HOST_ADDRESS",
-	"XMPP_AUTH_DOMAIN",
-	"XMPP_INTERNAL_MUC_DOMAIN",
-	"XMPP_SERVER",
-	"JVB_AUTH_USER",
-	"JVB_AUTH_PASSWORD",
-	"JVB_BREWERY_MUC",
-	"JVB_PORT",
-	"JVB_TCP_HARVESTER_DISABLED",
-	"JVB_TCP_PORT",
-	"JVB_TCP_MAPPED_PORT",
-	"JVB_STUN_SERVERS",
-	"JVB_ENABLE_APIS",
-	"JVB_WS_DOMAIN",
-	"JVB_WS_SERVER_ID",
-	"PUBLIC_URL",
-	"JVB_OCTO_BIND_ADDRESS",
-	"JVB_OCTO_PUBLIC_ADDRESS",
-	"JVB_OCTO_BIND_PORT",
-	"JVB_OCTO_REGION",
-	"TZ",
 }
 
 func (jitsi *Jitsi) EnvVarValue(name string) string {
@@ -108,6 +81,17 @@ func (jitsi *Jitsi) EnvVar(name string) corev1.EnvVar {
 		Name:  name,
 		Value: jitsi.EnvVarValue(name),
 	}
+}
+
+func (jitsi *Jitsi) EnvVars(names []string) []corev1.EnvVar {
+	var envVars []corev1.EnvVar
+
+	for _, env := range names {
+		if len(jitsi.EnvVar(env).Value) > 0 {
+			envVars = append(envVars, jitsi.EnvVar(env))
+		}
+	}
+	return envVars
 }
 
 func (jitsi *Jitsi) SetDefaults() {
@@ -233,125 +217,6 @@ func (jitsi *Jitsi) SetDefaults() {
 	if len(jitsi.Spec.Web.ImagePullPolicy) == 0 {
 		jitsi.Spec.Web.ImagePullPolicy = corev1.PullIfNotPresent
 	}
-}
-
-func (jitsi *Jitsi) JVBPodTemplateSpec(podSpec *corev1.PodTemplateSpec) {
-	podSpec.Spec.Volumes = []corev1.Volume{
-		{
-			Name: "jvb-config",
-			VolumeSource: corev1.VolumeSource{
-				ConfigMap: &corev1.ConfigMapVolumeSource{
-					LocalObjectReference: corev1.LocalObjectReference{
-						Name: fmt.Sprintf("%s-jvb", jitsi.Name),
-					},
-					Items: []corev1.KeyToPath{
-						{
-							Key:  "sip-communicator.properties",
-							Path: "sip-communicator.properties",
-						},
-					},
-				},
-			},
-		},
-	}
-
-	envVars := []corev1.EnvVar{
-		{
-			Name: "LOCAL_ADDRESS",
-			ValueFrom: &corev1.EnvVarSource{
-				FieldRef: &corev1.ObjectFieldSelector{
-					FieldPath: "status.podIP",
-				},
-			},
-		},
-		{
-			Name: "JVB_AUTH_PASSWORD",
-			ValueFrom: &corev1.EnvVarSource{
-				SecretKeyRef: &corev1.SecretKeySelector{
-					LocalObjectReference: corev1.LocalObjectReference{
-						Name: jitsi.Name,
-					},
-					Key: "JVB_AUTH_PASSWORD",
-				},
-			},
-		},
-		// TODO options to manage host IP through vars or stun servers
-		// {
-		// 	Name: "DOCKER_HOST_ADDRESS",
-		// 	ValueFrom: &corev1.EnvVarSource{
-		// 		FieldRef: &corev1.ObjectFieldSelector{
-		// 			FieldPath: "status.hostIP",
-		// 		},
-		// 	},
-		// },
-
-		// {
-		// Default 0.0.0.0
-		// 	Name: "JVB_OCTO_BIND_ADDRESS",
-		// 	ValueFrom: &corev1.EnvVarSource{
-		// 		FieldRef: &corev1.ObjectFieldSelector{
-		// 			FieldPath: "status.podIP",
-		// 		},
-		// 	},
-		// },
-
-		{
-			Name: "JVB_OCTO_PUBLIC_ADDRESS",
-			ValueFrom: &corev1.EnvVarSource{
-				FieldRef: &corev1.ObjectFieldSelector{
-					FieldPath: "status.podIP",
-				},
-			},
-		},
-	}
-
-	for _, env := range jvbEnvs {
-		if len(jitsi.EnvVar(env).Value) > 0 {
-			envVars = append(envVars, jitsi.EnvVar(env))
-		}
-	}
-
-	jvbContainer := corev1.Container{
-		Name:            "jvb",
-		Image:           "jitsi/jvb",
-		ImagePullPolicy: "Always",
-		Env:             envVars,
-		VolumeMounts: []corev1.VolumeMount{
-			{
-				Name:      "jvb-config",
-				MountPath: "/defaults/sip-communicator.properties",
-				SubPath:   "sip-communicator.properties",
-				ReadOnly:  true,
-			},
-		},
-		ReadinessProbe: &corev1.Probe{
-			Handler: corev1.Handler{
-				HTTPGet: &corev1.HTTPGetAction{
-					Path: "/about/health",
-					Port: intstr.FromInt(8080),
-				},
-			},
-			InitialDelaySeconds: 10,
-		},
-	}
-
-	if jitsi.Spec.JVB.GracefulShutdown {
-		jvbContainer.Lifecycle = &corev1.Lifecycle{
-			PreStop: &corev1.Handler{
-				Exec: &corev1.ExecAction{
-					Command: []string{
-						"bash", "-c", "/usr/share/jitsi-videobridge/graceful_shutdown.sh -p $(s6-svstat -o pid /var/run/s6/services/jvb) -t 3 -s",
-					},
-				},
-			},
-		}
-	}
-
-	if jitsi.Spec.JVB.Resources != nil {
-		jvbContainer.Resources = *jitsi.Spec.JVB.Resources
-	}
-
-	podSpec.Spec.Containers = []corev1.Container{jvbContainer}
 }
 
 func (jitsi *Jitsi) ComponentLabels(component string) labels.Set {
