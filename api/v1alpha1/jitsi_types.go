@@ -126,6 +126,16 @@ type Ingress struct {
 	Annotations map[string]string `json:"annotations,omitempty"`
 }
 
+type TURN struct {
+	Host string `json:"host"`
+	//+optional
+	Secret *corev1.SecretKeySelector `json:"secret"`
+	//+optional
+	Port int `json:"port,omitempty"`
+	//+optional
+	TLS bool `json:"tls,omitempty"`
+}
+
 // JitsiSpec defines the desired state of Jitsi
 type JitsiSpec struct {
 	//+optional
@@ -150,6 +160,8 @@ type JitsiSpec struct {
 	Variables map[string]string `json:"variables,omitempty"`
 	//+optional
 	Ingress Ingress `json:"ingress,omitempty"`
+	//+optional
+	TURN *TURN `json:"turn,omitempty"`
 }
 
 // JitsiStatus defines the observed state of Jitsi

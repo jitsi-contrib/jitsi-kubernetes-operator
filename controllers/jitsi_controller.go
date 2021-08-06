@@ -114,6 +114,10 @@ func (r *JitsiReconciler) Reconcile(ctx context.Context, req ctrl.Request) (ctrl
 		syncers = append(syncers, NewIngressSyncer(jitsi, r.Client))
 	}
 
+	if jitsi.Spec.TURN != nil {
+		syncers = append(syncers, NewProsodyTurnSecretSyncer(jitsi, r.Client))
+	}
+
 	if err := r.sync(ctx, syncers); err != nil {
 		return ctrl.Result{}, err
 	}
