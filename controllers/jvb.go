@@ -147,7 +147,7 @@ func NewJVBConfigMapSyncer(jitsi *v1alpha1.Jitsi, c client.Client) syncer.Interf
 
 func injectJVBAffinity(jitsi *v1alpha1.Jitsi, pod *corev1.PodSpec) {
 	if jitsi.Spec.JVB.DisableDefaultAffinity {
-		pod.Affinity = &jitsi.Spec.Jibri.Affinity
+		pod.Affinity = &jitsi.Spec.JVB.Affinity
 	} else {
 		pod.Affinity = &corev1.Affinity{
 			PodAntiAffinity: &corev1.PodAntiAffinity{
