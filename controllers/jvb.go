@@ -210,7 +210,7 @@ func JVBPodTemplateSpec(jitsi *v1alpha1.Jitsi, podSpec *corev1.PodTemplateSpec) 
 
 	jvbContainer := corev1.Container{
 		Name:            "jvb",
-		Image:           "jitsi/jvb",
+		Image:           jitsi.Spec.JVB.ContainerRuntime.Image,
 		ImagePullPolicy: "Always",
 		Env:             envVars,
 		VolumeMounts: []corev1.VolumeMount{
