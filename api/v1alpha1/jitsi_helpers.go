@@ -139,7 +139,7 @@ func (jitsi *Jitsi) SetDefaults() {
 	}
 
 	if jitsi.Spec.Jibri.ContainerRuntime == nil {
-		jitsi.Spec.JVB.ContainerRuntime = &ContainerRuntime{}
+		jitsi.Spec.Jibri.ContainerRuntime = &ContainerRuntime{}
 	}
 
 	if jitsi.Spec.Jibri.Enabled {
