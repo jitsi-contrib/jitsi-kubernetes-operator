@@ -288,6 +288,10 @@ func JVBPodTemplateSpec(jitsi *v1alpha1.Jitsi, podSpec *corev1.PodTemplateSpec) 
 	}
 
 	podSpec.Spec.Containers = []corev1.Container{jvbContainer}
+
+	if jitsi.Spec.Metrics {
+		podSpec.Spec.Containers = append(podSpec.Spec.Containers, NewMetricsContainer("jvb"))
+	}
 }
 
 func NewJVBDeploymentSyncer(jitsi *v1alpha1.Jitsi, c client.Client) syncer.Interface {

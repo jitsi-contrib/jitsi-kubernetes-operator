@@ -118,6 +118,11 @@ func (r *JitsiReconciler) Reconcile(ctx context.Context, req ctrl.Request) (ctrl
 		syncers = append(syncers, NewProsodyTurnSecretSyncer(jitsi, r.Client))
 	}
 
+	if jitsi.Spec.Metrics {
+		syncers = append(syncers, NewJVBPodMonitorSyncer(jitsi, r.Client))
+		syncers = append(syncers, NewJicofoServiceMonitorSyncer(jitsi, r.Client))
+	}
+
 	if err := r.sync(ctx, syncers); err != nil {
 		return ctrl.Result{}, err
 	}
