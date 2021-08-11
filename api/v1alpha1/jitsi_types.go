@@ -162,6 +162,8 @@ type JitsiSpec struct {
 	Ingress Ingress `json:"ingress,omitempty"`
 	//+optional
 	TURN *TURN `json:"turn,omitempty"`
+	//+optional
+	Metrics bool `json:"metrics,omitempty"`
 }
 
 // JitsiStatus defines the observed state of Jitsi

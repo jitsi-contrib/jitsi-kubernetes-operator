@@ -2045,6 +2045,8 @@ spec:
                         type: string
                     type: object
                 type: object
+              metrics:
+                type: boolean
               prosody:
                 properties:
                   affinity:
