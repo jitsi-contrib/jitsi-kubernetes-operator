@@ -87,45 +87,6 @@ func NewJitsiSecretSyncer(jitsi *v1alpha1.Jitsi, c client.Client) syncer.Interfa
 
 }
 
-func NewJVBServiceSyncer(jitsi *v1alpha1.Jitsi, c client.Client) syncer.Interface {
-	svc := &corev1.Service{
-		ObjectMeta: metav1.ObjectMeta{
-			Name:      fmt.Sprintf("%s-jvb", jitsi.Name),
-			Namespace: jitsi.Namespace,
-		},
-	}
-
-	return syncer.NewObjectSyncer("Service", jitsi, svc, c, func() error {
-		svc.Labels = jitsi.ComponentLabels("jvb")
-		svc.Spec.Type = corev1.ServiceTypeNodePort
-		svc.Spec.Ports = []corev1.ServicePort{
-			{
-				Name:     "udp",
-				Port:     *jitsi.Spec.JVB.Ports.UDP,
-				NodePort: *jitsi.Spec.JVB.Ports.UDP,
-				TargetPort: intstr.IntOrString{
-					IntVal: *jitsi.Spec.JVB.Ports.UDP,
-				},
-				Protocol: corev1.ProtocolUDP,
-			},
-			{
-				Name:     "tcp",
-				Port:     *jitsi.Spec.JVB.Ports.TCP,
-				NodePort: *jitsi.Spec.JVB.Ports.TCP,
-				TargetPort: intstr.IntOrString{
-					IntVal: *jitsi.Spec.JVB.Ports.TCP,
-				},
-				Protocol: corev1.ProtocolTCP,
-			},
-		}
-
-		svc.Spec.Selector = jitsi.ComponentLabels("jvb")
-
-		return nil
-	})
-
-}
-
 func NewJVBConfigMapSyncer(jitsi *v1alpha1.Jitsi, c client.Client) syncer.Interface {
 	cm := &corev1.ConfigMap{
 		ObjectMeta: metav1.ObjectMeta{
@@ -258,6 +219,14 @@ func JVBPodTemplateSpec(jitsi *v1alpha1.Jitsi, podSpec *corev1.PodTemplateSpec) 
 				MountPath: "/defaults/sip-communicator.properties",
 				SubPath:   "sip-communicator.properties",
 				ReadOnly:  true,
+			},
+		},
+		Ports: []corev1.ContainerPort{
+			{
+				Name:          "rtp-udp",
+				ContainerPort: *jitsi.Spec.JVB.Ports.UDP,
+				HostPort:      *jitsi.Spec.JVB.Ports.UDP,
+				Protocol:      corev1.ProtocolUDP,
 			},
 		},
 		ReadinessProbe: &corev1.Probe{

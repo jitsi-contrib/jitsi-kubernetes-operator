@@ -110,7 +110,7 @@ func (jitsi *Jitsi) SetDefaults() {
 	}
 
 	if jitsi.Spec.JVB.Ports.UDP == nil {
-		defaultPort := int32(30300)
+		defaultPort := int32(10000)
 		jitsi.Spec.JVB.Ports.UDP = &defaultPort
 	}
 
