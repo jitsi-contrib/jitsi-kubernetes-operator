@@ -29,6 +29,7 @@ var defaultEnvVarMap = map[string]string{
 	"JVB_ENABLE_APIS":                "rest,colibri",
 	"JVB_STUN_SERVERS":               "meet-jit-si-turnrelay.jitsi.net:443",
 	"DISPLAY":                        ":0",
+	"DEPLOYMENTINFO_SHARD":           "shard",
 	// "DISABLE_HTTPS":                  "1",
 	// "ENABLE_HSTS":                    "0",
 }
