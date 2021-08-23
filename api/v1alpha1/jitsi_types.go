@@ -92,6 +92,8 @@ type Jibri struct {
 	Enabled bool `json:"enabled,omitempty"`
 	//+optional
 	Replicas *int32 `json:"replicas,omitempty"`
+	//+optional
+	ServiceAccountName string `json:"serviceAccountName,omitempty"`
 }
 
 type Web struct {

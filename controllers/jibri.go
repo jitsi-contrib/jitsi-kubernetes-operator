@@ -151,6 +151,10 @@ func NewJibriDeploymentSyncer(jitsi *v1alpha1.Jitsi, c client.Client) syncer.Int
 			},
 		}
 
+		if jitsi.Spec.Jibri.ServiceAccountName != "" {
+			dep.Spec.Template.Spec.ServiceAccountName = jitsi.Spec.Jibri.ServiceAccountName
+		}
+
 		if jitsi.Spec.Jibri.Resources != nil {
 			jibriContainer.Resources = *jitsi.Spec.Jibri.Resources
 		}
