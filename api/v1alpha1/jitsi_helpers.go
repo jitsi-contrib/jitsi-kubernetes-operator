@@ -218,6 +218,10 @@ func (jitsi *Jitsi) SetDefaults() {
 	if len(jitsi.Spec.Web.ImagePullPolicy) == 0 {
 		jitsi.Spec.Web.ImagePullPolicy = corev1.PullIfNotPresent
 	}
+
+	if jitsi.Spec.Ingress.Annotations == nil {
+		jitsi.Spec.Ingress.Annotations = make(map[string]string)
+	}
 }
 
 func (jitsi *Jitsi) ComponentLabels(component string) labels.Set {
