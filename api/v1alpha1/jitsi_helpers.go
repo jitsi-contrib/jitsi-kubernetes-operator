@@ -60,6 +60,8 @@ func (jitsi *Jitsi) EnvVarValue(name string) string {
 		value = jitsi.Spec.Domain
 	case "XMPP_AUTH_DOMAIN":
 		value = "auth." + jitsi.EnvVarValue("XMPP_DOMAIN")
+	case "XMPP_GUEST_DOMAIN":
+		value = "guest." + jitsi.EnvVarValue("XMPP_DOMAIN")
 	case "XMPP_INTERNAL_MUC_DOMAIN":
 		value = "internal-muc." + jitsi.EnvVarValue("XMPP_DOMAIN")
 	case "XMPP_MUC_DOMAIN":
