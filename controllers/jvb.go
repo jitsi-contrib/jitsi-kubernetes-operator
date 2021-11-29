@@ -206,6 +206,14 @@ func JVBPodTemplateSpec(jitsi *v1alpha1.Jitsi, podSpec *corev1.PodTemplateSpec) 
 				},
 			},
 		},
+		corev1.EnvVar{
+			Name: "JVB_WS_SERVER_ID",
+			ValueFrom: &corev1.EnvVarSource{
+				FieldRef: &corev1.ObjectFieldSelector{
+					FieldPath: "status.podIP",
+				},
+			},
+		},
 	)
 
 	jvbContainer := corev1.Container{
