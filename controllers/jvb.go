@@ -54,6 +54,7 @@ var jvbEnvs = []string{
 	"JVB_OCTO_BIND_PORT",
 	"JVB_OCTO_REGION",
 	"TZ",
+	"COLIBRI_REST_ENABLED",
 }
 
 func NewJitsiSecretSyncer(jitsi *v1alpha1.Jitsi, c client.Client) syncer.Interface {

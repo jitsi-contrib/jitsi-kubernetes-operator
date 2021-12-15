@@ -30,6 +30,7 @@ var defaultEnvVarMap = map[string]string{
 	"JVB_STUN_SERVERS":               "meet-jit-si-turnrelay.jitsi.net:443",
 	"DISPLAY":                        ":0",
 	"DEPLOYMENTINFO_SHARD":           "shard",
+	"COLIBRI_REST_ENABLED":            "1",
 	// "DISABLE_HTTPS":                  "1",
 	// "ENABLE_HSTS":                    "0",
 }
@@ -68,6 +69,8 @@ func (jitsi *Jitsi) EnvVarValue(name string) string {
 		value = "muc." + jitsi.EnvVarValue("XMPP_DOMAIN")
 	case "XMPP_RECORDER_DOMAIN":
 		value = "recorder." + jitsi.EnvVarValue("XMPP_DOMAIN")
+	case: "COLIBRI_REST_ENABLED":
+		value = jitsi.EnvVarValue("COLIBRI_REST_ENABLED")
 	default:
 		if jitsi.Spec.Variables[name] != "" {
 			value = jitsi.Spec.Variables[name]
