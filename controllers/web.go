@@ -107,6 +107,7 @@ var webEnvs = []string{
 	"XMPP_MUC_DOMAIN",
 	"XMPP_RECORDER_DOMAIN",
 	"TOKEN_AUTH_URL",
+	"ENABLE_BREAKOUT_ROOMS",
 }
 
 func NewWebServiceSyncer(jitsi *v1alpha1.Jitsi, c client.Client) syncer.Interface {

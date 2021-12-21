@@ -60,6 +60,7 @@ var prosodyEnvs = []string{
 	"LOG_LEVEL",
 	"PUBLIC_URL",
 	"TZ",
+	"ENABLE_BREAKOUT_ROOMS",
 }
 
 func NewProsodyServiceSyncer(jitsi *v1alpha1.Jitsi, c client.Client) syncer.Interface {
