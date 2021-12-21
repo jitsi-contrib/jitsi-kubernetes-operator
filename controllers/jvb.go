@@ -15,12 +15,7 @@ import (
 )
 
 const jvbConf = `
-{{ if .Env.DOCKER_HOST_ADDRESS }}
-org.ice4j.ice.harvest.NAT_HARVESTER_LOCAL_ADDRESS={{ .Env.LOCAL_ADDRESS }}
-org.ice4j.ice.harvest.NAT_HARVESTER_PUBLIC_ADDRESS={{ .Env.DOCKER_HOST_ADDRESS }}
-{{ end }}
 org.ice4j.ice.harvest.DISABLE_AWS_HARVESTER=true
-org.jitsi.videobridge.ENABLE_REST_SHUTDOWN=true
 `
 
 var secretsVar = []string{
@@ -225,7 +220,7 @@ func JVBPodTemplateSpec(jitsi *v1alpha1.Jitsi, podSpec *corev1.PodTemplateSpec) 
 		VolumeMounts: []corev1.VolumeMount{
 			{
 				Name:      "jvb-config",
-				MountPath: "/defaults/sip-communicator.properties",
+				MountPath: "/config/custom-sip-communicator.properties",
 				SubPath:   "sip-communicator.properties",
 				ReadOnly:  true,
 			},
