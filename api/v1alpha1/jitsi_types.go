@@ -166,6 +166,8 @@ type JitsiSpec struct {
 	TURN *TURN `json:"turn,omitempty"`
 	//+optional
 	Metrics bool `json:"metrics,omitempty"`
+	//+optional
+	Suspend bool `json:"suspend,omitempty"`
 }
 
 // JitsiStatus defines the observed state of Jitsi

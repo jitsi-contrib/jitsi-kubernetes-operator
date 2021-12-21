@@ -1579,6 +1579,8 @@ spec:
                 type: object
               region:
                 type: string
+              suspend:
+                type: boolean
               timezone:
                 type: string
               turn:
