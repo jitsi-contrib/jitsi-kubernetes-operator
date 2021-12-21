@@ -26,7 +26,7 @@ var defaultEnvVarMap = map[string]string{
 	"OCTO_BRIDGE_SELECTION_STRATEGY": "RegionBasedBridgeSelectionStrategy",
 	"TESTING_OCTO_PROBABILITY":       "1",
 	"ENABLE_OCTO":                    "1",
-	"JVB_ENABLE_APIS":                "rest,colibri",
+	"COLIBRI_REST_ENABLED":           "1",
 	"JVB_STUN_SERVERS":               "meet-jit-si-turnrelay.jitsi.net:443",
 	"DISPLAY":                        ":0",
 	"DEPLOYMENTINFO_SHARD":           "shard",
@@ -68,6 +68,12 @@ func (jitsi *Jitsi) EnvVarValue(name string) string {
 		value = "muc." + jitsi.EnvVarValue("XMPP_DOMAIN")
 	case "XMPP_RECORDER_DOMAIN":
 		value = "recorder." + jitsi.EnvVarValue("XMPP_DOMAIN")
+	case "SHUTDOWN_REST_ENABLED":
+		if jitsi.Spec.JVB.GracefulShutdown || jitsi.Spec.Variables["SHUTDOWN_REST_ENABLED"] == "1" {
+			value = "1"
+		} else {
+			value = "0"
+		}
 	default:
 		if jitsi.Spec.Variables[name] != "" {
 			value = jitsi.Spec.Variables[name]

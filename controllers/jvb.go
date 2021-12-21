@@ -45,7 +45,7 @@ var jvbEnvs = []string{
 	"JVB_TCP_PORT",
 	"JVB_TCP_MAPPED_PORT",
 	"JVB_STUN_SERVERS",
-	"JVB_ENABLE_APIS",
+	"COLIBRI_REST_ENABLED",
 	"JVB_WS_DOMAIN",
 	"JVB_WS_SERVER_ID",
 	"PUBLIC_URL",
@@ -54,6 +54,7 @@ var jvbEnvs = []string{
 	"JVB_OCTO_BIND_PORT",
 	"JVB_OCTO_REGION",
 	"TZ",
+	"SHUTDOWN_REST_ENABLED",
 }
 
 func NewJitsiSecretSyncer(jitsi *v1alpha1.Jitsi, c client.Client) syncer.Interface {
