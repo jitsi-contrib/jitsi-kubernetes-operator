@@ -6,6 +6,7 @@ import (
 
 	"github.com/presslabs/controller-util/rand"
 	"github.com/presslabs/controller-util/syncer"
+	v1 "k8s.io/api/apps/v1"
 	autoscalingv2 "k8s.io/api/autoscaling/v2beta2"
 	corev1 "k8s.io/api/core/v1"
 	"k8s.io/apimachinery/pkg/api/resource"
@@ -143,12 +144,32 @@ func JVBPodTemplateSpec(jitsi *v1alpha1.Jitsi, podSpec *corev1.PodTemplateSpec) 
 					LocalObjectReference: corev1.LocalObjectReference{
 						Name: fmt.Sprintf("%s-jvb", jitsi.Name),
 					},
-					Items: []corev1.KeyToPath{
-						{
-							Key:  "sip-communicator.properties",
-							Path: "sip-communicator.properties",
-						},
-					},
+				},
+			},
+		},
+		{
+			Name: "config",
+			VolumeSource: corev1.VolumeSource{
+				EmptyDir: &corev1.EmptyDirVolumeSource{},
+			},
+		},
+	}
+
+	podSpec.Spec.InitContainers = []corev1.Container{
+		{
+			Name:  "config",
+			Image: "busybox:stable",
+			Command: []string{
+				"cp", "-f", "/config-src/sip-communicator.properties", "/config/custom-sip-communicator.properties",
+			},
+			VolumeMounts: []corev1.VolumeMount{
+				{
+					Name:      "jvb-config",
+					MountPath: "/config-src",
+				},
+				{
+					Name:      "config",
+					MountPath: "/config",
 				},
 			},
 		},
@@ -219,10 +240,8 @@ func JVBPodTemplateSpec(jitsi *v1alpha1.Jitsi, podSpec *corev1.PodTemplateSpec) 
 		Env:             envVars,
 		VolumeMounts: []corev1.VolumeMount{
 			{
-				Name:      "jvb-config",
-				MountPath: "/config/custom-sip-communicator.properties",
-				SubPath:   "sip-communicator.properties",
-				ReadOnly:  true,
+				Name:      "config",
+				MountPath: "/config",
 			},
 		},
 		Ports: []corev1.ContainerPort{
