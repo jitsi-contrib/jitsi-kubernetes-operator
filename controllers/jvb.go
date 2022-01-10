@@ -6,7 +6,6 @@ import (
 
 	"github.com/presslabs/controller-util/rand"
 	"github.com/presslabs/controller-util/syncer"
-	v1 "k8s.io/api/apps/v1"
 	autoscalingv2 "k8s.io/api/autoscaling/v2beta2"
 	corev1 "k8s.io/api/core/v1"
 	"k8s.io/apimachinery/pkg/api/resource"
