@@ -15,12 +15,7 @@ import (
 )
 
 const jvbConf = `
-{{ if .Env.DOCKER_HOST_ADDRESS }}
-org.ice4j.ice.harvest.NAT_HARVESTER_LOCAL_ADDRESS={{ .Env.LOCAL_ADDRESS }}
-org.ice4j.ice.harvest.NAT_HARVESTER_PUBLIC_ADDRESS={{ .Env.DOCKER_HOST_ADDRESS }}
-{{ end }}
 org.ice4j.ice.harvest.DISABLE_AWS_HARVESTER=true
-org.jitsi.videobridge.ENABLE_REST_SHUTDOWN=true
 `
 
 var secretsVar = []string{
@@ -45,7 +40,7 @@ var jvbEnvs = []string{
 	"JVB_TCP_PORT",
 	"JVB_TCP_MAPPED_PORT",
 	"JVB_STUN_SERVERS",
-	"JVB_ENABLE_APIS",
+	"COLIBRI_REST_ENABLED",
 	"JVB_WS_DOMAIN",
 	"JVB_WS_SERVER_ID",
 	"PUBLIC_URL",
@@ -54,6 +49,7 @@ var jvbEnvs = []string{
 	"JVB_OCTO_BIND_PORT",
 	"JVB_OCTO_REGION",
 	"TZ",
+	"SHUTDOWN_REST_ENABLED",
 }
 
 func NewJitsiSecretSyncer(jitsi *v1alpha1.Jitsi, c client.Client) syncer.Interface {
@@ -147,12 +143,32 @@ func JVBPodTemplateSpec(jitsi *v1alpha1.Jitsi, podSpec *corev1.PodTemplateSpec) 
 					LocalObjectReference: corev1.LocalObjectReference{
 						Name: fmt.Sprintf("%s-jvb", jitsi.Name),
 					},
-					Items: []corev1.KeyToPath{
-						{
-							Key:  "sip-communicator.properties",
-							Path: "sip-communicator.properties",
-						},
-					},
+				},
+			},
+		},
+		{
+			Name: "config",
+			VolumeSource: corev1.VolumeSource{
+				EmptyDir: &corev1.EmptyDirVolumeSource{},
+			},
+		},
+	}
+
+	podSpec.Spec.InitContainers = []corev1.Container{
+		{
+			Name:  "config",
+			Image: "busybox:stable",
+			Command: []string{
+				"cp", "-f", "/config-src/sip-communicator.properties", "/config/custom-sip-communicator.properties",
+			},
+			VolumeMounts: []corev1.VolumeMount{
+				{
+					Name:      "jvb-config",
+					MountPath: "/config-src",
+				},
+				{
+					Name:      "config",
+					MountPath: "/config",
 				},
 			},
 		},
@@ -223,10 +239,8 @@ func JVBPodTemplateSpec(jitsi *v1alpha1.Jitsi, podSpec *corev1.PodTemplateSpec) 
 		Env:             envVars,
 		VolumeMounts: []corev1.VolumeMount{
 			{
-				Name:      "jvb-config",
-				MountPath: "/defaults/sip-communicator.properties",
-				SubPath:   "sip-communicator.properties",
-				ReadOnly:  true,
+				Name:      "config",
+				MountPath: "/config",
 			},
 		},
 		Ports: []corev1.ContainerPort{
