@@ -50,6 +50,7 @@ var jvbEnvs = []string{
 	"JVB_OCTO_REGION",
 	"TZ",
 	"SHUTDOWN_REST_ENABLED",
+	"VIDEOBRIDGE_MAX_MEMORY",
 }
 
 func NewJitsiSecretSyncer(jitsi *v1alpha1.Jitsi, c client.Client) syncer.Interface {

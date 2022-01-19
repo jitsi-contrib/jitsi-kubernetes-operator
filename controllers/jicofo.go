@@ -45,6 +45,7 @@ var jicofoEnvs = []string{
 	"XMPP_INTERNAL_MUC_DOMAIN",
 	"XMPP_MUC_DOMAIN",
 	"XMPP_SERVER",
+	"JICOFO_MAX_MEMORY",
 }
 
 func NewJicofoDeploymentSyncer(jitsi *v1alpha1.Jitsi, c client.Client) syncer.Interface {
