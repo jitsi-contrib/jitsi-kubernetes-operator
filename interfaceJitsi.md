@@ -14,4 +14,4 @@
     * make generate-deploy
     * make deploy
     * kubectl apply -f deploy/jitsi-operator
-- Install your configmap and your Jitsi stack (cf config/samples/config.yaml  config/samples/mydomain.com_jitsi_instance.yaml)
+- Install your configmap and your Jitsi stack (cf config/samples/mydomain.com_jitsi_instance.yaml  config/samples/mydomain.com_jitsi_instance.yaml)
