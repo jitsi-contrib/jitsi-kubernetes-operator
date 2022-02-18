@@ -30,6 +30,9 @@ For the hackathon, we decided to use scaleway, as they provide autoscaling kuber
 ### Install our jitsi kubernetes operator
 kubectl apply -f https://raw.githubusercontent.com/jitsi-contrib/jitsi-kubernetes-operator/master/deploy/jitsi-operator.yaml
 
+### custom jitsi web interface
+cf interfaceJitsi.md
+
 ### Profit
 
 Now, as the critical path of a jitsi cluster are the JVBs, it will scale based on load.

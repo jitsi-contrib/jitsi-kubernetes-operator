@@ -242,7 +242,51 @@ func NewWebDeploymentSyncer(jitsi *v1alpha1.Jitsi, c client.Client) syncer.Inter
 				SubPath:   "custom-interface_config.js",
 			})
 		}
+		if jitsi.Spec.Web.CustomTitleConfig != nil {
+			dep.Spec.Template.Spec.Volumes = append(dep.Spec.Template.Spec.Volumes,
+				corev1.Volume{
+					Name: "custom-title",
+					VolumeSource: corev1.VolumeSource{
+						ConfigMap: &corev1.ConfigMapVolumeSource{
+							LocalObjectReference: *jitsi.Spec.Web.CustomTitleConfig,
+							Items: []corev1.KeyToPath{
+								{
+									Key:  "custom-title.html",
+									Path: "custom-title.html",
+								},
+							},
+						},
+					},
+				})
+			container.VolumeMounts = append(container.VolumeMounts, corev1.VolumeMount{
+				Name:      "custom-title",
+				MountPath: "/usr/share/jitsi-meet/title.html",
+				SubPath:   "custom-title.html",
+			})
+		}
 
+		if jitsi.Spec.Web.CustomBodyConfig != nil {
+			dep.Spec.Template.Spec.Volumes = append(dep.Spec.Template.Spec.Volumes,
+				corev1.Volume{
+					Name: "custom-body",
+					VolumeSource: corev1.VolumeSource{
+						ConfigMap: &corev1.ConfigMapVolumeSource{
+							LocalObjectReference: *jitsi.Spec.Web.CustomBodyConfig,
+							Items: []corev1.KeyToPath{
+								{
+									Key:  "custom-body.html",
+									Path: "custom-body.html",
+								},
+							},
+						},
+					},
+				})
+			container.VolumeMounts = append(container.VolumeMounts, corev1.VolumeMount{
+				Name:      "custom-body",
+				MountPath: "/usr/share/jitsi-meet/body.html",
+				SubPath:   "custom-body.html",
+			})
+		}
 		dep.Spec.Template.Spec.Containers = []corev1.Container{container}
 
 		return nil

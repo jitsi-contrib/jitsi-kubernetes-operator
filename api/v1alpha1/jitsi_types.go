@@ -105,6 +105,10 @@ type Web struct {
 	CustomConfig *corev1.LocalObjectReference `json:"customConfigCM,omitempty"`
 	//+optional
 	CustomInterfaceConfig *corev1.LocalObjectReference `json:"customInterfaceConfigCM,omitempty"`
+	//+optional
+	CustomTitleConfig *corev1.LocalObjectReference `json:"customTitleConfigCM,omitempty"`
+	//+optional
+	CustomBodyConfig *corev1.LocalObjectReference `json:"customBodyConfigCM,omitempty"`
 }
 
 type VersionChannel string

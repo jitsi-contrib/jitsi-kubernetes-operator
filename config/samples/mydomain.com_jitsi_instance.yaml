@@ -1,0 +1,41 @@
+apiVersion: apps.jit.si/v1alpha1
+kind: Jitsi
+metadata:
+  name: jisti_name
+  namespace: jitsi
+spec:
+  domain: mydomain.com
+  region: europe
+  timezone: Europe/Paris
+  jvb:
+    affinity:
+      nodeAffinity:
+        requiredDuringSchedulingIgnoredDuringExecution:
+          nodeSelectorTerms:
+          - matchExpressions:
+            - key: cputype
+              operator: NotIn
+              values:
+              - dedicated
+              - virtual-dedicated
+    gracefulShutdown: true
+    strategy:
+      replicas: 2
+      maxReplicas : 7
+      type: autoscaled
+    image: jitsi/jvb:stable-6726-1 
+  web:
+    customBodyConfigCM:
+      name: jitsi-custom-config
+    customConfigCM:
+      name: jitsi-custom-config
+    customInterfaceConfigCM:
+      name: jitsi-custom-config
+    customTitleConfigCM:
+      name: jitsi-custom-config
+    image: jitsi/web:stable-6726-1
+  prosody:
+    image: jitsi/prosody:stable-6726-1
+  jicofo:
+    image: jitsi/jicofo:stable-6726-1
+  metrics: true

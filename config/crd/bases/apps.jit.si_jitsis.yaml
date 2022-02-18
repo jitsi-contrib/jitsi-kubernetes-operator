@@ -3369,6 +3369,15 @@ spec:
                             type: array
                         type: object
                     type: object
+                  customBodyConfigCM:
+                    description: LocalObjectReference contains enough information
+                      to let you locate the referenced object inside the same namespace.
+                    properties:
+                      name:
+                        description: 'Name of the referent. More info: https://kubernetes.io/docs/concepts/overview/working-with-objects/names/#names
+                          TODO: Add other useful fields. apiVersion, kind, uid?'
+                        type: string
+                    type: object
                   customConfigCM:
                     description: LocalObjectReference contains enough information
                       to let you locate the referenced object inside the same namespace.
@@ -3379,6 +3388,15 @@ spec:
                         type: string
                     type: object
                   customInterfaceConfigCM:
+                    description: LocalObjectReference contains enough information
+                      to let you locate the referenced object inside the same namespace.
+                    properties:
+                      name:
+                        description: 'Name of the referent. More info: https://kubernetes.io/docs/concepts/overview/working-with-objects/names/#names
+                          TODO: Add other useful fields. apiVersion, kind, uid?'
+                        type: string
+                    type: object
+                  customTitleConfigCM:
                     description: LocalObjectReference contains enough information
                       to let you locate the referenced object inside the same namespace.
                     properties:
