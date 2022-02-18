@@ -31,7 +31,7 @@ For the hackathon, we decided to use scaleway, as they provide autoscaling kuber
 kubectl apply -f https://raw.githubusercontent.com/jitsi-contrib/jitsi-kubernetes-operator/master/deploy/jitsi-operator.yaml
 
 ### custom jitsi web interface
-cf interfaceJitsi.md
+cf [Custom jitsi Web interface](interfaceJitsi.md)
 
 ### Profit
 
