@@ -161,6 +161,55 @@ func NewJibriDeploymentSyncer(jitsi *v1alpha1.Jitsi, c client.Client) syncer.Int
 
 		dep.Spec.Template.Spec.Containers = []corev1.Container{jibriContainer}
 
+		if jitsi.Spec.Jibri.Bucket != nil {
+			dep.Spec.Template.Spec.Containers = append(dep.Spec.Template.Spec.Containers, corev1.Container{
+				Name:            "mc",
+				Image:           "minio/mc:RELEASE.2022-02-23T03-15-59Z",
+				ImagePullPolicy: corev1.PullIfNotPresent,
+				Env: []corev1.EnvVar{
+					{
+						Name:  "MINIO_HOST",
+						Value: jitsi.Spec.Jibri.Bucket.Host,
+					},
+					{
+						Name:  "BUCKET",
+						Value: jitsi.Spec.Jibri.Bucket.Name,
+					},
+					{
+						Name: "MINIO_ACCESS_KEY",
+						ValueFrom: &corev1.EnvVarSource{
+							SecretKeyRef: &corev1.SecretKeySelector{
+								Key: "ACCESS_KEY",
+								LocalObjectReference: corev1.LocalObjectReference{
+									Name: jitsi.Spec.Jibri.Bucket.Secret.Name,
+								},
+							},
+						},
+					},
+					{
+						Name: "MINIO_SECRET_KEY",
+						ValueFrom: &corev1.EnvVarSource{
+							SecretKeyRef: &corev1.SecretKeySelector{
+								Key: "SECRET_KEY",
+								LocalObjectReference: corev1.LocalObjectReference{
+									Name: jitsi.Spec.Jibri.Bucket.Secret.Name,
+								},
+							},
+						},
+					},
+				},
+				VolumeMounts: []corev1.VolumeMount{
+					{
+						Name:      "recordings",
+						MountPath: "/opt/recordings",
+					},
+				},
+				Command: []string{
+					"bash", "-c", "mc alias set minio $MINIO_HOST $MINIO_ACCESS_KEY $MINIO_SECRET_KEY && while true; do mc mirror --overwrite /opt/recordings minio/$BUCKET; sleep 5; done",
+				},
+			})
+		}
+
 		injectJibriAffinity(jitsi, &dep.Spec.Template.Spec)
 
 		return nil

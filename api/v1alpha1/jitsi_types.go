@@ -85,6 +85,14 @@ type Jicofo struct {
 	AffinitySettings  `json:",inline"`
 }
 
+type BucketSettings struct {
+	//+required
+	Host string `json:"host"`
+	//+required
+	Name string `json:"name"`
+	//+required
+	Secret *corev1.LocalObjectReference `json:"secret"`
+}
 type Jibri struct {
 	*ContainerRuntime `json:",inline"`
 	AffinitySettings  `json:",inline"`
@@ -94,6 +102,8 @@ type Jibri struct {
 	Replicas *int32 `json:"replicas,omitempty"`
 	//+optional
 	ServiceAccountName string `json:"serviceAccountName,omitempty"`
+	//+optional
+	Bucket *BucketSettings `json:"bucket,omitempty"`
 }
 
 type Web struct {
