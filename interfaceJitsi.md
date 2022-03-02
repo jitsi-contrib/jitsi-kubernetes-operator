@@ -1,12 +1,14 @@
-# customize jitsi web interface
+# Customize your jitsi web interface
 
-## Requirements:
+## How to build your own manager
 
+### Prerequisites : 
 - install go 1.15.5
 - install controller-gen
 - install gcc and build-base
 
-- How to build your own manager (custom jitsi web interface)
+### Steps :
+
     * go to Makefile: change IMG ?= with your own repository docker 
     * make build
     * make docker-build
@@ -14,21 +16,20 @@
     * make generate-deploy
     * make deploy
     * kubectl apply -f deploy/jitsi-operator
+    
 - Install your configmap and your Jitsi stack (cf config/samples/mydomain.com_jitsi_instance.yaml  config/samples/mydomain.com_jitsi_instance.yaml)
 
-## Custom interface
+## Customize the web interface
 
-- Explanations of some parameters
-
-In the config.js file, add config.dynamicBrandingUrl, this parameter is usefull  to change many style configuration in jitsi .
+In the config.js file, add config.dynamicBrandingUrl, this parameter is useful to change many style configurations.
 
 ```bash
 config.dynamicBrandingUrl = "https://meet/jitsi/dynamicBranding.json";
 ```
 cf https://community.jitsi.org/t/queries-about-dynamic-branding-url/101702
 
-Set up these parameter in json file which must be publically available
-An example of json file below:
+Set up these parameters in your dynamicBrandingUrl json file, which must be publically available.
+An example of such a json file below :
 
 ```bash
 
@@ -44,8 +45,8 @@ An example of json file below:
 
 
 ```
-* "backgroundImageUrl": link of background image ( during conference )
-* "premeetingBackground": link of background image for premeeting page (where you enter your name to join the meeting)
-* "virtualBackgrounds": link of virtual background images 
+* "backgroundImageUrl": background image ( during conference )
+* "premeetingBackground": background image of premeeting page (where you enter your name to join the meeting)
+* "virtualBackgrounds": list of suggested virtual background images 
 
 
