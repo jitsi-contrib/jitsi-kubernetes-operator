@@ -17,11 +17,13 @@
     * make deploy
     * kubectl apply -f deploy/jitsi-operator
     
-- Install your configmap and your Jitsi stack (cf config/samples/mydomain.com_jitsi_instance.yaml  config/samples/mydomain.com_jitsi_instance.yaml)
+
 
 ## Customize the web interface
 
-In the config.js file, add config.dynamicBrandingUrl, this parameter is useful to change many style configurations.
+- Install your configmap and your Jitsi stack (cf config/samples/mydomain.com_jitsi_instance.yaml  config/samples/mydomain.com_jitsi_instance.yaml)
+
+- In the config.js file if needed, add config.dynamicBrandingUrl, this parameter is useful to change many style configurations.
 
 ```bash
 config.dynamicBrandingUrl = "https://meet/jitsi/dynamicBranding.json";
