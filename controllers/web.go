@@ -287,6 +287,28 @@ func NewWebDeploymentSyncer(jitsi *v1alpha1.Jitsi, c client.Client) syncer.Inter
 				SubPath:   "custom-body.html",
 			})
 		}
+		if jitsi.Spec.Web.CustomCloseConfig != nil {
+			dep.Spec.Template.Spec.Volumes = append(dep.Spec.Template.Spec.Volumes,
+				corev1.Volume{
+					Name: "custom-close",
+					VolumeSource: corev1.VolumeSource{
+						ConfigMap: &corev1.ConfigMapVolumeSource{
+							LocalObjectReference: *jitsi.Spec.Web.CustomCloseConfig,
+							Items: []corev1.KeyToPath{
+								{
+									Key:  "custom-close.html",
+									Path: "custom-close.html",
+								},
+							},
+						},
+					},
+				})
+			container.VolumeMounts = append(container.VolumeMounts, corev1.VolumeMount{
+				Name:      "custom-close",
+				MountPath: "/usr/share/jitsi-meet/static/close3.html",
+				SubPath:   "custom-close.html",
+			})
+		}
 		dep.Spec.Template.Spec.Containers = []corev1.Container{container}
 
 		return nil
