@@ -133,7 +133,7 @@ data:
             "polls";
             "muc_max_occupants"; 
             }
-        muc_max_occupants = "2"
+        muc_max_occupants = "50"
         muc_access_whitelist = { "focus@auth.mydomain.com" }
         admins = { "focus@auth.mydomain.com" }
         muc_room_cache_size = 1000
