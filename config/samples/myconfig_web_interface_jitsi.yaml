@@ -25,7 +25,10 @@ data:
     config.p2p.stunServers = [
       { urls: 'stun:my_turn_server_name.com:3478' }
       ];
-      
+    config.dynamicBrandingUrl = "https://meet/jitsi/dynamicBranding.json";
+    config.disableTileEnlargement = true;
+    config.enableClosePage = true;
+
   custom-interface_config.js: |
     /* eslint-enable no-unused-vars, no-var, max-len */
 
@@ -119,3 +122,27 @@ data:
           background-color: #31b76a;
       }
     </style>
+  custom-close.html: |
+    <html>
+    <head>
+    <script type="text/javascript">
+    <!--
+    // Create an array of the links to choose from:
+    var links = new Array();
+    links[0] = "https://random1.com";
+    links[1] = "https://random2.com";
+    links[2] = "https://random3.com";
+
+    function openLink() {
+      // Chooses a random link:
+      var i = Math.floor(Math.random() * links.length);
+      // Directs the browser to the chosen target:
+      parent.location = links[i];
+      return false;
+    }
+    //-->
+    </script>
+    </head>
+    <body onload="openLink();">
+    </body>
+    </html>

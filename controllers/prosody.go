@@ -1,8 +1,11 @@
 package controllers
 
 import (
+	"bytes"
+	"context"
 	"fmt"
 	"jitsi-operator/api/v1alpha1"
+	"text/template"
 
 	"github.com/presslabs/controller-util/syncer"
 	appsv1 "k8s.io/api/apps/v1"
@@ -60,7 +63,79 @@ var prosodyEnvs = []string{
 	"LOG_LEVEL",
 	"PUBLIC_URL",
 	"TZ",
-	"ENABLE_BREAKOUT_ROOMS",
+}
+
+var turnConfig = `
+{{ if .Secret }}
+external_service_secret = "{{ .Secret}}";
+{{ end }}
+
+external_services = {
+  {
+    {{ if .Secret }}
+    type = "turns",
+    {{ else }}
+    type = "turn",
+    {{ end }}
+    host = "{{ .Host }}",
+    port = {{ .Port }},
+    transport = "tcp",
+    {{ if .Secret }}
+    secret = true,
+    {{ end }}
+    ttl = 86400,
+    algorithm = "turn"
+  }
+};
+`
+
+type turnParams struct {
+	Secret string
+	Host   string
+	TLS    bool
+	Port   int
+}
+
+func NewProsodyTurnSecretSyncer(jitsi *v1alpha1.Jitsi, c client.Client) syncer.Interface {
+	sec := &corev1.Secret{
+		ObjectMeta: metav1.ObjectMeta{
+			Name:      fmt.Sprintf("%s-turn", jitsi.Name),
+			Namespace: jitsi.Namespace,
+		},
+	}
+
+	return syncer.NewObjectSyncer("Secret", jitsi, sec, c, func() error {
+		sec.Labels = jitsi.ComponentLabels("turn")
+
+		key := corev1.Secret{}
+
+		err := c.Get(context.Background(), client.ObjectKey{
+			Name:      jitsi.Spec.TURN.Secret.Name,
+			Namespace: jitsi.Namespace,
+		}, &key)
+		if err != nil {
+			return err
+		}
+
+		tmpl, err := template.New("turn").Parse(turnConfig)
+		if err != nil {
+			return err
+		}
+
+		var tmplBytes bytes.Buffer
+		tmpl.Execute(&tmplBytes, turnParams{
+			Host:   jitsi.Spec.TURN.Host,
+			Port:   jitsi.Spec.TURN.Port,
+			TLS:    jitsi.Spec.TURN.TLS,
+			Secret: string(key.Data[jitsi.Spec.TURN.Secret.Key]),
+		})
+
+		sec.Data = map[string][]byte{
+			"turn.cfg.lua": tmplBytes.Bytes(),
+		}
+
+		return nil
+	})
 }
 
 func NewProsodyServiceSyncer(jitsi *v1alpha1.Jitsi, c client.Client) syncer.Interface {
@@ -203,30 +278,61 @@ func NewProsodyDeploymentSyncer(jitsi *v1alpha1.Jitsi, c client.Client) syncer.I
 		)
 
 		if jitsi.Spec.TURN != nil {
-			turnPreffix := "TURN"
-			if jitsi.Spec.TURN.TLS {
-				turnPreffix += "S"
-			}
-
 			container.Env = append(container.Env, corev1.EnvVar{
-				Name:  turnPreffix + "_HOST",
-				Value: jitsi.Spec.TURN.Host,
-			}, corev1.EnvVar{
-				Name:  turnPreffix + "_PORT",
-				Value: fmt.Sprint(jitsi.Spec.TURN.Port),
+				Name:  "XMPP_MODULES",
+				Value: "external_services",
 			})
 
-			if jitsi.Spec.TURN.Secret != nil {
-				container.Env = append(container.Env, corev1.EnvVar{
-					Name: "TURN_CREDENTIALS",
-					ValueFrom: &corev1.EnvVarSource{
-						SecretKeyRef: jitsi.Spec.TURN.Secret,
+			dep.Spec.Template.Spec.Volumes = []corev1.Volume{
+				{
+					Name: "turn",
+					VolumeSource: corev1.VolumeSource{
+						Secret: &corev1.SecretVolumeSource{
+							SecretName: fmt.Sprintf("%s-turn", jitsi.Name),
+							Items: []corev1.KeyToPath{
+								{
+									Key:  "turn.cfg.lua",
+									Path: "turn.cfg.lua",
+								},
+							},
+						},
+					},
+				},
+			}
+
+			container.VolumeMounts = []corev1.VolumeMount{
+				{
+					Name:      "turn",
+					MountPath: "/config/conf.d/turn.cfg.lua",
+					SubPath:   "turn.cfg.lua",
+				},
+			}
+		}
+		if jitsi.Spec.Prosody.CustomOccupantConfig != nil {
+			dep.Spec.Template.Spec.Volumes = append(dep.Spec.Template.Spec.Volumes,
+				corev1.Volume{
+					Name: "jitsi-meet",
+					VolumeSource: corev1.VolumeSource{
+						ConfigMap: &corev1.ConfigMapVolumeSource{
+							LocalObjectReference: *jitsi.Spec.Prosody.CustomOccupantConfig,
+							Items: []corev1.KeyToPath{
+								{
+									Key:  "jitsi-meet.cfg.lua",
+									Path: "jitsi-meet.cfg.lua",
+								},
+							},
+						},
 					},
 				})
-			}
+			container.VolumeMounts = append(container.VolumeMounts, corev1.VolumeMount{
+				Name:      "jitsi-meet",
+				MountPath: "/config/conf.d/jitsi-meet.cfg.lua",
+				SubPath:   "jitsi-meet.cfg.lua",
+			})
 		}
 
 		dep.Spec.Template.Spec.Containers = []corev1.Container{container}
 		return nil
 	})
+
 }

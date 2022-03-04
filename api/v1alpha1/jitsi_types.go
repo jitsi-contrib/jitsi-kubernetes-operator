@@ -62,6 +62,8 @@ type JVB struct {
 type Prosody struct {
 	*ContainerRuntime `json:",inline"`
 	AffinitySettings  `json:",inline"`
+	//+optional
+	CustomOccupantConfig *corev1.LocalObjectReference `json:"customOccupantConfigCM,omitempty"`
 }
 
 type ContainerRuntime struct {
@@ -109,6 +111,8 @@ type Web struct {
 	CustomTitleConfig *corev1.LocalObjectReference `json:"customTitleConfigCM,omitempty"`
 	//+optional
 	CustomBodyConfig *corev1.LocalObjectReference `json:"customBodyConfigCM,omitempty"`
+	//+optional
+	CustomCloseConfig *corev1.LocalObjectReference `json:"customCloseConfigCM,omitempty"`
 }
 
 type VersionChannel string
