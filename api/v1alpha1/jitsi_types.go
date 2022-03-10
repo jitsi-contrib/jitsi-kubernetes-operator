@@ -63,7 +63,7 @@ type Prosody struct {
 	*ContainerRuntime `json:",inline"`
 	AffinitySettings  `json:",inline"`
 	//+optional
-	CustomOccupantConfig *corev1.LocalObjectReference `json:"customOccupantConfigCM,omitempty"`
+	CustomProsodyConfig *corev1.LocalObjectReference `json:"customProsodyConfigCM,omitempty"`
 }
 
 type ContainerRuntime struct {

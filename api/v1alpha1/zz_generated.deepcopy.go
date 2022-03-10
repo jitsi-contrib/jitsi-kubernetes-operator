@@ -331,8 +331,8 @@ func (in *Prosody) DeepCopyInto(out *Prosody) {
 		(*in).DeepCopyInto(*out)
 	}
 	in.AffinitySettings.DeepCopyInto(&out.AffinitySettings)
-	if in.CustomOccupantConfig != nil {
-		in, out := &in.CustomOccupantConfig, &out.CustomOccupantConfig
+	if in.CustomProsodyConfig != nil {
+		in, out := &in.CustomProsodyConfig, &out.CustomProsodyConfig
 		*out = new(v1.LocalObjectReference)
 		**out = **in
 	}
