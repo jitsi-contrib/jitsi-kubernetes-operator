@@ -51,7 +51,7 @@ spec:
       name: jitsi-custom-config
     image: jitsi/web:stable-6726-1
   prosody:
-    customOccupantConfigCM: 
+    customProsodyConfigCM: 
       name: jitsi-prosody
     resources:
       limits:

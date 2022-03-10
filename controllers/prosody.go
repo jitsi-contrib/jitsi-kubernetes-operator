@@ -308,13 +308,13 @@ func NewProsodyDeploymentSyncer(jitsi *v1alpha1.Jitsi, c client.Client) syncer.I
 				},
 			}
 		}
-		if jitsi.Spec.Prosody.CustomOccupantConfig != nil {
+		if jitsi.Spec.Prosody.CustomProsodyConfig != nil {
 			dep.Spec.Template.Spec.Volumes = append(dep.Spec.Template.Spec.Volumes,
 				corev1.Volume{
 					Name: "jitsi-meet",
 					VolumeSource: corev1.VolumeSource{
 						ConfigMap: &corev1.ConfigMapVolumeSource{
-							LocalObjectReference: *jitsi.Spec.Prosody.CustomOccupantConfig,
+							LocalObjectReference: *jitsi.Spec.Prosody.CustomProsodyConfig,
 							Items: []corev1.KeyToPath{
 								{
 									Key:  "jitsi-meet.cfg.lua",

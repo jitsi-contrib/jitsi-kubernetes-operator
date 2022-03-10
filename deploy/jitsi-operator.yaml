@@ -2673,7 +2673,7 @@ spec:
                             type: array
                         type: object
                     type: object
-                  customOccupantConfigCM:
+                  customProsodyConfigCM:
                     description: LocalObjectReference contains enough information
                       to let you locate the referenced object inside the same namespace.
                     properties:
