@@ -1,0 +1,75 @@
+apiVersion: apps.jit.si/v1alpha1
+kind: Jitsi
+metadata:
+  name: jisti_name
+  namespace: jitsi
+spec:
+  domain: mydomain.com
+  region: europe
+  timezone: Europe/Paris
+  jvb:
+    affinity:
+      nodeAffinity:
+        requiredDuringSchedulingIgnoredDuringExecution:
+          nodeSelectorTerms:
+          - matchExpressions:
+            - key: cputype
+              operator: NotIn
+              values:
+              - dedicated
+              - virtual-dedicated
+    resources:
+      limits:
+        cpu: 3500m
+        memory: 12500Mi
+      requests:
+        cpu: 2500m
+        memory: 10000Mi              
+    gracefulShutdown: true
+    strategy:
+      replicas: 2
+      maxReplicas : 7
+      type: autoscaled
+    image: jitsi/jvb:stable-6726-1 
+  web:
+    resources:
+      limits:
+        cpu: 2000m
+        memory: 5000Mi
+      requests:
+        cpu: 1500m
+        memory: 1500Mi  
+    customBodyConfigCM:
+      name: jitsi-custom-config
+    customConfigCM:
+      name: jitsi-custom-config
+    customInterfaceConfigCM:
+      name: jitsi-custom-config
+    customTitleConfigCM:
+      name: jitsi-custom-config
+    customCloseConfigCM:
+      name: jitsi-custom-config
+    image: jitsi/web:stable-6726-1
+  prosody:
+    customProsodyConfigCM: 
+      name: jitsi-prosody
+    resources:
+      limits:
+        cpu: 1000m
+        memory: 1500Mi
+      requests:
+        cpu: 500m
+        memory: 1000Mi
+    image: jitsi/prosody:stable-6726-1
+  jicofo:
+    resources:
+      limits:
+        cpu: 1000m
+        memory: 1500Mi
+      requests:
+        cpu: 500m
+        memory: 1000Mi
+    image: jitsi/jicofo:stable-6726-1
+  metrics: true
+  variables:
+    VIDEOBRIDGE_MAX_MEMORY: 8192m

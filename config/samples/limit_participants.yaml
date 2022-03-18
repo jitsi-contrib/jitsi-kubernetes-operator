@@ -1,0 +1,180 @@
+---
+kind: ConfigMap
+apiVersion: v1
+metadata:
+  namespace: jitsi
+  name: jitsi-prosody
+data:
+  jitsi-meet.cfg.lua: |
+    admins = {
+        "focus@auth.mydomain.com",
+        "jvb@auth.mydomain.com"
+    }
+
+    unlimited_jids = {
+        "focus@auth.mydomain.com",
+        "jvb@auth.mydomain.com"
+    }
+
+    plugin_paths = { "/prosody-plugins/", "/prosody-plugins-custom" }
+
+    muc_mapper_domain_base = "mydomain.com";
+    muc_mapper_domain_prefix = "muc";
+
+    http_default_host = "mydomain.com"
+
+
+
+
+
+
+
+
+
+    consider_bosh_secure = true;
+
+    -- Deprecated in 0.12
+    -- https://github.com/bjc/prosody/commit/26542811eafd9c708a130272d7b7de77b92712de
+
+
+
+
+    cross_domain_websocket = { "https://mydomain.com" }
+    cross_domain_bosh = { "https://mydomain.com" }
+
+
+    VirtualHost "mydomain.com"
+
+        authentication = "jitsi-anonymous"
+
+        ssl = {
+            key = "/config/certs/mydomain.com.key";
+            certificate = "/config/certs/mydomain.com.crt";
+        }
+        modules_enabled = {
+            "bosh";
+
+            "websocket";
+            "smacks"; -- XEP-0198: Stream Management
+
+            "pubsub";
+            "ping";
+            "speakerstats";
+            "conference_duration";
+
+
+            "muc_lobby_rooms";
+
+
+            "muc_breakout_rooms";
+
+
+            "av_moderation";
+
+
+
+        }
+
+        main_muc = "muc.mydomain.com"
+
+
+        lobby_muc = "lobby.mydomain.com"
+
+        muc_lobby_whitelist = { "recorder.mydomain.com" }
+
+
+
+
+        breakout_rooms_muc = "breakout.mydomain.com"
+
+
+        speakerstats_component = "speakerstats.mydomain.com"
+        conference_duration_component = "conferenceduration.mydomain.com"
+
+
+        av_moderation_component = "avmoderation.mydomain.com"
+
+
+        c2s_require_encryption = false
+
+
+
+    VirtualHost "auth.mydomain.com"
+        ssl = {
+            key = "/config/certs/auth.mydomain.com.key";
+            certificate = "/config/certs/auth.mydomain.com.crt";
+        }
+        modules_enabled = {
+            "limits_exception";
+        }
+        authentication = "internal_hashed"
+
+
+    VirtualHost "recorder.mydomain.com"
+        modules_enabled = {
+          "ping";
+        }
+        authentication = "internal_hashed"
+
+
+    Component "internal-muc.mydomain.com" "muc"
+        storage = "memory"
+        modules_enabled = {
+            "ping";
+            }
+        restrict_room_creation = true
+        muc_room_locking = false
+        muc_room_default_public_jids = true
+
+    Component "muc.mydomain.com" "muc"
+        storage = "memory"
+        modules_enabled = {
+            "muc_meeting_id";
+            "polls";
+            "muc_max_occupants"; 
+            }
+        muc_max_occupants = "50"
+        muc_access_whitelist = { "focus@auth.mydomain.com" }
+        admins = { "focus@auth.mydomain.com" }
+        muc_room_cache_size = 1000
+        muc_room_locking = false
+        muc_room_default_public_jids = true
+
+    Component "focus.mydomain.com" "client_proxy"
+        target_address = "focus@auth.mydomain.com"
+
+    Component "speakerstats.mydomain.com" "speakerstats_component"
+        muc_component = "muc.mydomain.com"
+
+    Component "conferenceduration.mydomain.com" "conference_duration_component"
+        muc_component = "muc.mydomain.com"
+
+
+    Component "avmoderation.mydomain.com" "av_moderation_component"
+        muc_component = "muc.mydomain.com"
+
+
+
+    Component "lobby.mydomain.com" "muc"
+        storage = "memory"
+        restrict_room_creation = true
+        muc_room_locking = false
+        muc_room_default_public_jids = true
+
+
+
+    Component "breakout.mydomain.com" "muc"
+        storage = "memory"
+        restrict_room_creation = true
+        muc_room_locking = false
+        muc_room_default_public_jids = true
+
+
+
+
+
+
+
+
+
+

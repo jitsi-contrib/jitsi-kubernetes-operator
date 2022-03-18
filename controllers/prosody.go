@@ -225,6 +225,28 @@ func NewProsodyDeploymentSyncer(jitsi *v1alpha1.Jitsi, c client.Client) syncer.I
 				})
 			}
 		}
+		if jitsi.Spec.Prosody.CustomProsodyConfig != nil {
+			dep.Spec.Template.Spec.Volumes = append(dep.Spec.Template.Spec.Volumes,
+				corev1.Volume{
+					Name: "jitsi-meet",
+					VolumeSource: corev1.VolumeSource{
+						ConfigMap: &corev1.ConfigMapVolumeSource{
+							LocalObjectReference: *jitsi.Spec.Prosody.CustomProsodyConfig,
+							Items: []corev1.KeyToPath{
+								{
+									Key:  "jitsi-meet.cfg.lua",
+									Path: "jitsi-meet.cfg.lua",
+								},
+							},
+						},
+					},
+				})
+			container.VolumeMounts = append(container.VolumeMounts, corev1.VolumeMount{
+				Name:      "jitsi-meet",
+				MountPath: "/config/conf.d/jitsi-meet.cfg.lua",
+				SubPath:   "jitsi-meet.cfg.lua",
+			})
+		}
 
 		dep.Spec.Template.Spec.Containers = []corev1.Container{container}
 		return nil

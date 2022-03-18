@@ -1,0 +1,148 @@
+---
+kind: ConfigMap
+apiVersion: v1
+metadata:
+  namespace: jitsi
+  name: jitsi-custom-config
+data:
+ 
+  custom-config.js: |
+    /* eslint-disable no-unused-vars, no-var, max-len */
+
+    config.toolbarButtons = [
+              'camera',
+              'hangup',
+              'microphone',
+              'toggle-camera',
+              'select-background',
+              'fullscreen',
+              'desktop',
+              'chat'
+          ];
+          
+    config.p2p.enabled = true;
+    config.useStunTurn = true;
+    config.p2p.stunServers = [
+      { urls: 'stun:my_turn_server_name.com:3478' }
+      ];
+    config.dynamicBrandingUrl = "https://meet/jitsi/dynamicBranding.json";
+    config.disableTileEnlargement = true;
+    config.enableClosePage = true;
+
+  custom-interface_config.js: |
+    /* eslint-enable no-unused-vars, no-var, max-len */
+
+    interfaceConfig.BRAND_WATERMARK_LINK = 'Custom.jitsi.meet';
+    interfaceConfig.DEFAULT_BACKGROUND = '#0E541E';
+    interfaceConfig.DEFAULT_LOCAL_DISPLAY_NAME = 'moi';
+    interfaceConfig.DEFAULT_LOGO_URL = 'YOUR_LOGO_IMAGE.svg';
+    interfaceConfig.DEFAULT_REMOTE_DISPLAY_NAME = 'Fellow Custom jitsi ';
+    interfaceConfig.DEFAULT_WELCOME_PAGE_LOGO_URL = 'YOUR_LOGO_IMAGE.svg';
+    interfaceConfig.JITSI_WATERMARK_LINK = 'https://www.mydomain.com';
+    interfaceConfig.SUPPORT_URL = 'https://www.mydomain.com/faq.html';
+    interfaceConfig.APP_NAME = 'Custom jitsi Meet';
+    interfaceConfig.NATIVE_APP_NAME = 'Custom jitsi  Meet';
+    interfaceConfig.PROVIDER_NAME = 'Custom jitsi  Meet';
+    interfaceConfig.DISPLAY_WELCOME_FOOTER = false ;
+
+  custom-title.html: |
+    <title>Custom Jitsi Meet</title>
+    <meta property="og:title" content="Custom jitsi "/>
+    <meta property="og:image" content="YOUR_FAVICON.png"/>
+    <meta property="og:description" content="Join a Custom jitsi Meet video conferencee"/>
+    <meta description="Join a Custom jitsi Meet video conference"/>
+    <meta itemprop="name" content="Custom jitsi Meet"/>
+    <meta itemprop="description" content="Join a Custom jitsi Meet video conference"/>
+    <meta itemprop="image" content="YOUR_FAVICON.png"/>
+    <link rel="icon" type="image/png" href="YOUR_FAVICON.png"/>
+    <style>
+      .welcome .welcome-card {
+          display: none;
+      }
+      .welcome .header {
+          background-image: linear-gradient(0deg,rgba(0,0,0,.2),rgba(0,0,0,.2)),url(YOUR_IMAGE_BACKGROUND.jpg);
+          -webkit-background-size: cover;
+          -moz-background-size: cover;
+          -o-background-size: cover;
+          background-size: cover;
+      }
+      .welcome .welcome-page-button {
+          border: 0;
+          font-size: 14px;
+          background: #0E541E;
+          border-radius: 3px;
+          color: #fff;
+          cursor: pointer;
+          padding: 16px 20px;
+      }
+      .welcome {
+          background-image: none;
+          background-color: #02160a;
+          flex-direction: column;
+          font-family: inherit;
+          justify-content: space-between;
+          min-height: 100vh;
+          position: relative;
+      }
+      .welcome-watermark{
+          display: none;
+
+      }
+      .welcome .header .header-text-title {
+        text-indent: -9999px;
+        line-height: 0; 
+      }
+
+      .welcome .header .header-text-title::after {
+        content: "custom jitsi Meet";
+        text-indent: 0;
+        display: block;
+        line-height: initial; 
+      }
+      .welcome .header .header-text-subtitle {
+        text-indent: -9999px;
+        line-height: 0; 
+      }
+
+      .welcome .header .header-text-subtitle::after {
+        content: "My new interface jitsi meet ";
+        text-indent: 0;
+        display: block;
+        line-height: initial; 
+      }
+    </style>
+
+  custom-body.html: |
+    <style>
+      .jss9.primary {
+          border: 1px solid #0E541E;
+          background: #0E541E;
+      }
+      .jss9.primary:hover {
+          background-color: #31b76a;
+      }
+    </style>
+  custom-close.html: |
+    <html>
+    <head>
+    <script type="text/javascript">
+    <!--
+    // Create an array of the links to choose from:
+    var links = new Array();
+    links[0] = "https://random1.com";
+    links[1] = "https://random2.com";
+    links[2] = "https://random3.com";
+
+    function openLink() {
+      // Chooses a random link:
+      var i = Math.floor(Math.random() * links.length);
+      // Directs the browser to the chosen target:
+      parent.location = links[i];
+      return false;
+    }
+    //-->
+    </script>
+    </head>
+    <body onload="openLink();">
+    </body>
+    </html>
