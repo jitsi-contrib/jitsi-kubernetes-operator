@@ -9,7 +9,7 @@ on:
 
 env:
   REGISTRY: ghcr.io
-  BASE_REPO: ${{ env.REGISTRY }}/${{ github.repository }}
+  BASE_REPO: ghcr.io/${{ github.repository }}
 
 jobs:
 
