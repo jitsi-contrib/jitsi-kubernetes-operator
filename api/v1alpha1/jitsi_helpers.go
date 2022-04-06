@@ -2,6 +2,7 @@ package v1alpha1
 
 import (
 	"fmt"
+	"regexp"
 	"strconv"
 
 	appsv1 "k8s.io/api/apps/v1"
@@ -10,6 +11,8 @@ import (
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/apimachinery/pkg/labels"
 )
+
+var Version = "main"
 
 var defaultEnvVarMap = map[string]string{
 	"JICOFO_AUTH_USER":                   "focus",
@@ -113,6 +116,22 @@ func (jitsi *Jitsi) EnvVars(names []string) []corev1.EnvVar {
 }
 
 func (jitsi *Jitsi) SetDefaults() {
+	if len(jitsi.Spec.Image.Registry) == 0 {
+		jitsi.Spec.Image.Registry = "ghcr.io/jitsi-contrib/jitsi-kubernetes-operator"
+	}
+
+	if len(jitsi.Spec.Image.Tag) == 0 {
+		jitsi.Spec.Image.Tag = Version
+	}
+
+	if len(jitsi.Spec.Image.PullPolicy) == 0 {
+		if ok, _ := regexp.MatchString(`\d+\.\d+\.\d+`, jitsi.Spec.Image.Tag); ok {
+			jitsi.Spec.Image.PullPolicy = corev1.PullAlways
+		} else {
+			jitsi.Spec.Image.PullPolicy = corev1.PullIfNotPresent
+		}
+	}
+
 	if jitsi.Spec.JVB.Strategy.Replicas == nil {
 		defaultReplicas := int32(1)
 		jitsi.Spec.JVB.Strategy.Replicas = &defaultReplicas
@@ -132,28 +151,16 @@ func (jitsi *Jitsi) SetDefaults() {
 		jitsi.Spec.JVB.Ports.UDP = &defaultPort
 	}
 
-	if len(jitsi.Spec.Version.Channel) == 0 {
-		jitsi.Spec.Version.Channel = VersionStable
-	}
-
-	if len(jitsi.Spec.Version.Tag) == 0 {
-		jitsi.Spec.Version.Tag = "latest"
-	}
-
 	if jitsi.Spec.JVB.ContainerRuntime == nil {
 		jitsi.Spec.JVB.ContainerRuntime = &ContainerRuntime{}
 	}
 
 	if len(jitsi.Spec.JVB.Image) == 0 {
-		if jitsi.Spec.Version.Tag == "latest" {
-			jitsi.Spec.JVB.Image = "jitsi/jvb:latest"
-		} else {
-			jitsi.Spec.JVB.ContainerRuntime.Image = fmt.Sprintf("jitsi/jvb:%s-%s", jitsi.Spec.Version.Channel, jitsi.Spec.Version.Tag)
-		}
+		jitsi.Spec.JVB.Image = fmt.Sprintf("%s/jvb:%s", jitsi.Spec.Image.Registry, jitsi.Spec.Image.Tag)
 	}
 
 	if len(jitsi.Spec.JVB.ImagePullPolicy) == 0 {
-		jitsi.Spec.JVB.ImagePullPolicy = corev1.PullIfNotPresent
+		jitsi.Spec.JVB.ImagePullPolicy = jitsi.Spec.Image.PullPolicy
 	}
 
 	if jitsi.Spec.Jibri.ContainerRuntime == nil {
@@ -171,15 +178,11 @@ func (jitsi *Jitsi) SetDefaults() {
 		}
 
 		if len(jitsi.Spec.Jibri.Image) == 0 {
-			if jitsi.Spec.Version.Tag == "latest" {
-				jitsi.Spec.Jibri.Image = "jitsi/jibri:latest"
-			} else {
-				jitsi.Spec.Jibri.ContainerRuntime.Image = fmt.Sprintf("jitsi/jibri:%s-%s", jitsi.Spec.Version.Channel, jitsi.Spec.Version.Tag)
-			}
+			jitsi.Spec.Jibri.Image = fmt.Sprintf("%s/jibri:%s", jitsi.Spec.Image.Registry, jitsi.Spec.Image.Tag)
 		}
 
 		if len(jitsi.Spec.Jibri.ImagePullPolicy) == 0 {
-			jitsi.Spec.Jibri.ImagePullPolicy = corev1.PullIfNotPresent
+			jitsi.Spec.Jibri.ImagePullPolicy = jitsi.Spec.Image.PullPolicy
 		}
 	}
 
@@ -188,15 +191,11 @@ func (jitsi *Jitsi) SetDefaults() {
 	}
 
 	if len(jitsi.Spec.Prosody.Image) == 0 {
-		if jitsi.Spec.Version.Tag == "latest" {
-			jitsi.Spec.Prosody.Image = "jitsi/prosody:latest"
-		} else {
-			jitsi.Spec.Prosody.ContainerRuntime.Image = fmt.Sprintf("jitsi/prosody:%s-%s", jitsi.Spec.Version.Channel, jitsi.Spec.Version.Tag)
-		}
+		jitsi.Spec.Prosody.Image = fmt.Sprintf("%s/prosody:%s", jitsi.Spec.Image.Registry, jitsi.Spec.Image.Tag)
 	}
 
 	if len(jitsi.Spec.Prosody.ImagePullPolicy) == 0 {
-		jitsi.Spec.Prosody.ImagePullPolicy = corev1.PullIfNotPresent
+		jitsi.Spec.Prosody.ImagePullPolicy = jitsi.Spec.Image.PullPolicy
 	}
 
 	if jitsi.Spec.Jicofo.ContainerRuntime == nil {
@@ -204,15 +203,11 @@ func (jitsi *Jitsi) SetDefaults() {
 	}
 
 	if len(jitsi.Spec.Jicofo.Image) == 0 {
-		if jitsi.Spec.Version.Tag == "latest" {
-			jitsi.Spec.Jicofo.Image = "jitsi/jicofo:latest"
-		} else {
-			jitsi.Spec.Jicofo.ContainerRuntime.Image = fmt.Sprintf("jitsi/jicofo:%s-%s", jitsi.Spec.Version.Channel, jitsi.Spec.Version.Tag)
-		}
+		jitsi.Spec.Jicofo.Image = fmt.Sprintf("%s/jicofo:%s", jitsi.Spec.Image.Registry, jitsi.Spec.Image.Tag)
 	}
 
 	if len(jitsi.Spec.Jicofo.ImagePullPolicy) == 0 {
-		jitsi.Spec.Jicofo.ImagePullPolicy = corev1.PullIfNotPresent
+		jitsi.Spec.Jicofo.ImagePullPolicy = jitsi.Spec.Image.PullPolicy
 	}
 
 	if jitsi.Spec.Web.Replicas == nil {
@@ -225,15 +220,11 @@ func (jitsi *Jitsi) SetDefaults() {
 	}
 
 	if len(jitsi.Spec.Web.Image) == 0 {
-		if jitsi.Spec.Version.Tag == "latest" {
-			jitsi.Spec.Web.Image = "jitsi/web:latest"
-		} else {
-			jitsi.Spec.Web.ContainerRuntime.Image = fmt.Sprintf("jitsi/web:%s-%s", jitsi.Spec.Version.Channel, jitsi.Spec.Version.Tag)
-		}
+		jitsi.Spec.Web.Image = fmt.Sprintf("%s/web:%s", jitsi.Spec.Image.Registry, jitsi.Spec.Image.Tag)
 	}
 
 	if len(jitsi.Spec.Web.ImagePullPolicy) == 0 {
-		jitsi.Spec.Web.ImagePullPolicy = corev1.PullIfNotPresent
+		jitsi.Spec.Web.ImagePullPolicy = jitsi.Spec.Image.PullPolicy
 	}
 
 	if jitsi.Spec.Ingress.Annotations == nil {

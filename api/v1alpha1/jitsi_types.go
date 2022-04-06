@@ -125,16 +125,10 @@ type Web struct {
 	CustomCloseConfig *corev1.LocalObjectReference `json:"customCloseConfigCM,omitempty"`
 }
 
-type VersionChannel string
-
-const (
-	VersionUnstable VersionChannel = "stable"
-	VersionStable   VersionChannel = "unstable"
-)
-
-type Version struct {
-	Channel VersionChannel `json:"channel,omitempty"`
-	Tag     string         `json:"tag,omitempty"`
+type Image struct {
+	Registry   string            `json:"registry,omitempty"`
+	Tag        string            `json:"tag,omitempty"`
+	PullPolicy corev1.PullPolicy `json:"pullPolicy,omitempty"`
 }
 
 type Ingress struct {
@@ -175,7 +169,7 @@ type JitsiSpec struct {
 	//+optional
 	Timezone string `json:"timezone,omitempty"`
 	//+optional
-	Version Version `json:"version,omitempty"`
+	Image Image `json:"image,omitempty"`
 	//+optional
 	Variables map[string]string `json:"variables,omitempty"`
 	//+optional

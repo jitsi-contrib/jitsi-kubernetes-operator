@@ -39,6 +39,16 @@ spec:
             properties:
               domain:
                 type: string
+              image:
+                properties:
+                  pullPolicy:
+                    description: PullPolicy describes a policy for if/when to pull a container image
+                    type: string
+                  registry:
+                    type: string
+                  tag:
+                    type: string
+                type: object
               ingress:
                 properties:
                   annotations:
@@ -1637,13 +1647,6 @@ spec:
               variables:
                 additionalProperties:
                   type: string
-                type: object
-              version:
-                properties:
-                  channel:
-                    type: string
-                  tag:
-                    type: string
                 type: object
               web:
                 properties:
