@@ -2291,7 +2291,7 @@ spec:
         - --leader-elect
         command:
         - /manager
-        image: ghcr.io/jitsi-contrib/jitsi-kubernetes-operator:master
+        image: ghcr.io/jitsi-contrib/jitsi-kubernetes-operator:latest
         livenessProbe:
           httpGet:
             path: /healthz

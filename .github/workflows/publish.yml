@@ -13,7 +13,7 @@ env:
 
 jobs:
 
-  controller:
+  operator:
     runs-on: ubuntu-latest
     permissions:
       contents: read
@@ -35,7 +35,7 @@ jobs:
         id: meta
         uses: docker/metadata-action@v3
         with:
-          images: ${{ env.BASE_REPO }}/controller
+          images: ${{ env.BASE_REPO }}
       # Build and push Docker image with Buildx
       # https://github.com/docker/build-push-action
       - name: Build and push Docker image
@@ -81,7 +81,7 @@ jobs:
         uses: docker/build-push-action@v2
         with:
           context: ./images/jibri
-          file: "{context}/Containerfile"
+          file: ./images/jibri/Containerfile
           push: true
           tags: ${{ steps.meta.outputs.tags }}
           labels: ${{ steps.meta.outputs.labels }}
@@ -121,7 +121,7 @@ jobs:
         uses: docker/build-push-action@v2
         with:
           context: ./images/jicofo
-          file: "{context}/Containerfile"
+          file: ./images/jicofo/Containerfile
           push: true
           tags: ${{ steps.meta.outputs.tags }}
           labels: ${{ steps.meta.outputs.labels }}
@@ -161,7 +161,7 @@ jobs:
         uses: docker/build-push-action@v2
         with:
           context: ./images/jvb
-          file: "{context}/Containerfile"
+          file: ./images/jvb/Containerfile
           push: true
           tags: ${{ steps.meta.outputs.tags }}
           labels: ${{ steps.meta.outputs.labels }}
@@ -201,7 +201,7 @@ jobs:
         uses: docker/build-push-action@v2
         with:
           context: ./images/prosody
-          file: "{context}/Containerfile"
+          file: ./images/prosody/Containerfile
           push: true
           tags: ${{ steps.meta.outputs.tags }}
           labels: ${{ steps.meta.outputs.labels }}
@@ -241,7 +241,7 @@ jobs:
         uses: docker/build-push-action@v2
         with:
           context: ./images/web
-          file: "{context}/Containerfile"
+          file: ./images/web/Containerfile
           push: true
           tags: ${{ steps.meta.outputs.tags }}
           labels: ${{ steps.meta.outputs.labels }}
