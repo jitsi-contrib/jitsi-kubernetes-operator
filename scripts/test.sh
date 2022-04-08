@@ -11,10 +11,10 @@ kind load image-archive --name jitsi-test build/web.tar
 
 kubectl apply -f https://raw.githubusercontent.com/kubernetes/ingress-nginx/main/deploy/static/provider/kind/deploy.yaml
 
-cat deploy/jitsi-operator.yaml | sed "s#ghcr\.io/jitsi-contrib/jitsi-kubernetes-operator:latest#ghcr.io/jitsi-contrib/jitsi-kubernetes-operator:$VERSION#" | kubectl apply -f -
+cat deploy/jitsi-operator.yaml | sed "s#ghcr\.io/jitsi-contrib/jitsi-kubernetes-operator:latest#$BASE_REPO:$VERSION#" | kubectl apply -f -
 
 LOCAL_IP=$(ip route get 1 | awk '{print $7}')
-echo "Local IP is LOCAL_IP"
+echo "Local IP is $LOCAL_IP"
 LOCAL_IP=$LOCAL_IP envsubst < ./test/jitsi.yaml | kubectl apply -f -
 
 kubectl wait --namespace ingress-nginx \
@@ -34,4 +34,4 @@ kubectl wait --namespace default \
   --timeout=90s
 
 docker image load -i build/torture.tar
-docker run --rm --add-host "test.local:$LOCAL_IP" ghcr.io/jitsi-contrib/jitsi-kubernetes-operator/torture:$VERSION -Djitsi-meet.instance.url=https://test.local -DallowInsecureCerts=true -Djitsi-meet.tests.toRun=UDPTest
+docker run --rm --add-host "test.local:$LOCAL_IP" $BASE_REPO/torture:$VERSION -Djitsi-meet.instance.url=https://test.local -DallowInsecureCerts=true -Djitsi-meet.tests.toRun=UDPTest
