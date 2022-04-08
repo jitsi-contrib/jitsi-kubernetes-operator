@@ -34,4 +34,5 @@ kubectl wait --namespace default \
   --all \
   --timeout=90s
 
-docker run --rm --add-host "test.local:$LOCAL_IP" ghcr.io/jitsi-contrib/jitsi-kubernetes-operator/torture -Djitsi-meet.instance.url=https://test.local -DallowInsecureCerts=true -Djitsi-meet.tests.toRun=UDPTest
+docker image load -i build/torture.tar
+docker run --rm --add-host "test.local:$LOCAL_IP" ghcr.io/jitsi-contrib/jitsi-kubernetes-operator/torture:$VERSION -Djitsi-meet.instance.url=https://test.local -DallowInsecureCerts=true -Djitsi-meet.tests.toRun=UDPTest

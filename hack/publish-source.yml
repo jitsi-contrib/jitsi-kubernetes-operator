@@ -128,6 +128,7 @@ jobs:
       - name: Create k8s Kind Cluster
         uses: helm/kind-action@v1.2.0
         with:
+          version: v0.12.0
           cluster_name: jitsi-test
           config: test/cluster.yaml
       - &download-artifact
@@ -155,6 +156,7 @@ jobs:
           ARTIFACT: torture
       - name: Run test
         run: |
+          export VERSION=$(echo ${{ github.ref_name }} | sed -r "s/v([0-9]+\.[0-9]+\.[0-9]+)/\1/")
           ./scripts/test.sh
 
   publish-operator:
