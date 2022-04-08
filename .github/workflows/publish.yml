@@ -300,47 +300,47 @@ jobs:
           ARTIFACT: jitsi-kubernetes-operator
         with:
           name: ${{ env.ARTIFACT }}
-          path: ${{ env.ARTIFACT }}.tar
+          path: build/${{ env.ARTIFACT }}.tar
       - name: Download Artifact
         uses: actions/download-artifact@v3
         with:
           name: ${{ env.ARTIFACT }}
-          path: ${{ env.ARTIFACT }}.tar
+          path: build/${{ env.ARTIFACT }}.tar
         env:
           ARTIFACT: jibri
       - name: Download Artifact
         uses: actions/download-artifact@v3
         with:
           name: ${{ env.ARTIFACT }}
-          path: ${{ env.ARTIFACT }}.tar
+          path: build/${{ env.ARTIFACT }}.tar
         env:
           ARTIFACT: jicofo
       - name: Download Artifact
         uses: actions/download-artifact@v3
         with:
           name: ${{ env.ARTIFACT }}
-          path: ${{ env.ARTIFACT }}.tar
+          path: build/${{ env.ARTIFACT }}.tar
         env:
           ARTIFACT: jvb
       - name: Download Artifact
         uses: actions/download-artifact@v3
         with:
           name: ${{ env.ARTIFACT }}
-          path: ${{ env.ARTIFACT }}.tar
+          path: build/${{ env.ARTIFACT }}.tar
         env:
           ARTIFACT: prosody
       - name: Download Artifact
         uses: actions/download-artifact@v3
         with:
           name: ${{ env.ARTIFACT }}
-          path: ${{ env.ARTIFACT }}.tar
+          path: build/${{ env.ARTIFACT }}.tar
         env:
           ARTIFACT: web
       - name: Download Artifact
         uses: actions/download-artifact@v3
         with:
           name: ${{ env.ARTIFACT }}
-          path: ${{ env.ARTIFACT }}.tar
+          path: build/${{ env.ARTIFACT }}.tar
         env:
           ARTIFACT: torture
       - name: Run test
@@ -364,7 +364,7 @@ jobs:
         uses: actions/download-artifact@v3
         with:
           name: ${{ env.ARTIFACT }}
-          path: ${{ env.ARTIFACT }}.tar
+          path: build/${{ env.ARTIFACT }}.tar
         env:
           ARTIFACT: jitsi-kubernetes-operator
       - name: Push Docker image

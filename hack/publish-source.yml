@@ -136,7 +136,7 @@ jobs:
           ARTIFACT: jitsi-kubernetes-operator
         with:
           name: ${{ env.ARTIFACT }}
-          path: ${{ env.ARTIFACT }}.tar
+          path: build/${{ env.ARTIFACT }}.tar
       - <<: *download-artifact
         env:
           ARTIFACT: jibri
