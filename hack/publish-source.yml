@@ -155,6 +155,9 @@ jobs:
       - <<: *download-artifact
         env:
           ARTIFACT: torture
+      - name: Run test
+        run: |
+          ./scripts/test.sh
 
   publish-operator:
     runs-on: ubuntu-latest

@@ -343,6 +343,9 @@ jobs:
           path: ${{ env.ARTIFACT }}.tar
         env:
           ARTIFACT: torture
+      - name: Run test
+        run: |
+          ./scripts/test.sh
   publish-operator:
     runs-on: ubuntu-latest
     needs: [e2e-test]
