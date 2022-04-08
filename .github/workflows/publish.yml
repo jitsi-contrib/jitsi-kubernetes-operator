@@ -16,6 +16,8 @@ jobs:
     steps:
       - name: Checkout repository
         uses: actions/checkout@v2
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v1
       # Extract metadata (tags, labels) for Docker
       # https://github.com/docker/metadata-action
       - name: Extract Docker metadata
@@ -48,6 +50,8 @@ jobs:
     steps:
       - name: Checkout repository
         uses: actions/checkout@v2
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v1
       # https://github.com/docker/metadata-action
       - name: Extract Docker metadata
         id: meta
@@ -83,6 +87,8 @@ jobs:
     steps:
       - name: Checkout repository
         uses: actions/checkout@v2
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v1
       # https://github.com/docker/metadata-action
       - name: Extract Docker metadata
         id: meta
@@ -120,6 +126,8 @@ jobs:
     steps:
       - name: Checkout repository
         uses: actions/checkout@v2
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v1
       # https://github.com/docker/metadata-action
       - name: Extract Docker metadata
         id: meta
@@ -157,6 +165,8 @@ jobs:
     steps:
       - name: Checkout repository
         uses: actions/checkout@v2
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v1
       # https://github.com/docker/metadata-action
       - name: Extract Docker metadata
         id: meta
@@ -194,6 +204,8 @@ jobs:
     steps:
       - name: Checkout repository
         uses: actions/checkout@v2
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v1
       # https://github.com/docker/metadata-action
       - name: Extract Docker metadata
         id: meta
@@ -231,6 +243,8 @@ jobs:
     steps:
       - name: Checkout repository
         uses: actions/checkout@v2
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v1
       # https://github.com/docker/metadata-action
       - name: Extract Docker metadata
         id: meta
