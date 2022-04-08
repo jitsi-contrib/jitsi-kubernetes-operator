@@ -2,11 +2,11 @@
 set -e
 
 kubectl config set-context kind-jitsi-test
-kind load image-archive --name jitsi-test build/jitsi-kubernetes-operator.tar
-kind load image-archive --name jitsi-test build/jicofo.tar
-kind load image-archive --name jitsi-test build/jvb.tar
-kind load image-archive --name jitsi-test build/prosody.tar
-kind load image-archive --name jitsi-test build/web.tar
+cat build/jitsi-kubernetes-operator.tar | docker exec --privileged -i jitsi-test-control-plane ctr --namespace=k8s.io images import --all-platforms -
+cat build/jicofo.tar | docker exec --privileged -i jitsi-test-control-plane ctr --namespace=k8s.io images import --all-platforms -
+cat build/jvb.tar | docker exec --privileged -i jitsi-test-control-plane ctr --namespace=k8s.io images import --all-platforms -
+cat build/prosody.tar | docker exec --privileged -i jitsi-test-control-plane ctr --namespace=k8s.io images import --all-platforms -
+cat build/web.tar | docker exec --privileged -i jitsi-test-control-plane ctr --namespace=k8s.io images import --all-platforms -
 
 kubectl apply -f https://raw.githubusercontent.com/kubernetes/ingress-nginx/main/deploy/static/provider/kind/deploy.yaml
 
@@ -15,8 +15,7 @@ make install
 LOCAL_IP=$(ip route get 1 | awk '{print $7}')
 LOCAL_IP=$LOCAL_IP envsubst < ./test/jitsi.yaml | kubectl apply -f -
 
-IMG=ghcr.io/jitsi-contrib/jitsi-kubernetes-operator:$VERSION
-make deploy
+IMG=ghcr.io/jitsi-contrib/jitsi-kubernetes-operator:$VERSION make deploy
 
 kubectl wait --namespace ingress-nginx \
   --for=condition=ready pod \
