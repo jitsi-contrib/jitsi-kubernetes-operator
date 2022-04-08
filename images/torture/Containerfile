@@ -1,0 +1,7 @@
+FROM markhobson/maven-chrome:jdk-11
+ARG JITSI_VERSION
+RUN git clone --depth 1 --branch $(echo $JITSI_VERSION | sed -r "s/(.+)-(.+)/jitsi-meet_\2/") https://github.com/jitsi/jitsi-meet-torture.git
+WORKDIR jitsi-meet-torture
+RUN mvn install -DskipTests -Dcheckstyle.skip
+
+ENTRYPOINT [ "mvn", "test",  "-Dchrome.enable.headless=true", "-Dchrome.disable.sandbox" ]

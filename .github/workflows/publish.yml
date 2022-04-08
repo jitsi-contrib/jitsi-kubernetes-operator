@@ -2,33 +2,23 @@ name: Publish
 
 on:
   push:
-    branches: [ master ]
-    tags: [ 'v*.*.*' ]
+    branches: [master]
+    tags: ["v*.*.*"]
   pull_request:
-    branches: [ master ]
+    branches: [master]
 
 env:
   REGISTRY: ghcr.io
   BASE_REPO: ghcr.io/${{ github.repository }}
 
 jobs:
-
-  operator:
+  build-operator:
     runs-on: ubuntu-latest
     permissions:
       contents: read
-      packages: write
     steps:
       - name: Checkout repository
         uses: actions/checkout@v2
-      # Login against a Docker registry
-      # https://github.com/docker/login-action
-      - name: Log into registry ${{ env.REGISTRY }}
-        uses: docker/login-action@v1
-        with:
-          registry: ${{ env.REGISTRY }}
-          username: ${{ github.actor }}
-          password: ${{ secrets.GITHUB_TOKEN }}
       # Extract metadata (tags, labels) for Docker
       # https://github.com/docker/metadata-action
       - name: Extract Docker metadata
@@ -42,35 +32,32 @@ jobs:
         uses: docker/build-push-action@v2
         with:
           context: .
-          push: true
+          outputs: type=docker,dest=jitsi-kubernetes-operator.tar
           tags: ${{ steps.meta.outputs.tags }}
           labels: ${{ steps.meta.outputs.labels }}
-          build-args:
-            VERSION=${{ fromJSON(steps.meta.outputs.json).labels['org.opencontainers.image.version'] }}
+          build-args: VERSION=${{ fromJSON(steps.meta.outputs.json).labels['org.opencontainers.image.version'] }}
+      - name: Upload Artifact
+        uses: actions/upload-artifact@v3
+        with:
+          name: jitsi-kubernetes-operator
+          path: jitsi-kubernetes-operator.tar
+          retention-days: 1
 
-  jibri:
+  build-jibri: &build-component
     runs-on: ubuntu-latest
     permissions:
       contents: read
-      packages: write
+    env:
+      IMAGE_NAME: jibri
     steps:
       - name: Checkout repository
         uses: actions/checkout@v2
-      # Login against a Docker registry
-      # https://github.com/docker/login-action
-      - name: Log into registry ${{ env.REGISTRY }}
-        uses: docker/login-action@v1
-        with:
-          registry: ${{ env.REGISTRY }}
-          username: ${{ github.actor }}
-          password: ${{ secrets.GITHUB_TOKEN }}
-      # Extract metadata (tags, labels) for Docker
       # https://github.com/docker/metadata-action
       - name: Extract Docker metadata
         id: meta
         uses: docker/metadata-action@v3
         with:
-          images: ${{ env.BASE_REPO }}/jibri
+          images: ${{ env.BASE_REPO }}/${{ env.IMAGE_NAME }}
       - name: Extract Jitsi Version
         id: version
         run: |
@@ -80,170 +67,80 @@ jobs:
       - name: Build and push Docker image
         uses: docker/build-push-action@v2
         with:
-          context: ./images/jibri
-          file: ./images/jibri/Containerfile
-          push: true
+          context: ./images/${{ env.IMAGE_NAME }}
+          outputs: type=docker,dest=${{ env.IMAGE_NAME }}.tar
+          file: ./images/${{ env.IMAGE_NAME }}/Containerfile
+          push: false
           tags: ${{ steps.meta.outputs.tags }}
           labels: ${{ steps.meta.outputs.labels }}
-          build-args:
-            JITSI_VERSION=${{ steps.version.outputs.jitsi }}
+          build-args: JITSI_VERSION=${{ steps.version.outputs.jitsi }}
+      - name: Upload Artifact
+        uses: actions/upload-artifact@v3
+        with:
+          name: ${{ env.IMAGE_NAME }}
+          path: ${{ env.IMAGE_NAME }}.tar
+          retention-days: 1
 
-  jicofo:
+  build-jicofo:
+    <<: *build-component
+    env:
+      IMAGE_NAME: jicofo
+
+  build-jvb:
+    <<: *build-component
+    env:
+      IMAGE_NAME: jvb
+
+  build-prosody:
+    <<: *build-component
+    env:
+      IMAGE_NAME: prosody
+
+  build-web:
+    <<: *build-component
+    env:
+      IMAGE_NAME: web
+
+  build-torture:
+    <<: *build-component
+    env:
+      IMAGE_NAME: torture
+
+  e2e-test:
     runs-on: ubuntu-latest
+    needs: [build-operator, build-jibri, build-jicofo, build-prosody, build-web, build-torture]
     permissions:
       contents: read
-      packages: write
     steps:
       - name: Checkout repository
         uses: actions/checkout@v2
-      # Login against a Docker registry
-      # https://github.com/docker/login-action
-      - name: Log into registry ${{ env.REGISTRY }}
-        uses: docker/login-action@v1
+      - name: Create k8s Kind Cluster
+        uses: helm/kind-action@v1.2.0
         with:
-          registry: ${{ env.REGISTRY }}
-          username: ${{ github.actor }}
-          password: ${{ secrets.GITHUB_TOKEN }}
-      # Extract metadata (tags, labels) for Docker
-      # https://github.com/docker/metadata-action
-      - name: Extract Docker metadata
-        id: meta
-        uses: docker/metadata-action@v3
+          config: test/cluster.yaml
+      - &download-artifact
+        name: Download Artifact
+        uses: actions/download-artifact@v3
+        env:
+          ARTIFACT: jitsi-kubernetes-operator
         with:
-          images: ${{ env.BASE_REPO }}/jicofo
-      - name: Extract Jitsi Version
-        id: version
-        run: |
-          echo "::set-output name=jitsi::$(cat JITSI_VERSION)"
-      # Build and push Docker image with Buildx
-      # https://github.com/docker/build-push-action
-      - name: Build and push Docker image
-        uses: docker/build-push-action@v2
-        with:
-          context: ./images/jicofo
-          file: ./images/jicofo/Containerfile
-          push: true
-          tags: ${{ steps.meta.outputs.tags }}
-          labels: ${{ steps.meta.outputs.labels }}
-          build-args:
-            JITSI_VERSION=${{ steps.version.outputs.jitsi }}
-
-  jvb:
-    runs-on: ubuntu-latest
-    permissions:
-      contents: read
-      packages: write
-    steps:
-      - name: Checkout repository
-        uses: actions/checkout@v2
-      # Login against a Docker registry
-      # https://github.com/docker/login-action
-      - name: Log into registry ${{ env.REGISTRY }}
-        uses: docker/login-action@v1
-        with:
-          registry: ${{ env.REGISTRY }}
-          username: ${{ github.actor }}
-          password: ${{ secrets.GITHUB_TOKEN }}
-      # Extract metadata (tags, labels) for Docker
-      # https://github.com/docker/metadata-action
-      - name: Extract Docker metadata
-        id: meta
-        uses: docker/metadata-action@v3
-        with:
-          images: ${{ env.BASE_REPO }}/jvb
-      - name: Extract Jitsi Version
-        id: version
-        run: |
-          echo "::set-output name=jitsi::$(cat JITSI_VERSION)"
-      # Build and push Docker image with Buildx
-      # https://github.com/docker/build-push-action
-      - name: Build and push Docker image
-        uses: docker/build-push-action@v2
-        with:
-          context: ./images/jvb
-          file: ./images/jvb/Containerfile
-          push: true
-          tags: ${{ steps.meta.outputs.tags }}
-          labels: ${{ steps.meta.outputs.labels }}
-          build-args:
-            JITSI_VERSION=${{ steps.version.outputs.jitsi }}
-
-  prosody:
-    runs-on: ubuntu-latest
-    permissions:
-      contents: read
-      packages: write
-    steps:
-      - name: Checkout repository
-        uses: actions/checkout@v2
-      # Login against a Docker registry
-      # https://github.com/docker/login-action
-      - name: Log into registry ${{ env.REGISTRY }}
-        uses: docker/login-action@v1
-        with:
-          registry: ${{ env.REGISTRY }}
-          username: ${{ github.actor }}
-          password: ${{ secrets.GITHUB_TOKEN }}
-      # Extract metadata (tags, labels) for Docker
-      # https://github.com/docker/metadata-action
-      - name: Extract Docker metadata
-        id: meta
-        uses: docker/metadata-action@v3
-        with:
-          images: ${{ env.BASE_REPO }}/prosody
-      - name: Extract Jitsi Version
-        id: version
-        run: |
-          echo "::set-output name=jitsi::$(cat JITSI_VERSION)"
-      # Build and push Docker image with Buildx
-      # https://github.com/docker/build-push-action
-      - name: Build and push Docker image
-        uses: docker/build-push-action@v2
-        with:
-          context: ./images/prosody
-          file: ./images/prosody/Containerfile
-          push: true
-          tags: ${{ steps.meta.outputs.tags }}
-          labels: ${{ steps.meta.outputs.labels }}
-          build-args:
-            JITSI_VERSION=${{ steps.version.outputs.jitsi }}
-
-  web:
-    runs-on: ubuntu-latest
-    permissions:
-      contents: read
-      packages: write
-    steps:
-      - name: Checkout repository
-        uses: actions/checkout@v2
-      # Login against a Docker registry
-      # https://github.com/docker/login-action
-      - name: Log into registry ${{ env.REGISTRY }}
-        uses: docker/login-action@v1
-        with:
-          registry: ${{ env.REGISTRY }}
-          username: ${{ github.actor }}
-          password: ${{ secrets.GITHUB_TOKEN }}
-      # Extract metadata (tags, labels) for Docker
-      # https://github.com/docker/metadata-action
-      - name: Extract Docker metadata
-        id: meta
-        uses: docker/metadata-action@v3
-        with:
-          images: ${{ env.BASE_REPO }}/web
-      - name: Extract Jitsi Version
-        id: version
-        run: |
-          echo "::set-output name=jitsi::$(cat JITSI_VERSION)"
-      # Build and push Docker image with Buildx
-      # https://github.com/docker/build-push-action
-      - name: Build and push Docker image
-        uses: docker/build-push-action@v2
-        with:
-          context: ./images/web
-          file: ./images/web/Containerfile
-          push: true
-          tags: ${{ steps.meta.outputs.tags }}
-          labels: ${{ steps.meta.outputs.labels }}
-          build-args:
-            JITSI_VERSION=${{ steps.version.outputs.jitsi }}
+          name: ${{ env.ARTIFACT }}
+          path: ${{ env.ARTIFACT }}.tar
+      - <<: *download-artifact
+        env:
+          ARTIFACT: jibri
+      - <<: *download-artifact
+        env:
+          ARTIFACT: jicofo
+      - <<: *download-artifact
+        env:
+          ARTIFACT: jvb
+      - <<: *download-artifact
+        env:
+          ARTIFACT: prosody
+      - <<: *download-artifact
+        env:
+          ARTIFACT: web
+      - <<: *download-artifact
+        env:
+          ARTIFACT: torture
