@@ -366,3 +366,165 @@ jobs:
         run: |
           docker image load -i build/jitsi-kubernetes-operator.tar
           docker push -a ${{ env.BASE_REPO }}
+  publish-jibri:
+    runs-on: ubuntu-latest
+    needs: [e2e-test]
+    permissions:
+      packages: write
+    env:
+      IMAGE_NAME: jibri
+    steps:
+      # Login against a Docker registry
+      # https://github.com/docker/login-action
+      - name: Log into registry ${{ env.REGISTRY }}
+        uses: docker/login-action@v1
+        with:
+          registry: ${{ env.REGISTRY }}
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+      - name: Download Artifact
+        uses: actions/download-artifact@v3
+        with:
+          name: ${{ env.ARTIFACT }}
+          path: build
+        env:
+          ARTIFACT: ${{ env.IMAGE_NAME }}
+      - name: Push Docker image
+        run: |
+          docker image load -i build/${{ env.IMAGE_NAME }}.tar
+          docker push -a ${{ env.BASE_REPO }}/${{ env.IMAGE_NAME }}
+  publish-jicofo:
+    runs-on: ubuntu-latest
+    needs: [e2e-test]
+    permissions:
+      packages: write
+    steps:
+      # Login against a Docker registry
+      # https://github.com/docker/login-action
+      - name: Log into registry ${{ env.REGISTRY }}
+        uses: docker/login-action@v1
+        with:
+          registry: ${{ env.REGISTRY }}
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+      - name: Download Artifact
+        uses: actions/download-artifact@v3
+        with:
+          name: ${{ env.ARTIFACT }}
+          path: build
+        env:
+          ARTIFACT: ${{ env.IMAGE_NAME }}
+      - name: Push Docker image
+        run: |
+          docker image load -i build/${{ env.IMAGE_NAME }}.tar
+          docker push -a ${{ env.BASE_REPO }}/${{ env.IMAGE_NAME }}
+    env:
+      IMAGE_NAME: jibri
+  publish-jvb:
+    runs-on: ubuntu-latest
+    needs: [e2e-test]
+    permissions:
+      packages: write
+    steps:
+      # Login against a Docker registry
+      # https://github.com/docker/login-action
+      - name: Log into registry ${{ env.REGISTRY }}
+        uses: docker/login-action@v1
+        with:
+          registry: ${{ env.REGISTRY }}
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+      - name: Download Artifact
+        uses: actions/download-artifact@v3
+        with:
+          name: ${{ env.ARTIFACT }}
+          path: build
+        env:
+          ARTIFACT: ${{ env.IMAGE_NAME }}
+      - name: Push Docker image
+        run: |
+          docker image load -i build/${{ env.IMAGE_NAME }}.tar
+          docker push -a ${{ env.BASE_REPO }}/${{ env.IMAGE_NAME }}
+    env:
+      IMAGE_NAME: jvb
+  publish-prosody:
+    runs-on: ubuntu-latest
+    needs: [e2e-test]
+    permissions:
+      packages: write
+    steps:
+      # Login against a Docker registry
+      # https://github.com/docker/login-action
+      - name: Log into registry ${{ env.REGISTRY }}
+        uses: docker/login-action@v1
+        with:
+          registry: ${{ env.REGISTRY }}
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+      - name: Download Artifact
+        uses: actions/download-artifact@v3
+        with:
+          name: ${{ env.ARTIFACT }}
+          path: build
+        env:
+          ARTIFACT: ${{ env.IMAGE_NAME }}
+      - name: Push Docker image
+        run: |
+          docker image load -i build/${{ env.IMAGE_NAME }}.tar
+          docker push -a ${{ env.BASE_REPO }}/${{ env.IMAGE_NAME }}
+    env:
+      IMAGE_NAME: prosody
+  publish-web:
+    runs-on: ubuntu-latest
+    needs: [e2e-test]
+    permissions:
+      packages: write
+    steps:
+      # Login against a Docker registry
+      # https://github.com/docker/login-action
+      - name: Log into registry ${{ env.REGISTRY }}
+        uses: docker/login-action@v1
+        with:
+          registry: ${{ env.REGISTRY }}
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+      - name: Download Artifact
+        uses: actions/download-artifact@v3
+        with:
+          name: ${{ env.ARTIFACT }}
+          path: build
+        env:
+          ARTIFACT: ${{ env.IMAGE_NAME }}
+      - name: Push Docker image
+        run: |
+          docker image load -i build/${{ env.IMAGE_NAME }}.tar
+          docker push -a ${{ env.BASE_REPO }}/${{ env.IMAGE_NAME }}
+    env:
+      IMAGE_NAME: web
+  publish-torture:
+    runs-on: ubuntu-latest
+    needs: [e2e-test]
+    permissions:
+      packages: write
+    steps:
+      # Login against a Docker registry
+      # https://github.com/docker/login-action
+      - name: Log into registry ${{ env.REGISTRY }}
+        uses: docker/login-action@v1
+        with:
+          registry: ${{ env.REGISTRY }}
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+      - name: Download Artifact
+        uses: actions/download-artifact@v3
+        with:
+          name: ${{ env.ARTIFACT }}
+          path: build
+        env:
+          ARTIFACT: ${{ env.IMAGE_NAME }}
+      - name: Push Docker image
+        run: |
+          docker image load -i build/${{ env.IMAGE_NAME }}.tar
+          docker push -a ${{ env.BASE_REPO }}/${{ env.IMAGE_NAME }}
+    env:
+      IMAGE_NAME: torture
