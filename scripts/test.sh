@@ -10,10 +10,10 @@ kind load image-archive --name jitsi-test build/web.tar
 
 kubectl apply -f https://raw.githubusercontent.com/kubernetes/ingress-nginx/main/deploy/static/provider/kind/deploy.yaml
 
+cat deploy/jitsi-operator.yaml | sed "s#ghcr\.io/jitsi-contrib/jitsi-kubernetes-operator:latest#ghcr.io/jitsi-contrib/jitsi-kubernetes-operator:$VERSION#" | kubectl apply -f -
+
 LOCAL_IP=$(ip route get 1 | awk '{print $7}')
 LOCAL_IP=$LOCAL_IP envsubst < ./test/jitsi.yaml | kubectl apply -f -
-
-cat deploy/jitsi-operator.yaml | sed "s#ghcr\.io/jitsi-contrib/jitsi-kubernetes-operator:latest#ghcr.io/jitsi-contrib/jitsi-kubernetes-operator:$VERSION#" | kubectl apply -f -
 
 kubectl wait --namespace ingress-nginx \
   --for=condition=ready pod \
