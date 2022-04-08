@@ -156,8 +156,7 @@ jobs:
           ARTIFACT: torture
       - name: Run test
         run: |
-          export VERSION=$(echo ${{ github.ref_name }} | sed -r "s/v([0-9]+\.[0-9]+\.[0-9]+)/\1/")
-          ./scripts/test.sh
+          VERSION=$(echo ${{ github.ref_name }} | sed -r "s/v([0-9]+\.[0-9]+\.[0-9]+)/\1/") ./scripts/test.sh
 
   publish-operator:
     runs-on: ubuntu-latest

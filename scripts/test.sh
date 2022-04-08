@@ -1,6 +1,7 @@
 #!/bin/bash
 set -e
 
+echo "Testing version $VERSION"
 kubectl config set-context kind-jitsi-test
 kind load image-archive --name jitsi-test build/jitsi-kubernetes-operator.tar
 kind load image-archive --name jitsi-test build/jicofo.tar
@@ -13,6 +14,7 @@ kubectl apply -f https://raw.githubusercontent.com/kubernetes/ingress-nginx/main
 cat deploy/jitsi-operator.yaml | sed "s#ghcr\.io/jitsi-contrib/jitsi-kubernetes-operator:latest#ghcr.io/jitsi-contrib/jitsi-kubernetes-operator:$VERSION#" | kubectl apply -f -
 
 LOCAL_IP=$(ip route get 1 | awk '{print $7}')
+echo "Local IP is LOCAL_IP"
 LOCAL_IP=$LOCAL_IP envsubst < ./test/jitsi.yaml | kubectl apply -f -
 
 kubectl wait --namespace ingress-nginx \
