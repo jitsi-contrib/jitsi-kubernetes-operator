@@ -207,7 +207,7 @@ jobs:
   publish-jicofo:
     <<: *puplish-component
     env:
-      IMAGE_NAME: jibri
+      IMAGE_NAME: jicofo
 
   publish-jvb:
     <<: *puplish-component
