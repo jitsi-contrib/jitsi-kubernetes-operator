@@ -1,4 +1,4 @@
-VERSION ?= master
+VERSION ?= latest
 # Image URL to use all building/pushing image targets
 IMG ?= ghcr.io/jitsi-contrib/jitsi-kubernetes-operator:${VERSION}
 # Produce CRDs that work back to Kubernetes 1.11 (no version conversion)
