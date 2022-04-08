@@ -1,16 +1,13 @@
 name: Publish
-
 on:
   push:
     branches: [master]
     tags: ["v*.*.*"]
   pull_request:
     branches: [master]
-
 env:
   REGISTRY: ghcr.io
   BASE_REPO: ghcr.io/${{ github.repository }}
-
 jobs:
   build-operator:
     runs-on: ubuntu-latest
@@ -42,8 +39,7 @@ jobs:
           name: jitsi-kubernetes-operator
           path: jitsi-kubernetes-operator.tar
           retention-days: 1
-
-  build-jibri: &build-component
+  build-jibri:
     runs-on: ubuntu-latest
     permissions:
       contents: read
@@ -80,38 +76,198 @@ jobs:
           name: ${{ env.IMAGE_NAME }}
           path: ${{ env.IMAGE_NAME }}.tar
           retention-days: 1
-
   build-jicofo:
-    <<: *build-component
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v2
+      # https://github.com/docker/metadata-action
+      - name: Extract Docker metadata
+        id: meta
+        uses: docker/metadata-action@v3
+        with:
+          images: ${{ env.BASE_REPO }}/${{ env.IMAGE_NAME }}
+      - name: Extract Jitsi Version
+        id: version
+        run: |
+          echo "::set-output name=jitsi::$(cat JITSI_VERSION)"
+      # Build and push Docker image with Buildx
+      # https://github.com/docker/build-push-action
+      - name: Build and push Docker image
+        uses: docker/build-push-action@v2
+        with:
+          context: ./images/${{ env.IMAGE_NAME }}
+          outputs: type=docker,dest=${{ env.IMAGE_NAME }}.tar
+          file: ./images/${{ env.IMAGE_NAME }}/Containerfile
+          push: false
+          tags: ${{ steps.meta.outputs.tags }}
+          labels: ${{ steps.meta.outputs.labels }}
+          build-args: JITSI_VERSION=${{ steps.version.outputs.jitsi }}
+      - name: Upload Artifact
+        uses: actions/upload-artifact@v3
+        with:
+          name: ${{ env.IMAGE_NAME }}
+          path: ${{ env.IMAGE_NAME }}.tar
+          retention-days: 1
     env:
       IMAGE_NAME: jicofo
-
   build-jvb:
-    <<: *build-component
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v2
+      # https://github.com/docker/metadata-action
+      - name: Extract Docker metadata
+        id: meta
+        uses: docker/metadata-action@v3
+        with:
+          images: ${{ env.BASE_REPO }}/${{ env.IMAGE_NAME }}
+      - name: Extract Jitsi Version
+        id: version
+        run: |
+          echo "::set-output name=jitsi::$(cat JITSI_VERSION)"
+      # Build and push Docker image with Buildx
+      # https://github.com/docker/build-push-action
+      - name: Build and push Docker image
+        uses: docker/build-push-action@v2
+        with:
+          context: ./images/${{ env.IMAGE_NAME }}
+          outputs: type=docker,dest=${{ env.IMAGE_NAME }}.tar
+          file: ./images/${{ env.IMAGE_NAME }}/Containerfile
+          push: false
+          tags: ${{ steps.meta.outputs.tags }}
+          labels: ${{ steps.meta.outputs.labels }}
+          build-args: JITSI_VERSION=${{ steps.version.outputs.jitsi }}
+      - name: Upload Artifact
+        uses: actions/upload-artifact@v3
+        with:
+          name: ${{ env.IMAGE_NAME }}
+          path: ${{ env.IMAGE_NAME }}.tar
+          retention-days: 1
     env:
       IMAGE_NAME: jvb
-
   build-prosody:
-    <<: *build-component
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v2
+      # https://github.com/docker/metadata-action
+      - name: Extract Docker metadata
+        id: meta
+        uses: docker/metadata-action@v3
+        with:
+          images: ${{ env.BASE_REPO }}/${{ env.IMAGE_NAME }}
+      - name: Extract Jitsi Version
+        id: version
+        run: |
+          echo "::set-output name=jitsi::$(cat JITSI_VERSION)"
+      # Build and push Docker image with Buildx
+      # https://github.com/docker/build-push-action
+      - name: Build and push Docker image
+        uses: docker/build-push-action@v2
+        with:
+          context: ./images/${{ env.IMAGE_NAME }}
+          outputs: type=docker,dest=${{ env.IMAGE_NAME }}.tar
+          file: ./images/${{ env.IMAGE_NAME }}/Containerfile
+          push: false
+          tags: ${{ steps.meta.outputs.tags }}
+          labels: ${{ steps.meta.outputs.labels }}
+          build-args: JITSI_VERSION=${{ steps.version.outputs.jitsi }}
+      - name: Upload Artifact
+        uses: actions/upload-artifact@v3
+        with:
+          name: ${{ env.IMAGE_NAME }}
+          path: ${{ env.IMAGE_NAME }}.tar
+          retention-days: 1
     env:
       IMAGE_NAME: prosody
-
   build-web:
-    <<: *build-component
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v2
+      # https://github.com/docker/metadata-action
+      - name: Extract Docker metadata
+        id: meta
+        uses: docker/metadata-action@v3
+        with:
+          images: ${{ env.BASE_REPO }}/${{ env.IMAGE_NAME }}
+      - name: Extract Jitsi Version
+        id: version
+        run: |
+          echo "::set-output name=jitsi::$(cat JITSI_VERSION)"
+      # Build and push Docker image with Buildx
+      # https://github.com/docker/build-push-action
+      - name: Build and push Docker image
+        uses: docker/build-push-action@v2
+        with:
+          context: ./images/${{ env.IMAGE_NAME }}
+          outputs: type=docker,dest=${{ env.IMAGE_NAME }}.tar
+          file: ./images/${{ env.IMAGE_NAME }}/Containerfile
+          push: false
+          tags: ${{ steps.meta.outputs.tags }}
+          labels: ${{ steps.meta.outputs.labels }}
+          build-args: JITSI_VERSION=${{ steps.version.outputs.jitsi }}
+      - name: Upload Artifact
+        uses: actions/upload-artifact@v3
+        with:
+          name: ${{ env.IMAGE_NAME }}
+          path: ${{ env.IMAGE_NAME }}.tar
+          retention-days: 1
     env:
       IMAGE_NAME: web
-
   build-torture:
-    <<: *build-component
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v2
+      # https://github.com/docker/metadata-action
+      - name: Extract Docker metadata
+        id: meta
+        uses: docker/metadata-action@v3
+        with:
+          images: ${{ env.BASE_REPO }}/${{ env.IMAGE_NAME }}
+      - name: Extract Jitsi Version
+        id: version
+        run: |
+          echo "::set-output name=jitsi::$(cat JITSI_VERSION)"
+      # Build and push Docker image with Buildx
+      # https://github.com/docker/build-push-action
+      - name: Build and push Docker image
+        uses: docker/build-push-action@v2
+        with:
+          context: ./images/${{ env.IMAGE_NAME }}
+          outputs: type=docker,dest=${{ env.IMAGE_NAME }}.tar
+          file: ./images/${{ env.IMAGE_NAME }}/Containerfile
+          push: false
+          tags: ${{ steps.meta.outputs.tags }}
+          labels: ${{ steps.meta.outputs.labels }}
+          build-args: JITSI_VERSION=${{ steps.version.outputs.jitsi }}
+      - name: Upload Artifact
+        uses: actions/upload-artifact@v3
+        with:
+          name: ${{ env.IMAGE_NAME }}
+          path: ${{ env.IMAGE_NAME }}.tar
+          retention-days: 1
     env:
       IMAGE_NAME: torture
-
   e2e-test:
     runs-on: ubuntu-latest
     needs:
       - build-operator
       - build-jibri
       - build-jicofo
+      - build-jvb
       - build-prosody
       - build-web
       - build-torture
@@ -124,33 +280,55 @@ jobs:
         uses: helm/kind-action@v1.2.0
         with:
           config: test/cluster.yaml
-      - &download-artifact
-        name: Download Artifact
+      - name: Download Artifact
         uses: actions/download-artifact@v3
         env:
           ARTIFACT: jitsi-kubernetes-operator
         with:
           name: ${{ env.ARTIFACT }}
           path: ${{ env.ARTIFACT }}.tar
-      - <<: *download-artifact
+      - name: Download Artifact
+        uses: actions/download-artifact@v3
+        with:
+          name: ${{ env.ARTIFACT }}
+          path: ${{ env.ARTIFACT }}.tar
         env:
           ARTIFACT: jibri
-      - <<: *download-artifact
+      - name: Download Artifact
+        uses: actions/download-artifact@v3
+        with:
+          name: ${{ env.ARTIFACT }}
+          path: ${{ env.ARTIFACT }}.tar
         env:
           ARTIFACT: jicofo
-      - <<: *download-artifact
+      - name: Download Artifact
+        uses: actions/download-artifact@v3
+        with:
+          name: ${{ env.ARTIFACT }}
+          path: ${{ env.ARTIFACT }}.tar
         env:
           ARTIFACT: jvb
-      - <<: *download-artifact
+      - name: Download Artifact
+        uses: actions/download-artifact@v3
+        with:
+          name: ${{ env.ARTIFACT }}
+          path: ${{ env.ARTIFACT }}.tar
         env:
           ARTIFACT: prosody
-      - <<: *download-artifact
+      - name: Download Artifact
+        uses: actions/download-artifact@v3
+        with:
+          name: ${{ env.ARTIFACT }}
+          path: ${{ env.ARTIFACT }}.tar
         env:
           ARTIFACT: web
-      - <<: *download-artifact
+      - name: Download Artifact
+        uses: actions/download-artifact@v3
+        with:
+          name: ${{ env.ARTIFACT }}
+          path: ${{ env.ARTIFACT }}.tar
         env:
           ARTIFACT: torture
-
   publish-operator:
     runs-on: ubuntu-latest
     needs: [e2e-test]
@@ -165,7 +343,11 @@ jobs:
           registry: ${{ env.REGISTRY }}
           username: ${{ github.actor }}
           password: ${{ secrets.GITHUB_TOKEN }}
-      - <<: *download-artifact
+      - name: Download Artifact
+        uses: actions/download-artifact@v3
+        with:
+          name: ${{ env.ARTIFACT }}
+          path: ${{ env.ARTIFACT }}.tar
         env:
           ARTIFACT: jitsi-kubernetes-operator
       - name: Push Docker image
