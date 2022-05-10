@@ -126,9 +126,9 @@ func (jitsi *Jitsi) SetDefaults() {
 
 	if len(jitsi.Spec.Image.PullPolicy) == 0 {
 		if ok, _ := regexp.MatchString(`\d+\.\d+\.\d+`, jitsi.Spec.Image.Tag); ok {
-			jitsi.Spec.Image.PullPolicy = corev1.PullAlways
-		} else {
 			jitsi.Spec.Image.PullPolicy = corev1.PullIfNotPresent
+		} else {
+			jitsi.Spec.Image.PullPolicy = corev1.PullAlways
 		}
 	}
 
