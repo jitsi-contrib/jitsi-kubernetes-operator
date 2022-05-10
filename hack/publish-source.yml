@@ -1,0 +1,231 @@
+name: Publish
+
+on:
+  push:
+    branches: [master]
+    tags: ["v*.*.*"]
+  pull_request:
+    branches: [master]
+
+env:
+  REGISTRY: ghcr.io
+  BASE_REPO: ghcr.io/${{ github.repository }}
+
+jobs:
+  build-operator:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v2
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v1
+      # Extract metadata (tags, labels) for Docker
+      # https://github.com/docker/metadata-action
+      - name: Extract Docker metadata
+        id: meta
+        uses: docker/metadata-action@v3
+        with:
+          images: ${{ env.BASE_REPO }}
+      # Build and push Docker image with Buildx
+      # https://github.com/docker/build-push-action
+      - name: Build and push Docker image
+        uses: docker/build-push-action@v2
+        with:
+          context: .
+          outputs: type=docker,dest=jitsi-kubernetes-operator.tar
+          tags: ${{ steps.meta.outputs.tags }}
+          labels: ${{ steps.meta.outputs.labels }}
+          build-args: VERSION=${{ fromJSON(steps.meta.outputs.json).labels['org.opencontainers.image.version'] }}
+      - name: Upload Artifact
+        uses: actions/upload-artifact@v3
+        with:
+          name: jitsi-kubernetes-operator
+          path: jitsi-kubernetes-operator.tar
+          retention-days: 1
+
+  build-jibri: &build-component
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+    env:
+      IMAGE_NAME: jibri
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v2
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v1
+      # https://github.com/docker/metadata-action
+      - name: Extract Docker metadata
+        id: meta
+        uses: docker/metadata-action@v3
+        with:
+          images: ${{ env.BASE_REPO }}/${{ env.IMAGE_NAME }}
+      - name: Extract Jitsi Version
+        id: version
+        run: |
+          echo "::set-output name=jitsi::$(cat JITSI_VERSION)"
+      # Build and push Docker image with Buildx
+      # https://github.com/docker/build-push-action
+      - name: Build and push Docker image
+        uses: docker/build-push-action@v2
+        with:
+          context: ./images/${{ env.IMAGE_NAME }}
+          outputs: type=docker,dest=${{ env.IMAGE_NAME }}.tar
+          file: ./images/${{ env.IMAGE_NAME }}/Containerfile
+          push: false
+          tags: ${{ steps.meta.outputs.tags }}
+          labels: ${{ steps.meta.outputs.labels }}
+          build-args: JITSI_VERSION=${{ steps.version.outputs.jitsi }}
+      - name: Upload Artifact
+        uses: actions/upload-artifact@v3
+        with:
+          name: ${{ env.IMAGE_NAME }}
+          path: ${{ env.IMAGE_NAME }}.tar
+          retention-days: 1
+
+  build-jicofo:
+    <<: *build-component
+    env:
+      IMAGE_NAME: jicofo
+
+  build-jvb:
+    <<: *build-component
+    env:
+      IMAGE_NAME: jvb
+
+  build-prosody:
+    <<: *build-component
+    env:
+      IMAGE_NAME: prosody
+
+  build-web:
+    <<: *build-component
+    env:
+      IMAGE_NAME: web
+
+  build-torture:
+    <<: *build-component
+    env:
+      IMAGE_NAME: torture
+
+  e2e-test:
+    runs-on: ubuntu-latest
+    needs:
+      - build-operator
+      - build-jibri
+      - build-jicofo
+      - build-jvb
+      - build-prosody
+      - build-web
+      - build-torture
+    permissions:
+      contents: read
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v2
+      - name: Create k8s Kind Cluster
+        uses: helm/kind-action@v1.2.0
+        with:
+          version: v0.12.0
+          cluster_name: jitsi-test
+          config: test/cluster.yaml
+      - &download-artifact
+        name: Download Artifact
+        uses: actions/download-artifact@v3
+        env:
+          ARTIFACT: jitsi-kubernetes-operator
+        with:
+          name: ${{ env.ARTIFACT }}
+          path: build
+      - <<: *download-artifact
+        env:
+          ARTIFACT: jicofo
+      - <<: *download-artifact
+        env:
+          ARTIFACT: jvb
+      - <<: *download-artifact
+        env:
+          ARTIFACT: prosody
+      - <<: *download-artifact
+        env:
+          ARTIFACT: web
+      - <<: *download-artifact
+        env:
+          ARTIFACT: torture
+      - name: Run test
+        env:
+          VERSION: ${{ github.ref_name }}
+        run: ./scripts/test.sh
+
+  publish-operator:
+    runs-on: ubuntu-latest
+    needs: [e2e-test]
+    permissions:
+      packages: write
+    steps:
+      # Login against a Docker registry
+      # https://github.com/docker/login-action
+      - name: Log into registry ${{ env.REGISTRY }}
+        uses: docker/login-action@v1
+        with:
+          registry: ${{ env.REGISTRY }}
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+      - <<: *download-artifact
+        env:
+          ARTIFACT: jitsi-kubernetes-operator
+      - name: Push Docker image
+        run: |
+          docker image load -i build/jitsi-kubernetes-operator.tar
+          docker push -a ${{ env.BASE_REPO }}
+
+  publish-jibri: &puplish-component
+    runs-on: ubuntu-latest
+    needs: [e2e-test]
+    permissions:
+      packages: write
+    env:
+      IMAGE_NAME: jibri
+    steps:
+      # Login against a Docker registry
+      # https://github.com/docker/login-action
+      - name: Log into registry ${{ env.REGISTRY }}
+        uses: docker/login-action@v1
+        with:
+          registry: ${{ env.REGISTRY }}
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+      - <<: *download-artifact
+        env:
+          ARTIFACT: ${{ env.IMAGE_NAME }}
+      - name: Push Docker image
+        run: |
+          docker image load -i build/${{ env.IMAGE_NAME }}.tar
+          docker push -a ${{ env.BASE_REPO }}/${{ env.IMAGE_NAME }}
+
+  publish-jicofo:
+    <<: *puplish-component
+    env:
+      IMAGE_NAME: jicofo
+
+  publish-jvb:
+    <<: *puplish-component
+    env:
+      IMAGE_NAME: jvb
+
+  publish-prosody:
+    <<: *puplish-component
+    env:
+      IMAGE_NAME: prosody
+
+  publish-web:
+    <<: *puplish-component
+    env:
+      IMAGE_NAME: web
+
+  publish-torture:
+    <<: *puplish-component
+    env:
+      IMAGE_NAME: torture

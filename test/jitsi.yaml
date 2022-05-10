@@ -1,0 +1,22 @@
+apiVersion: apps.jit.si/v1alpha1
+kind: Jitsi
+metadata:
+  name: test
+spec:
+  domain: test.local
+  region: europe
+  timezone: Europe/Paris
+  image:
+    registry: "$BASE_REPO"
+    pullPolicy: IfNotPresent
+  ingress:
+    enabled: true
+  jvb:
+    strategy:
+      type: autoscaled
+      replicas: 1
+      maxReplicas: 2
+  jibri:
+    enabled: false
+  variables:
+    DOCKER_HOST_ADDRESS: "$LOCAL_IP"

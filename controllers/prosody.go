@@ -4,7 +4,7 @@ import (
 	"fmt"
 	"jitsi-operator/api/v1alpha1"
 
-	"github.com/presslabs/controller-util/syncer"
+	"github.com/presslabs/controller-util/pkg/syncer"
 	appsv1 "k8s.io/api/apps/v1"
 	corev1 "k8s.io/api/core/v1"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
@@ -131,7 +131,7 @@ func NewProsodyDeploymentSyncer(jitsi *v1alpha1.Jitsi, c client.Client) syncer.I
 			Image:           jitsi.Spec.Prosody.Image,
 			ImagePullPolicy: jitsi.Spec.Prosody.ImagePullPolicy,
 			ReadinessProbe: &corev1.Probe{
-				Handler: corev1.Handler{
+				ProbeHandler: corev1.ProbeHandler{
 					Exec: &corev1.ExecAction{
 						Command: []string{
 							"prosodyctl",
