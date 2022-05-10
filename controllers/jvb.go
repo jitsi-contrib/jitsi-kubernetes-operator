@@ -196,6 +196,8 @@ func JVBPodTemplateSpec(jitsi *v1alpha1.Jitsi, podSpec *corev1.PodTemplateSpec) 
 	}
 
 	if jitsi.Spec.JVB.GracefulShutdown {
+		gracePeriod := int64(14400)
+		podSpec.Spec.TerminationGracePeriodSeconds = &gracePeriod
 		jvbContainer.Lifecycle = &corev1.Lifecycle{
 			PreStop: &corev1.LifecycleHandler{
 				Exec: &corev1.ExecAction{
