@@ -14,10 +14,6 @@ import (
 	"sigs.k8s.io/controller-runtime/pkg/client"
 )
 
-const jvbConf = `
-org.ice4j.ice.harvest.DISABLE_AWS_HARVESTER=true
-`
-
 var secretsVar = []string{
 	"JICOFO_COMPONENT_SECRET",
 	"JICOFO_AUTH_PASSWORD",
@@ -84,25 +80,6 @@ func NewJitsiSecretSyncer(jitsi *v1alpha1.Jitsi, c client.Client) syncer.Interfa
 
 }
 
-func NewJVBConfigMapSyncer(jitsi *v1alpha1.Jitsi, c client.Client) syncer.Interface {
-	cm := &corev1.ConfigMap{
-		ObjectMeta: metav1.ObjectMeta{
-			Name:      fmt.Sprintf("%s-jvb", jitsi.Name),
-			Namespace: jitsi.Namespace,
-		},
-	}
-
-	return syncer.NewObjectSyncer("ConfigMap", jitsi, cm, c, func() error {
-		cm.Labels = jitsi.ComponentLabels("jvb")
-		cm.Data = map[string]string{
-			"sip-communicator.properties": jvbConf,
-		}
-
-		return nil
-	})
-
-}
-
 func injectJVBAffinity(jitsi *v1alpha1.Jitsi, pod *corev1.PodSpec) {
 	if jitsi.Spec.JVB.DisableDefaultAffinity {
 		pod.Affinity = &jitsi.Spec.JVB.Affinity
@@ -136,45 +113,6 @@ func injectJVBAffinity(jitsi *v1alpha1.Jitsi, pod *corev1.PodSpec) {
 }
 
 func JVBPodTemplateSpec(jitsi *v1alpha1.Jitsi, podSpec *corev1.PodTemplateSpec) {
-	podSpec.Spec.Volumes = []corev1.Volume{
-		{
-			Name: "jvb-config",
-			VolumeSource: corev1.VolumeSource{
-				ConfigMap: &corev1.ConfigMapVolumeSource{
-					LocalObjectReference: corev1.LocalObjectReference{
-						Name: fmt.Sprintf("%s-jvb", jitsi.Name),
-					},
-				},
-			},
-		},
-		{
-			Name: "config",
-			VolumeSource: corev1.VolumeSource{
-				EmptyDir: &corev1.EmptyDirVolumeSource{},
-			},
-		},
-	}
-
-	podSpec.Spec.InitContainers = []corev1.Container{
-		{
-			Name:  "config",
-			Image: "busybox:stable",
-			Command: []string{
-				"cp", "-f", "/config-src/sip-communicator.properties", "/config/custom-sip-communicator.properties",
-			},
-			VolumeMounts: []corev1.VolumeMount{
-				{
-					Name:      "jvb-config",
-					MountPath: "/config-src",
-				},
-				{
-					Name:      "config",
-					MountPath: "/config",
-				},
-			},
-		},
-	}
-
 	envVars := append(jitsi.EnvVars(jvbEnvs),
 		corev1.EnvVar{
 			Name: "LOCAL_ADDRESS",
@@ -238,12 +176,6 @@ func JVBPodTemplateSpec(jitsi *v1alpha1.Jitsi, podSpec *corev1.PodTemplateSpec) 
 		Image:           jitsi.Spec.JVB.Image,
 		ImagePullPolicy: jitsi.Spec.JVB.ImagePullPolicy,
 		Env:             envVars,
-		VolumeMounts: []corev1.VolumeMount{
-			{
-				Name:      "config",
-				MountPath: "/config",
-			},
-		},
 		Ports: []corev1.ContainerPort{
 			{
 				Name:          "rtp-udp",

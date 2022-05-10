@@ -94,7 +94,6 @@ func (r *JitsiReconciler) Reconcile(ctx context.Context, req ctrl.Request) (ctrl
 		NewProsodyServiceSyncer(jitsi, r.Client),
 		NewProsodyDeploymentSyncer(jitsi, r.Client),
 		NewJicofoDeploymentSyncer(jitsi, r.Client),
-		NewJVBConfigMapSyncer(jitsi, r.Client),
 		NewWebDeploymentSyncer(jitsi, r.Client),
 		NewWebServiceSyncer(jitsi, r.Client),
 	}
