@@ -34,8 +34,9 @@ import (
 
 	monitoringv1 "github.com/prometheus-operator/prometheus-operator/pkg/apis/monitoring/v1"
 
-	appsv1alpha1 "jitsi-operator/api/v1alpha1"
-	"jitsi-operator/controllers"
+	"github.com/jitsi-contrib/jitsi-kubernetes-operator/controllers"
+
+	appsv1alpha1 "github.com/jitsi-contrib/jitsi-kubernetes-operator/api/v1alpha1"
 	//+kubebuilder:scaffold:imports
 )
 

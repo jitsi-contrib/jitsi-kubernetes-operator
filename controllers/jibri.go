@@ -1,7 +1,7 @@
 package controllers
 
 import (
-	"jitsi-operator/api/v1alpha1"
+	"github.com/jitsi-contrib/jitsi-kubernetes-operator/api/v1alpha1"
 
 	"github.com/presslabs/controller-util/pkg/syncer"
 	appsv1 "k8s.io/api/apps/v1"

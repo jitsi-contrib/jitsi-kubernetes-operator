@@ -1,4 +1,4 @@
-module jitsi-operator
+module github.com/jitsi-contrib/jitsi-kubernetes-operator
 
 go 1.17
 

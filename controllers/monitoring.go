@@ -2,7 +2,8 @@ package controllers
 
 import (
 	"fmt"
-	"jitsi-operator/api/v1alpha1"
+
+	"github.com/jitsi-contrib/jitsi-kubernetes-operator/api/v1alpha1"
 
 	"github.com/presslabs/controller-util/pkg/syncer"
 	monitoringv1 "github.com/prometheus-operator/prometheus-operator/pkg/apis/monitoring/v1"

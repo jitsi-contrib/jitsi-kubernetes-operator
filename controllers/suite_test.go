@@ -30,7 +30,7 @@ import (
 	logf "sigs.k8s.io/controller-runtime/pkg/log"
 	"sigs.k8s.io/controller-runtime/pkg/log/zap"
 
-	appsv1alpha1 "jitsi-operator/api/v1alpha1"
+	appsv1alpha1 "github.com/jitsi-contrib/jitsi-kubernetes-operator/api/v1alpha1"
 	//+kubebuilder:scaffold:imports
 )
 

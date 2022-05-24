@@ -12,7 +12,7 @@ import (
 	"k8s.io/apimachinery/pkg/labels"
 )
 
-var Version = "main"
+var Version = "master"
 
 var defaultEnvVarMap = map[string]string{
 	"JICOFO_AUTH_USER":                   "focus",

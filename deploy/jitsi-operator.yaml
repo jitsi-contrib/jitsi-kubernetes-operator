@@ -37,6 +37,8 @@ spec:
           spec:
             description: JitsiSpec defines the desired state of Jitsi
             properties:
+              disableGracefulUpgrade:
+                type: boolean
               domain:
                 type: string
               image:
@@ -2663,12 +2665,11 @@ spec:
           status:
             description: JitsiStatus defines the observed state of Jitsi
             properties:
-              jvb:
+              lastAppliedRevision:
                 description: 'INSERT ADDITIONAL STATUS FIELD - define observed state of cluster Important: Run "make" to regenerate code after modifying this file'
-                properties:
-                  jvb:
-                    type: integer
-                type: object
+                type: string
+              lastAttemptedRevision:
+                type: string
             type: object
         type: object
     served: true
