@@ -42,6 +42,7 @@ var defaultEnvVarMap = map[string]string{
 	"VIDEOQUALITY_BITRATE_VP9_LOW":       "100000",
 	"VIDEOQUALITY_BITRATE_VP9_STANDARD":  "300000",
 	"VIDEOQUALITY_BITRATE_VP9_HIGH":      "1200000",
+	"VIDEOQUALITY_PREFERRED_CODEC":       "VP9",
 	// "DISABLE_HTTPS":                  "1",
 	// "ENABLE_HSTS":                    "0",
 }
