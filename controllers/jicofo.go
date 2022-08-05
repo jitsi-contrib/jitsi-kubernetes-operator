@@ -1,10 +1,15 @@
 package controllers
 
 import (
+	"context"
 	"fmt"
+	"io"
+	"net/http"
+
 	"github.com/jitsi-contrib/jitsi-kubernetes-operator/api/v1alpha1"
 
 	"github.com/presslabs/controller-util/pkg/syncer"
+	"github.com/tidwall/gjson"
 	appsv1 "k8s.io/api/apps/v1"
 	corev1 "k8s.io/api/core/v1"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
@@ -111,4 +116,31 @@ func NewJicofoDeploymentSyncer(jitsi *v1alpha1.Jitsi, c client.Client) syncer.In
 		return nil
 	})
 
+}
+
+func (r *JitsiReconciler) findJicofoPod(ctx context.Context, jitsi *v1alpha1.Jitsi) (*corev1.Pod, error) {
+	pods := corev1.PodList{}
+	if err := r.Client.List(ctx, &pods, client.InNamespace(jitsi.Namespace), client.MatchingLabels(jitsi.ComponentLabels("jicofo"))); err != nil {
+		return nil, err
+	}
+	if len(pods.Items) > 0 {
+		return &pods.Items[0], nil
+	}
+	return nil, nil
+}
+
+func (r *JitsiReconciler) getConferences(jicofo *corev1.Pod) int64 {
+	if jicofo != nil && jicofo.Status.PodIP != "" {
+		r.Log.Info(jicofo.Status.PodIP)
+		url := fmt.Sprintf("http://%s:8888/stats", jicofo.Status.PodIP)
+		res, _ := http.Get(url)
+		if res != nil {
+			body, err := io.ReadAll(res.Body)
+			if err == nil {
+				r.Log.Info(string(body))
+				return gjson.Get(string(body), "conferences").Int()
+			}
+		}
+	}
+	return 0
 }

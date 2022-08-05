@@ -180,18 +180,16 @@ type JitsiSpec struct {
 	Metrics bool `json:"metrics,omitempty"`
 	//+optional
 	Suspend bool `json:"suspend,omitempty"`
+	//+optional
+	DisableGracefulUpgrade bool `json:"disableGracefulUpgrade,omitempty"`
 }
 
 // JitsiStatus defines the observed state of Jitsi
 type JitsiStatus struct {
 	// INSERT ADDITIONAL STATUS FIELD - define observed state of cluster
 	// Important: Run "make" to regenerate code after modifying this file
-	JVBStatus JVBStatus `json:"jvb,omitempty"`
-}
-
-type JVBStatus struct {
-	Replicas int `json:"jvb,omitempty"`
-	// Condition
+	LastAppliedRevision   string `json:"lastAppliedRevision,omitempty"`
+	LastAttemptedRevision string `json:"lastAttemptedRevision,omitempty"`
 }
 
 //+kubebuilder:object:root=true

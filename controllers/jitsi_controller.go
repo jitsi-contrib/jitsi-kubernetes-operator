@@ -18,6 +18,8 @@ package controllers
 
 import (
 	"context"
+	"fmt"
+	"time"
 
 	"github.com/go-logr/logr"
 	"github.com/presslabs/controller-util/pkg/syncer"
@@ -65,11 +67,29 @@ func (r *JitsiReconciler) Reconcile(ctx context.Context, req ctrl.Request) (ctrl
 		return ctrl.Result{}, ignoreNotFound(err)
 	}
 
-	jitsi.SetDefaults()
-
 	if jitsi.Spec.Suspend {
 		return ctrl.Result{}, nil
 	}
+
+	if !jitsi.Spec.DisableGracefulUpgrade {
+		if jitsi.Status.LastAttemptedRevision != appsv1alpha1.Version && jitsi.Status.LastAppliedRevision != "" {
+			jicofo, _ := r.findJicofoPod(ctx, jitsi)
+			conferences := r.getConferences(jicofo)
+			if conferences > 0 {
+				r.Log.Info(fmt.Sprintf("%d conferences, requeing reconciliation", conferences))
+				return ctrl.Result{
+					RequeueAfter: 5 * time.Minute,
+				}, nil
+			}
+		}
+	}
+
+	jitsi.Status.LastAttemptedRevision = appsv1alpha1.Version
+	if err := r.Client.Status().Update(ctx, jitsi); err != nil {
+		return ctrl.Result{}, nil
+	}
+
+	jitsi.SetDefaults()
 
 	if !jitsi.Spec.Jibri.Enabled {
 		dep := jitsi.JibriDeployment()
@@ -123,6 +143,11 @@ func (r *JitsiReconciler) Reconcile(ctx context.Context, req ctrl.Request) (ctrl
 
 	if err := r.sync(ctx, syncers); err != nil {
 		return ctrl.Result{}, err
+	}
+
+	jitsi.Status.LastAppliedRevision = appsv1alpha1.Version
+	if err := r.Client.Status().Update(ctx, jitsi); err != nil {
+		return ctrl.Result{}, nil
 	}
 
 	return ctrl.Result{}, nil
