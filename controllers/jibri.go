@@ -11,21 +11,29 @@ import (
 )
 
 var jibriEnvs = []string{
-	"PUBLIC_URL",
-	"XMPP_AUTH_DOMAIN",
-	"XMPP_INTERNAL_MUC_DOMAIN",
-	"XMPP_RECORDER_DOMAIN",
-	"XMPP_SERVER",
-	"XMPP_DOMAIN",
+	"CHROMIUM_FLAGS",
+	"DISPLAY",
+	"ENABLE_STATS_D",
+	"JIBRI_HTTP_API_EXTERNAL_PORT",
+	"JIBRI_HTTP_API_INTERNAL_PORT",
+	"JIBRI_RECORDING_RESOLUTION",
+	"JIBRI_USAGE_TIMEOUT",
 	"JIBRI_XMPP_USER",
 	"JIBRI_BREWERY_MUC",
 	"JIBRI_RECORDER_USER",
 	"JIBRI_RECORDING_DIR",
 	"JIBRI_FINALIZE_RECORDING_SCRIPT_PATH",
 	"JIBRI_STRIP_DOMAIN_JID",
-	"JIBRI_LOGS_DIR",
-	"DISPLAY",
+	"PUBLIC_URL",
 	"TZ",
+	"XMPP_AUTH_DOMAIN",
+	"XMPP_DOMAIN",
+	"XMPP_INTERNAL_MUC_DOMAIN",
+	"XMPP_MUC_DOMAIN",
+	"XMPP_RECORDER_DOMAIN",
+	"XMPP_SERVER",
+	"XMPP_PORT",
+	"XMPP_TRUST_ALL_CERTS",
 }
 
 func injectJibriAffinity(jitsi *v1alpha1.Jitsi, pod *corev1.PodSpec) {
@@ -66,22 +74,6 @@ func NewJibriDeploymentSyncer(jitsi *v1alpha1.Jitsi, c client.Client) syncer.Int
 		dep.Spec.Strategy.Type = appsv1.RollingUpdateDeploymentStrategyType
 
 		dep.Spec.Template.Spec.Volumes = []corev1.Volume{
-			{
-				Name: "dev-snd",
-				VolumeSource: corev1.VolumeSource{
-					HostPath: &corev1.HostPathVolumeSource{
-						Path: "/dev/snd",
-					},
-				},
-			},
-			{
-				Name: "dev-shm",
-				VolumeSource: corev1.VolumeSource{
-					HostPath: &corev1.HostPathVolumeSource{
-						Path: "/dev/shm",
-					},
-				},
-			},
 			{
 				Name: "recordings",
 				VolumeSource: corev1.VolumeSource{
@@ -130,14 +122,6 @@ func NewJibriDeploymentSyncer(jitsi *v1alpha1.Jitsi, c client.Client) syncer.Int
 			ImagePullPolicy: jitsi.Spec.Jibri.ImagePullPolicy,
 			Env:             envVars,
 			VolumeMounts: []corev1.VolumeMount{
-				{
-					Name:      "dev-snd",
-					MountPath: "/dev/snd",
-				},
-				{
-					Name:      "dev-shm",
-					MountPath: "/dev/shm",
-				},
 				{
 					Name:      "recordings",
 					MountPath: jitsi.EnvVarValue("JIBRI_RECORDING_DIR"),
