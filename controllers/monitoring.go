@@ -64,9 +64,8 @@ func NewJicofoServiceMonitorSyncer(jitsi *v1alpha1.Jitsi, c client.Client) synce
 
 func NewMetricsContainer(component string) corev1.Container {
 	container := corev1.Container{
-		Name: "metrics",
-		//	Image: "libresh/jitsi-exporter:latest",
-		Image: "unteem/jitsi-exporter:t02",
+		Name:  "metrics",
+		Image: "ghcr.io/jitsi-contrib/jitsi-exporter:v0.1.0 ",
 		Ports: []corev1.ContainerPort{
 			{
 				Name:          "metrics",
@@ -75,13 +74,7 @@ func NewMetricsContainer(component string) corev1.Container {
 		},
 	}
 
-	if component == "jvb" {
-		container.Args = []string{"-target.name=jvb", "-target.url=http://127.0.0.1:8080/colibri/stats"}
-	}
-
-	if component == "jicofo" {
-		container.Args = []string{"-target.name=jicofo", "-target.url=http://127.0.0.1:8888/stats"}
-	}
+	container.Args = []string{component}
 
 	return container
 }
