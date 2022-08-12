@@ -65,7 +65,7 @@ func NewJicofoServiceMonitorSyncer(jitsi *v1alpha1.Jitsi, c client.Client) synce
 func NewMetricsContainer(component string) corev1.Container {
 	container := corev1.Container{
 		Name:  "metrics",
-		Image: "ghcr.io/jitsi-contrib/jitsi-exporter:v0.1.0 ",
+		Image: "ghcr.io/jitsi-contrib/jitsi-exporter:v0.1.0",
 		Ports: []corev1.ContainerPort{
 			{
 				Name:          "metrics",
