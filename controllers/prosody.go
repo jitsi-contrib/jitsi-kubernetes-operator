@@ -77,6 +77,7 @@ var prosodyEnvs = []string{
 	"XMPP_INTERNAL_MUC_MODULES",
 	"XMPP_RECORDER_DOMAIN",
 	"XMPP_PORT",
+	"JWT_APP_SECRET", // TODO in a secret
 }
 
 func NewProsodyServiceSyncer(jitsi *v1alpha1.Jitsi, c client.Client) syncer.Interface {
