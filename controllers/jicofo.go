@@ -105,6 +105,12 @@ func NewJicofoDeploymentSyncer(jitsi *v1alpha1.Jitsi, c client.Client) syncer.In
 			Image:           jitsi.Spec.Jicofo.Image,
 			ImagePullPolicy: jitsi.Spec.Jicofo.ImagePullPolicy,
 			Env:             envVars,
+			Ports: []corev1.ContainerPort{
+				{
+					Name:          "metrics",
+					ContainerPort: 8888,
+				},
+			},
 		}
 
 		if jitsi.Spec.Jicofo.Resources != nil {
@@ -112,10 +118,6 @@ func NewJicofoDeploymentSyncer(jitsi *v1alpha1.Jitsi, c client.Client) syncer.In
 		}
 
 		dep.Spec.Template.Spec.Containers = []corev1.Container{container}
-
-		if jitsi.Spec.Metrics {
-			dep.Spec.Template.Spec.Containers = append(dep.Spec.Template.Spec.Containers, NewMetricsContainer("jicofo"))
-		}
 
 		return nil
 	})

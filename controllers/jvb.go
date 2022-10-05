@@ -168,6 +168,10 @@ func JVBPodTemplateSpec(jitsi *v1alpha1.Jitsi, podSpec *corev1.PodTemplateSpec) 
 				HostPort:      *jitsi.Spec.JVB.Ports.UDP,
 				Protocol:      corev1.ProtocolUDP,
 			},
+			{
+				Name:          "metrics",
+				ContainerPort: 8080,
+			},
 		},
 		ReadinessProbe: &corev1.Probe{
 			ProbeHandler: corev1.ProbeHandler{
@@ -199,10 +203,6 @@ func JVBPodTemplateSpec(jitsi *v1alpha1.Jitsi, podSpec *corev1.PodTemplateSpec) 
 	}
 
 	podSpec.Spec.Containers = []corev1.Container{jvbContainer}
-
-	if jitsi.Spec.Metrics {
-		podSpec.Spec.Containers = append(podSpec.Spec.Containers, NewMetricsContainer("jvb"))
-	}
 }
 
 func NewJVBDeploymentSyncer(jitsi *v1alpha1.Jitsi, c client.Client) syncer.Interface {
