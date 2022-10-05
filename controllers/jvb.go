@@ -28,15 +28,14 @@ var jvbEnvs = []string{
 	"ENABLE_COLIBRI_WEBSOCKET",
 	"ENABLE_OCTO",
 	"ENABLE_MULTI_STREAM",
+	"JVB_ADVERTISE_IPS",
+	"JVB_ADVERTISE_PRIVATE_CANDIDATES",
 	"JVB_AUTH_USER",
 	"JVB_BREWERY_MUC",
 	"JVB_DISABLE_STUN",
 	"JVB_PORT",
 	"JVB_MUC_NICKNAME",
 	"JVB_STUN_SERVERS",
-	"JVB_OCTO_BIND_ADDRESS",
-	"JVB_OCTO_PUBLIC_ADDRESS",
-	"JVB_OCTO_BIND_PORT",
 	"JVB_OCTO_REGION",
 	"JVB_WS_DOMAIN",
 	"JVB_WS_SERVER_ID",
@@ -139,27 +138,8 @@ func JVBPodTemplateSpec(jitsi *v1alpha1.Jitsi, podSpec *corev1.PodTemplateSpec) 
 			},
 		},
 		// TODO options to manage host IP through vars or stun servers
-		// {
-		// 	Name: "DOCKER_HOST_ADDRESS",
-		// 	ValueFrom: &corev1.EnvVarSource{
-		// 		FieldRef: &corev1.ObjectFieldSelector{
-		// 			FieldPath: "status.hostIP",
-		// 		},
-		// 	},
-		// },
-
-		// {
-		// Default 0.0.0.0
-		// 	Name: "JVB_OCTO_BIND_ADDRESS",
-		// 	ValueFrom: &corev1.EnvVarSource{
-		// 		FieldRef: &corev1.ObjectFieldSelector{
-		// 			FieldPath: "status.podIP",
-		// 		},
-		// 	},
-		// },
-
 		corev1.EnvVar{
-			Name: "JVB_OCTO_PUBLIC_ADDRESS",
+			Name: "JVB_OCTO_RELAY_ID",
 			ValueFrom: &corev1.EnvVarSource{
 				FieldRef: &corev1.ObjectFieldSelector{
 					FieldPath: "status.podIP",
