@@ -45,7 +45,8 @@ var defaultEnvVarMap = map[string]string{
 	"VIDEOQUALITY_PREFERRED_CODEC":       "VP9",
 	"JICOFO_ENABLE_HEALTH_CHECKS":        "1",
 	"JICOFO_ENABLE_BRIDGE_HEALTH_CHECKS": "1",
-	"JVB_ADVERTISE_PRIVATE_CANDIDATES":   "false",
+	"JVB_ADVERTISE_PRIVATE_CANDIDATES":   "1",
+	"ENABLE_COLIBRI_WEBSOCKET":           "1",
 	// "DISABLE_HTTPS":                  "1",
 	// "ENABLE_HSTS":                    "0",
 }

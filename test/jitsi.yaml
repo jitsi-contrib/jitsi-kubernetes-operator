@@ -19,4 +19,4 @@ spec:
   jibri:
     enabled: false
   variables:
-    DOCKER_HOST_ADDRESS: "$LOCAL_IP"
+    JVB_ADVERTISE_IPS: "$LOCAL_IP"
