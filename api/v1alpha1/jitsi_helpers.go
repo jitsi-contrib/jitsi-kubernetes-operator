@@ -47,6 +47,7 @@ var defaultEnvVarMap = map[string]string{
 	"JICOFO_ENABLE_BRIDGE_HEALTH_CHECKS": "1",
 	"JVB_ADVERTISE_PRIVATE_CANDIDATES":   "1",
 	"ENABLE_COLIBRI_WEBSOCKET":           "1",
+	"NGINX_RESOLVER":                     "kube-dns.kube-system.svc.cluster.local",
 	// "DISABLE_HTTPS":                  "1",
 	// "ENABLE_HSTS":                    "0",
 }
@@ -60,7 +61,7 @@ func (jitsi *Jitsi) EnvVarValue(name string) string {
 	case "XMPP_SERVER":
 		value = fmt.Sprintf("%s-prosody", jitsi.Name)
 	case "XMPP_BOSH_URL_BASE":
-		value = "http://" + jitsi.EnvVarValue("XMPP_SERVER") + ":5280"
+		value = fmt.Sprintf("http://%s.%s.svc.cluster.local:5280", jitsi.EnvVarValue("XMPP_SERVER"), jitsi.Namespace)
 	case "JVB_PORT":
 		value = strconv.FormatInt(int64(*jitsi.Spec.JVB.Ports.UDP), 10)
 	case "JVB_TCP_PORT":
