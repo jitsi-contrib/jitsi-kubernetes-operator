@@ -16,46 +16,6 @@ import (
 	"sigs.k8s.io/controller-runtime/pkg/client"
 )
 
-var jicofoEnvs = []string{
-	"AUTH_TYPE",
-	"BRIDGE_AVG_PARTICIPANT_STRESS",
-	"BRIDGE_STRESS_THRESHOLD",
-	"ENABLE_AUTH",
-	"ENABLE_AUTO_OWNER",
-	"ENABLE_CODEC_VP8",
-	"ENABLE_CODEC_VP9",
-	"ENABLE_CODEC_H264",
-	"ENABLE_OCTO",
-	"ENABLE_RECORDING",
-	"ENABLE_SCTP",
-	"ENABLE_AUTO_LOGIN",
-	"JICOFO_AUTH_USER",
-	"JICOFO_ENABLE_BRIDGE_HEALTH_CHECKS",
-	"JICOFO_CONF_INITIAL_PARTICIPANT_WAIT_TIMEOUT",
-	"JICOFO_CONF_SINGLE_PARTICIPANT_TIMEOUT",
-	"JICOFO_ENABLE_HEALTH_CHECKS",
-	"JIBRI_BREWERY_MUC",
-	"JIBRI_REQUEST_RETRIES",
-	"JIBRI_PENDING_TIMEOUT",
-	"JIGASI_BREWERY_MUC",
-	"JIGASI_SIP_URI",
-	"JVB_BREWERY_MUC",
-	"MAX_BRIDGE_PARTICIPANTS",
-	"OCTO_BRIDGE_SELECTION_STRATEGY",
-	"SENTRY_DSN",
-	"SENTRY_ENVIRONMENT",
-	"SENTRY_RELEASE",
-	"TZ",
-	"XMPP_DOMAIN",
-	"XMPP_AUTH_DOMAIN",
-	"XMPP_INTERNAL_MUC_DOMAIN",
-	"XMPP_MUC_DOMAIN",
-	"XMPP_RECORDER_DOMAIN",
-	"XMPP_SERVER",
-	"XMPP_PORT",
-	"JICOFO_MAX_MEMORY",
-}
-
 func NewJicofoDeploymentSyncer(jitsi *v1alpha1.Jitsi, c client.Client) syncer.Interface {
 	dep := &appsv1.Deployment{
 		ObjectMeta: metav1.ObjectMeta{
@@ -74,7 +34,7 @@ func NewJicofoDeploymentSyncer(jitsi *v1alpha1.Jitsi, c client.Client) syncer.In
 		dep.Spec.Strategy.Type = appsv1.RecreateDeploymentStrategyType
 		dep.Spec.Template.Spec.Affinity = &jitsi.Spec.Jicofo.Affinity
 
-		envVars := append(jitsi.EnvVars(jicofoEnvs),
+		envVars := append(jitsi.EnvVars(JicofoVariables),
 			corev1.EnvVar{
 				Name: "JICOFO_COMPONENT_SECRET",
 				ValueFrom: &corev1.EnvVarSource{

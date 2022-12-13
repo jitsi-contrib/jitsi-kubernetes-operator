@@ -13,74 +13,6 @@ import (
 	"sigs.k8s.io/controller-runtime/pkg/client"
 )
 
-var prosodyEnvs = []string{
-	"AUTH_TYPE",
-	"DISABLE_POLLS",
-	"ENABLE_AUTH",
-	"ENABLE_AV_MODERATION",
-	"ENABLE_BREAKOUT_ROOMS",
-	"ENABLE_GUESTS",
-	"ENABLE_IPV6",
-	"ENABLE_LOBBY",
-	"ENABLE_RECORDING",
-	"ENABLE_XMPP_WEBSOCKET",
-	"ENABLE_JAAS_COMPONENTS",
-	"GLOBAL_CONFIG",
-	"GLOBAL_MODULES",
-	"JIBRI_RECORDER_USER",
-	"JIBRI_XMPP_USER",
-	"JICOFO_AUTH_USER",
-	"JIGASI_XMPP_USER",
-	"JVB_AUTH_USER",
-	"JWT_APP_ID",
-	"JWT_ACCEPTED_ISSUERS",
-	"JWT_ACCEPTED_AUDIENCES",
-	"JWT_ASAP_KEYSERVER",
-	"JWT_ALLOW_EMPTY",
-	"JWT_AUTH_TYPE",
-	"JWT_TOKEN_AUTH_MODULE",
-	"MATRIX_UVS_URL",
-	"MATRIX_UVS_ISSUER",
-	"MATRIX_UVS_AUTH_TOKEN",
-	"MATRIX_UVS_SYNC_POWER_LEVELS",
-	"LOG_LEVEL",
-	"LDAP_AUTH_METHOD",
-	"LDAP_BASE",
-	"LDAP_BINDDN",
-	"LDAP_BINDPW",
-	"LDAP_FILTER",
-	"LDAP_VERSION",
-	"LDAP_TLS_CIPHERS",
-	"LDAP_TLS_CHECK_PEER",
-	"LDAP_TLS_CACERT_FILE",
-	"LDAP_TLS_CACERT_DIR",
-	"LDAP_START_TLS",
-	"LDAP_URL",
-	"LDAP_USE_TLS",
-	"MAX_PARTICIPANTS",
-	"PROSODY_RESERVATION_ENABLED",
-	"PROSODY_RESERVATION_REST_BASE_URL",
-	"PUBLIC_URL",
-	"TURN_CREDENTIALS",
-	"TURN_HOST",
-	"TURNS_HOST",
-	"TURN_PORT",
-	"TURNS_PORT",
-	"TZ",
-	"XMPP_DOMAIN",
-	"XMPP_AUTH_DOMAIN",
-	"XMPP_GUEST_DOMAIN",
-	"XMPP_MUC_DOMAIN",
-	"XMPP_INTERNAL_MUC_DOMAIN",
-	"XMPP_MODULES",
-	"XMPP_MUC_MODULES",
-	"XMPP_MUC_CONFIGURATION",
-	"XMPP_INTERNAL_MUC_MODULES",
-	"XMPP_RECORDER_DOMAIN",
-	"XMPP_PORT",
-	"JWT_APP_SECRET", // TODO in a secret
-}
-
 func NewProsodyServiceSyncer(jitsi *v1alpha1.Jitsi, c client.Client) syncer.Interface {
 	svc := &corev1.Service{
 		ObjectMeta: metav1.ObjectMeta{
@@ -162,7 +94,7 @@ func NewProsodyDeploymentSyncer(jitsi *v1alpha1.Jitsi, c client.Client) syncer.I
 			},
 		}
 
-		container.Env = append(jitsi.EnvVars(prosodyEnvs),
+		container.Env = append(jitsi.EnvVars(ProsodyVariables),
 			corev1.EnvVar{
 				Name: "JICOFO_COMPONENT_SECRET",
 				ValueFrom: &corev1.EnvVarSource{

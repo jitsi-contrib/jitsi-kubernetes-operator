@@ -40,6 +40,8 @@ import (
 	//+kubebuilder:scaffold:imports
 )
 
+//go:generate go run gen.go
+
 var (
 	scheme   = runtime.NewScheme()
 	setupLog = ctrl.Log.WithName("setup")

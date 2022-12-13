@@ -10,32 +10,6 @@ import (
 	"sigs.k8s.io/controller-runtime/pkg/client"
 )
 
-var jibriEnvs = []string{
-	"CHROMIUM_FLAGS",
-	"DISPLAY",
-	"ENABLE_STATS_D",
-	"JIBRI_HTTP_API_EXTERNAL_PORT",
-	"JIBRI_HTTP_API_INTERNAL_PORT",
-	"JIBRI_RECORDING_RESOLUTION",
-	"JIBRI_USAGE_TIMEOUT",
-	"JIBRI_XMPP_USER",
-	"JIBRI_BREWERY_MUC",
-	"JIBRI_RECORDER_USER",
-	"JIBRI_RECORDING_DIR",
-	"JIBRI_FINALIZE_RECORDING_SCRIPT_PATH",
-	"JIBRI_STRIP_DOMAIN_JID",
-	"PUBLIC_URL",
-	"TZ",
-	"XMPP_AUTH_DOMAIN",
-	"XMPP_DOMAIN",
-	"XMPP_INTERNAL_MUC_DOMAIN",
-	"XMPP_MUC_DOMAIN",
-	"XMPP_RECORDER_DOMAIN",
-	"XMPP_SERVER",
-	"XMPP_PORT",
-	"XMPP_TRUST_ALL_CERTS",
-}
-
 func injectJibriAffinity(jitsi *v1alpha1.Jitsi, pod *corev1.PodSpec) {
 	if jitsi.Spec.Jibri.DisableDefaultAffinity {
 		pod.Affinity = &jitsi.Spec.Jibri.Affinity
@@ -82,7 +56,7 @@ func NewJibriDeploymentSyncer(jitsi *v1alpha1.Jitsi, c client.Client) syncer.Int
 			},
 		}
 
-		envVars := append(jitsi.EnvVars(jibriEnvs),
+		envVars := append(jitsi.EnvVars(JibriVariables),
 			corev1.EnvVar{
 				Name: "JIBRI_INSTANCE_ID",
 				ValueFrom: &corev1.EnvVarSource{

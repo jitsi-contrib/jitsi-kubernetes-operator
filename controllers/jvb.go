@@ -7,6 +7,7 @@ import (
 
 	"github.com/presslabs/controller-util/pkg/rand"
 	"github.com/presslabs/controller-util/pkg/syncer"
+	v1 "k8s.io/api/apps/v1"
 	autoscalingv2 "k8s.io/api/autoscaling/v2beta2"
 	corev1 "k8s.io/api/core/v1"
 	"k8s.io/apimachinery/pkg/api/resource"
@@ -21,36 +22,6 @@ var secretsVar = []string{
 	"JVB_AUTH_PASSWORD",
 	"JIBRI_XMPP_PASSWORD",
 	"JIBRI_RECORDER_PASSWORD",
-}
-
-var jvbEnvs = []string{
-	"DOCKER_HOST_ADDRESS",
-	"ENABLE_COLIBRI_WEBSOCKET",
-	"ENABLE_OCTO",
-	"ENABLE_MULTI_STREAM",
-	"JVB_ADVERTISE_IPS",
-	"JVB_ADVERTISE_PRIVATE_CANDIDATES",
-	"JVB_AUTH_USER",
-	"JVB_BREWERY_MUC",
-	"JVB_DISABLE_STUN",
-	"JVB_PORT",
-	"JVB_MUC_NICKNAME",
-	"JVB_STUN_SERVERS",
-	"JVB_OCTO_REGION",
-	"JVB_WS_DOMAIN",
-	"JVB_WS_SERVER_ID",
-	"PUBLIC_URL",
-	"SENTRY_DSN",
-	"SENTRY_ENVIRONMENT",
-	"SENTRY_RELEASE",
-	"COLIBRI_REST_ENABLED",
-	"SHUTDOWN_REST_ENABLED",
-	"TZ",
-	"XMPP_AUTH_DOMAIN",
-	"XMPP_INTERNAL_MUC_DOMAIN",
-	"XMPP_SERVER",
-	"XMPP_PORT",
-	"VIDEOBRIDGE_MAX_MEMORY",
 }
 
 func NewJitsiSecretSyncer(jitsi *v1alpha1.Jitsi, c client.Client) syncer.Interface {
@@ -117,7 +88,7 @@ func injectJVBAffinity(jitsi *v1alpha1.Jitsi, pod *corev1.PodSpec) {
 }
 
 func JVBPodTemplateSpec(jitsi *v1alpha1.Jitsi, podSpec *corev1.PodTemplateSpec) {
-	envVars := append(jitsi.EnvVars(jvbEnvs),
+	envVars := append(jitsi.EnvVars(JvbVariables),
 		corev1.EnvVar{
 			Name: "LOCAL_ADDRESS",
 			ValueFrom: &corev1.EnvVarSource{
@@ -221,8 +192,15 @@ func NewJVBDeploymentSyncer(jitsi *v1alpha1.Jitsi, c client.Client) syncer.Inter
 
 		injectJVBAffinity(jitsi, &dep.Spec.Template.Spec)
 
+		dep.Spec.Strategy = v1.DeploymentStrategy{
+			Type: v1.RollingUpdateDeploymentStrategyType,
+			RollingUpdate: &v1.RollingUpdateDeployment{
+				MaxUnavailable: &intstr.IntOrString{Type: intstr.String, StrVal: "50%"},
+				MaxSurge:       &intstr.IntOrString{Type: intstr.Int, IntVal: 0},
+			},
+		}
 		dep.Spec.Replicas = jitsi.Spec.JVB.Strategy.Replicas
-
+		// dep.Spec.ProgressDeadlineSeconds =
 		return nil
 	})
 
