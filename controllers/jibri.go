@@ -54,6 +54,14 @@ func NewJibriDeploymentSyncer(jitsi *v1alpha1.Jitsi, c client.Client) syncer.Int
 					EmptyDir: &corev1.EmptyDirVolumeSource{},
 				},
 			},
+			{
+				Name: "dev-shm",
+				VolumeSource: corev1.VolumeSource{
+					EmptyDir: &corev1.EmptyDirVolumeSource{
+						Medium: corev1.StorageMediumMemory,
+					},
+				},
+			},
 		}
 
 		envVars := append(jitsi.EnvVars(JibriVariables),
@@ -99,6 +107,10 @@ func NewJibriDeploymentSyncer(jitsi *v1alpha1.Jitsi, c client.Client) syncer.Int
 				{
 					Name:      "recordings",
 					MountPath: jitsi.EnvVarValue("JIBRI_RECORDING_DIR"),
+				},
+				{
+					Name:      "dev-shm",
+					MountPath: "/dev/shm",
 				},
 			},
 			SecurityContext: &corev1.SecurityContext{
