@@ -1,2 +1,11 @@
 ARG JITSI_VERSION
 FROM jitsi/jibri:$JITSI_VERSION
+
+RUN curl -LO https://dl.min.io/client/mc/release/linux-amd64/mc \
+ && curl -LO https://dl.min.io/client/mc/release/linux-amd64/mc.sha256sum \
+ && bash -c 'echo "$(cut -d" " -f1 < mc.sha256sum) mc" | sha256sum --check' \
+ && rm mc.sha256sum \
+ && install -o root -g root -m 0755 mc /usr/local/bin/mc
+
+COPY finalize.sh /config/finalize.sh
+RUN chown jibri /config/finalize.sh && chmod +x /config/finalize.sh
