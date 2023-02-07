@@ -15,7 +15,6 @@ import (
 var Version = "master"
 
 var defaultEnvVarMap = map[string]string{
-	"JICOFO_AUTH_USER":                     "focus",
 	"JVB_AUTH_USER":                        "jvb",
 	"JIBRI_RECORDER_USER":                  "recorder",
 	"JIBRI_XMPP_USER":                      "jibri",
