@@ -10,6 +10,7 @@ import (
 	"net/http"
 	"os"
 	"regexp"
+	"sort"
 	"strings"
 	"text/template"
 
@@ -96,6 +97,9 @@ func main() {
 			environments = append(environments, environment)
 		}
 	}
+	sort.SliceStable(environments, func(i, j int) bool {
+		return environments[i].Name < environments[j].Name
+	})
 	f, err := os.Create("controllers/environments.go")
 	handleErr(err)
 	defer f.Close()
