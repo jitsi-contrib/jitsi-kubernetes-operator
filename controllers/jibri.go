@@ -66,6 +66,14 @@ func NewJibriDeploymentSyncer(jitsi *v1alpha1.Jitsi, c client.Client) syncer.Int
 
 		envVars := append(jitsi.EnvVars(JibriVariables),
 			corev1.EnvVar{
+				Name: "LOCAL_ADDRESS",
+				ValueFrom: &corev1.EnvVarSource{
+					FieldRef: &corev1.ObjectFieldSelector{
+						FieldPath: "status.podIP",
+					},
+				},
+			},
+			corev1.EnvVar{
 				Name: "JIBRI_INSTANCE_ID",
 				ValueFrom: &corev1.EnvVarSource{
 					FieldRef: &corev1.ObjectFieldSelector{
