@@ -61,7 +61,7 @@ jobs:
       - name: Extract Jitsi Version
         id: version
         run: |
-          echo "::set-output name=jitsi::$(cat JITSI_VERSION)"
+          echo "jitsi=$(cat JITSI_VERSION)" >> $GITHUB_OUTPUT
       # Build and push Docker image with Buildx
       # https://github.com/docker/build-push-action
       - name: Build and push Docker image
@@ -98,7 +98,7 @@ jobs:
       - name: Extract Jitsi Version
         id: version
         run: |
-          echo "::set-output name=jitsi::$(cat JITSI_VERSION)"
+          echo "jitsi=$(cat JITSI_VERSION)" >> $GITHUB_OUTPUT
       # Build and push Docker image with Buildx
       # https://github.com/docker/build-push-action
       - name: Build and push Docker image
@@ -137,7 +137,7 @@ jobs:
       - name: Extract Jitsi Version
         id: version
         run: |
-          echo "::set-output name=jitsi::$(cat JITSI_VERSION)"
+          echo "jitsi=$(cat JITSI_VERSION)" >> $GITHUB_OUTPUT
       # Build and push Docker image with Buildx
       # https://github.com/docker/build-push-action
       - name: Build and push Docker image
@@ -176,7 +176,7 @@ jobs:
       - name: Extract Jitsi Version
         id: version
         run: |
-          echo "::set-output name=jitsi::$(cat JITSI_VERSION)"
+          echo "jitsi=$(cat JITSI_VERSION)" >> $GITHUB_OUTPUT
       # Build and push Docker image with Buildx
       # https://github.com/docker/build-push-action
       - name: Build and push Docker image
@@ -215,7 +215,7 @@ jobs:
       - name: Extract Jitsi Version
         id: version
         run: |
-          echo "::set-output name=jitsi::$(cat JITSI_VERSION)"
+          echo "jitsi=$(cat JITSI_VERSION)" >> $GITHUB_OUTPUT
       # Build and push Docker image with Buildx
       # https://github.com/docker/build-push-action
       - name: Build and push Docker image
@@ -254,7 +254,7 @@ jobs:
       - name: Extract Jitsi Version
         id: version
         run: |
-          echo "::set-output name=jitsi::$(cat JITSI_VERSION)"
+          echo "jitsi=$(cat JITSI_VERSION)" >> $GITHUB_OUTPUT
       # Build and push Docker image with Buildx
       # https://github.com/docker/build-push-action
       - name: Build and push Docker image
@@ -293,6 +293,7 @@ jobs:
       - name: Create k8s Kind Cluster
         uses: helm/kind-action@v1.2.0
         with:
+          version: v0.12.0
           cluster_name: jitsi-test
           config: test/cluster.yaml
       - name: Download Artifact
