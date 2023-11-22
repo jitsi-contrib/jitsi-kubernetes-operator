@@ -34,6 +34,7 @@ var EXCLUDES = []string{
 	"TURN_PORT",
 	"TURNS_HOST",
 	"TURNS_PORT",
+	"LOCAL_ADDRESS",
 }
 
 var ADDITIONALS = map[string][]string{
