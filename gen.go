@@ -35,6 +35,7 @@ var EXCLUDES = []string{
 	"TURNS_HOST",
 	"TURNS_PORT",
 	"LOCAL_ADDRESS",
+	"COLIBRI_WEBSOCKET_REGEX",
 }
 
 var ADDITIONALS = map[string][]string{

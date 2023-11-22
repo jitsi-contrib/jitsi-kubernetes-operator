@@ -68,7 +68,11 @@ func NewWebDeploymentSyncer(jitsi *v1alpha1.Jitsi, c client.Client) syncer.Inter
 		dep.Spec.Strategy.Type = appsv1.RollingUpdateDeploymentStrategyType
 		dep.Spec.Template.Spec.Affinity = &jitsi.Spec.Web.Affinity
 
-		envVars := jitsi.EnvVars(WebVariables)
+		envVars := append(jitsi.EnvVars(WebVariables),
+			corev1.EnvVar{
+				Name:  "COLIBRI_WEBSOCKET_REGEX",
+				Value: "[a-zA-Z0-9-\\._]+",
+			})
 
 		container := corev1.Container{
 			Name:            "web",
