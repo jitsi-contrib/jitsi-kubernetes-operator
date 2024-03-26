@@ -5,7 +5,7 @@ package main
 import (
 	_ "embed"
 	"fmt"
-	"io/ioutil"
+	"io"
 	"log"
 	"net/http"
 	"os"
@@ -40,8 +40,6 @@ var EXCLUDES = []string{
 
 var ADDITIONALS = map[string][]string{
 	"prosody": {"JWT_APP_SECRET"}, // TODO in a secret
-	"jicofo":  {"JICOFO_MAX_MEMORY"},
-	"jvb":     {"VIDEOBRIDGE_MAX_MEMORY"},
 }
 
 type Compose struct {
@@ -75,7 +73,7 @@ func main() {
 		url := fmt.Sprintf("https://raw.githubusercontent.com/jitsi/docker-jitsi-meet/%s/%s", VERSION, file)
 		resp, err := http.Get(url)
 		handleErr(err)
-		body, err := ioutil.ReadAll(resp.Body)
+		body, err := io.ReadAll(resp.Body)
 		handleErr(err)
 		var compose Compose
 		err = yaml.Unmarshal(body, &compose)
