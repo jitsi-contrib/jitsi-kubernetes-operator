@@ -1,4 +1,4 @@
-FROM markhobson/maven-chrome:jdk-11
+FROM markhobson/maven-chrome:jdk-17
 ARG JITSI_VERSION
 RUN git clone --depth 1 --branch $(echo $JITSI_VERSION | sed -r "s/[a-z]+-([0-9]+)(-[0-9]+)?/jitsi-meet_\1/") https://github.com/jitsi/jitsi-meet-torture.git
 WORKDIR jitsi-meet-torture
