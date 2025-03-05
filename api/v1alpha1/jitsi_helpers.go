@@ -66,8 +66,6 @@ func (jitsi *Jitsi) EnvVarValue(name string) string {
 		value = strconv.FormatInt(int64(*jitsi.Spec.JVB.Ports.UDP), 10)
 	case "JVB_TCP_PORT":
 		value = strconv.FormatInt(int64(*jitsi.Spec.JVB.Ports.TCP), 10)
-	case "DEPLOYMENTINFO_USERREGION":
-		value = jitsi.Spec.Region
 	case "JVB_OCTO_REGION":
 		value = jitsi.Spec.Region
 	case "DEPLOYMENTINFO_REGION":
