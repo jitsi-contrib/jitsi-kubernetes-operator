@@ -4,8 +4,6 @@ ARG JITSI_VERSION
 RUN git clone --depth 1 --branch jitsi-meet_10066 https://github.com/jitsi/jitsi-meet-torture.git
 # RUN git clone --depth 1 --branch $(echo $JITSI_VERSION | sed -r "s/[a-z]+-([0-9]+)(-[0-9]+)?/jitsi-meet_\1/") https://github.com/jitsi/jitsi-meet-torture.git
 WORKDIR jitsi-meet-torture
-COPY patch.diff ./
-RUN git apply patch.diff
 RUN mvn install -DskipTests -Dcheckstyle.skip
 
 ENTRYPOINT [ "mvn", "test",  "-Dchrome.enable.headless=true", "-Dchrome.disable.sandbox" ]
