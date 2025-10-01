@@ -1,4 +1,2 @@
 ARG JITSI_VERSION
 FROM jitsi/jvb:$JITSI_VERSION
-
-COPY jvb.conf /defaults/

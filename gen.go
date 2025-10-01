@@ -36,6 +36,7 @@ var EXCLUDES = []string{
 	"TURNS_PORT",
 	"LOCAL_ADDRESS",
 	"COLIBRI_WEBSOCKET_REGEX",
+	"DISABLE_AWS_HARVESTER",
 }
 
 var ADDITIONALS = map[string][]string{

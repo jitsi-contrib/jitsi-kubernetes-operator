@@ -125,6 +125,10 @@ func JVBPodTemplateSpec(jitsi *v1alpha1.Jitsi, podSpec *corev1.PodTemplateSpec) 
 				},
 			},
 		},
+		corev1.EnvVar{
+			Name:  "DISABLE_AWS_HARVESTER",
+			Value: "true",
+		},
 	)
 
 	jvbContainer := corev1.Container{
