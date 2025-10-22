@@ -18,5 +18,8 @@ spec:
       maxReplicas: 2
   jibri:
     enabled: false
+  web:
+    # BUG: https://github.com/jitsi/jitsi-meet-torture/issues/672
+    image: "$BASE_REPO/web:v0.7.0"
   variables:
     JVB_ADVERTISE_IPS: "$LOCAL_IP"
