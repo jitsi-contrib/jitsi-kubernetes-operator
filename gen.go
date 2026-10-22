@@ -71,7 +71,7 @@ func main() {
 	environments := []Environment{}
 	re := regexp.MustCompile(`^\w*`)
 	for _, file := range COMPOSES {
-		url := fmt.Sprintf("https://raw.githubusercontent.com/jitsi/docker-jitsi-meet/%s/%s", VERSION, file)
+		url := fmt.Sprintf("https://raw.githubusercontent.com/jitsi/docker-jitsi-meet/stable-11248/%s", file)
 		resp, err := http.Get(url)
 		handleErr(err)
 		body, err := io.ReadAll(resp.Body)
